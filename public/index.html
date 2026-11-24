@@ -4,403 +4,327 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="Temukan 30 desain undangan digital pernikahan elegan di SAHDONG. Pilih paket Basic, Premium, atau Exclusive.">
-  <title>Katalog Undangan Digital | SAHDONG</title>
-  <link rel="stylesheet" href="/assets/css/style.css?v=20261125">
-
-  <style>
-    :root {
-      --navy: #172b40;
-      --gold: #c5a36a;
-      --ivory: #f8f6f1;
-      --white: #fff;
-      --muted: #777;
-    }
-
-    * { box-sizing: border-box; }
-
-    body {
-      margin: 0;
-      background: var(--ivory);
-      color: var(--navy);
-      font-family: Arial, sans-serif;
-    }
-
-    a { color: inherit; text-decoration: none; }
-
-    .catalog-nav {
-      background: var(--navy);
-      color: white;
-      padding: 20px 7%;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-    }
-
-    .brand {
-      font-family: Georgia, serif;
-      font-size: 26px;
-      letter-spacing: 3px;
-      color: var(--gold);
-      font-weight: bold;
-    }
-
-    .catalog-nav a { font-size: 14px; }
-
-    .hero {
-      text-align: center;
-      padding: 75px 20px 55px;
-      background: linear-gradient(135deg, #172b40, #30475b);
-      color: white;
-    }
-
-    .hero-label {
-      color: var(--gold);
-      letter-spacing: 4px;
-      font-size: 11px;
-      text-transform: uppercase;
-    }
-
-    .hero h1 {
-      font-family: Georgia, serif;
-      font-size: clamp(34px, 5vw, 54px);
-      font-weight: normal;
-      margin: 20px 0 12px;
-    }
-
-    .hero p {
-      color: #e0e0e0;
-      font-size: 15px;
-      line-height: 1.8;
-    }
-
-    .catalog-container {
-      max-width: 1200px;
-      margin: auto;
-      padding: 55px 22px 80px;
-    }
-
-    .package {
-      margin-bottom: 70px;
-      scroll-margin-top: 25px;
-    }
-
-    .package-heading {
-      display: flex;
-      align-items: end;
-      justify-content: space-between;
-      gap: 20px;
-      border-bottom: 1px solid #ded7ca;
-      padding-bottom: 18px;
-      margin-bottom: 25px;
-    }
-
-    .package-heading h2 {
-      font-family: Georgia, serif;
-      font-size: 30px;
-      font-weight: normal;
-      margin: 0 0 8px;
-    }
-
-    .package-heading p {
-      color: var(--muted);
-      margin: 0;
-      font-size: 13px;
-    }
-
-    .price {
-      color: #a17d43;
-      font-size: 23px;
-      font-weight: bold;
-      white-space: nowrap;
-    }
-
-    .template-grid {
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 22px;
-    }
-
-    .template-card {
-      background: white;
-      border-radius: 9px;
-      overflow: hidden;
-      box-shadow: 0 5px 22px rgba(0,0,0,.06);
-      transition: transform .25s;
-    }
-
-    .template-card:hover {
-      transform: translateY(-5px);
-    }
-
-    .template-image {
-      width: 100%;
-      aspect-ratio: 3 / 4;
-      object-fit: cover;
-      display: block;
-      background: #e8e2d8;
-    }
-
-    .template-info { padding: 17px; }
-
-    .template-code {
-      color: #aa8955;
-      font-size: 10px;
-      letter-spacing: 2px;
-      text-transform: uppercase;
-    }
-
-    .template-info h3 {
-      font-family: Georgia, serif;
-      font-size: 19px;
-      font-weight: normal;
-      margin: 8px 0;
-    }
-
-    .template-info p {
-      font-size: 12px;
-      color: var(--muted);
-      margin: 0 0 16px;
-    }
-
-    .demo-button {
-      display: block;
-      text-align: center;
-      border: 1px solid var(--gold);
-      padding: 11px;
-      border-radius: 4px;
-      color: var(--navy);
-      font-size: 12px;
-      font-weight: bold;
-    }
-
-    .demo-button:hover {
-      background: var(--navy);
-      border-color: var(--navy);
-      color: white;
-    }
-
-    .catalog-footer {
-      text-align: center;
-      background: var(--navy);
-      color: white;
-      padding: 35px 20px;
-      font-size: 12px;
-      line-height: 2;
-    }
-
-    .catalog-footer span { color: var(--gold); }
-
-    @media(max-width: 900px) {
-      .template-grid { grid-template-columns: repeat(3, 1fr); }
-    }
-
-    @media(max-width: 600px) {
-      .catalog-nav { padding: 17px 20px; }
-      .brand { font-size: 21px; }
-      .hero { padding: 55px 18px 45px; }
-      .catalog-container { padding: 38px 15px 60px; }
-      .package-heading { align-items: start; }
-      .package-heading h2 { font-size: 25px; }
-      .price { font-size: 18px; }
-      .template-grid { grid-template-columns: repeat(2, 1fr); gap: 12px; }
-      .template-info { padding: 12px; }
-      .template-info h3 { font-size: 16px; }
-    }
-  </style>
+  <meta name="theme-color" content="#172b40">
+  <meta name="description" content="SAHDONG - Buat undangan digital elegan, praktis, dan berkesan untuk momen istimewa Anda.">
+  <title>SAHDONG — Undangan Digital Elegan</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:wght@500;600;700&display=swap" rel="stylesheet">
+ <link rel="stylesheet" href="/assets/css/style.css?v=20261125">
 </head>
-
 <body>
 
-  <nav class="catalog-nav">
-    <a class="brand" href="/">SAHDONG</a>
-    <a href="/">Kembali ke Beranda</a>
-  </nav>
+  <header class="site-header">
+    <div class="container nav-wrap">
+      <a class="brand" href="#beranda">
+        <span class="brand-mark">S</span>
+        <span>SAHDONG<small>UNDANGAN DIGITAL</small></span>
+      </a>
 
-  <header class="hero">
-    <div class="hero-label">Our Wedding Collection</div>
-    <h1>Pilihan Desain Undangan</h1>
-    <p>Temukan desain yang menggambarkan kisah cinta dan hari istimewa Anda.</p>
+      <button class="menu-toggle" id="menuToggle" aria-label="Buka menu" aria-expanded="false">
+        <span></span><span></span><span></span>
+      </button>
+
+      <nav class="main-nav" id="mainNav">
+        <a href="#beranda">Beranda</a>
+        <a href="#keunggulan">Keunggulan</a>
+        <a href="#katalog">Katalog</a>
+        <a href="#harga">Harga</a>
+        <a href="#cara-kerja">Cara Kerja</a>
+        <a href="#faq">FAQ</a>
+        <a class="nav-login" href="#harga">Mulai Sekarang</a>
+      </nav>
+    </div>
   </header>
 
-  <main class="catalog-container">
-
-    <section class="package" id="basic">
-      <div class="package-heading">
-        <div>
-          <h2>Basic Collection</h2>
-          <p>Simple, minimalis dan elegan · 10 desain</p>
+  <main>
+    <section class="hero" id="beranda">
+      <div class="hero-overlay"></div>
+      <div class="container hero-content">
+        <span class="eyebrow light">THE ART OF INVITATION</span>
+        <h1>Awali Kisah Indah<br>dengan <em>Undangan Istimewa.</em></h1>
+        <p>
+          Bagikan momen bahagia dengan undangan digital yang elegan,
+          personal, dan mudah dibagikan kepada orang-orang tersayang.
+        </p>
+        <div class="hero-actions">
+          <a href="#katalog" class="btn btn-gold">Jelajahi Template <span>↗</span></a>
+          <a href="#cara-kerja" class="btn btn-outline">Cara Kerja</a>
         </div>
-        <div class="price">Rp25.000</div>
+        <div class="hero-note">
+          <span class="note-line"></span>
+          ELEGANT DESIGN · SIMPLE EXPERIENCE
+        </div>
       </div>
-      <div class="template-grid" id="basic-grid"></div>
+      <div class="hero-bottom">
+        <span>UNDANGAN DIGITAL UNTUK HARI TERISTIMEWA</span>
+        <span>SAHDONG © 2026</span>
+      </div>
     </section>
 
-    <section class="package" id="premium">
-      <div class="package-heading">
+    <section class="intro section-space" id="keunggulan">
+      <div class="container intro-grid">
         <div>
-          <h2>Premium Collection</h2>
-          <p>Romantis, modern dan personal · 10 desain</p>
+          <span class="eyebrow">LEBIH DARI SEKADAR UNDANGAN</span>
+          <h2>Setiap momen punya cerita.<br><em>Rayakan dengan cara berbeda.</em></h2>
         </div>
-        <div class="price">Rp45.000</div>
+        <div class="intro-copy">
+          <p>
+            SAHDONG membantu Anda membuat undangan digital yang
+            mencerminkan cerita dan karakter acara. Desain menarik,
+            informasi tertata, dan praktis dibagikan kapan saja.
+          </p>
+          <a class="text-link" href="#katalog">Temukan desain Anda <span>→</span></a>
+        </div>
       </div>
-      <div class="template-grid" id="premium-grid"></div>
+
+      <div class="container feature-grid">
+        <article class="feature-card">
+          <span class="feature-number">01</span>
+          <div class="feature-icon">✧</div>
+          <h3>Desain Elegan</h3>
+          <p>Template pilihan dengan tampilan modern dan berkesan.</p>
+        </article>
+        <article class="feature-card">
+          <span class="feature-number">02</span>
+          <div class="feature-icon">♡</div>
+          <h3>Lebih Personal</h3>
+          <p>Informasi acara dan cerita Anda dalam satu undangan.</p>
+        </article>
+        <article class="feature-card">
+          <span class="feature-number">03</span>
+          <div class="feature-icon">↗</div>
+          <h3>Mudah Dibagikan</h3>
+          <p>Kirim tautan undangan melalui WhatsApp dan media sosial.</p>
+        </article>
+        <article class="feature-card">
+          <span class="feature-number">04</span>
+          <div class="feature-icon">⌘</div>
+          <h3>Praktis Diakses</h3>
+          <p>Tamu dapat membuka undangan melalui ponsel maupun komputer.</p>
+        </article>
+      </div>
     </section>
 
-    <section class="package" id="exclusive">
-      <div class="package-heading">
-        <div>
-          <h2>Exclusive Collection</h2>
-          <p>Luxury, istimewa dan eksklusif · 10 desain</p>
+    <section class="catalog-section section-space" id="katalog">
+      <div class="container">
+        <div class="section-heading">
+          <div>
+            <span class="eyebrow">THE COLLECTION</span>
+            <h2>Pilihan desain <em>untuk Anda.</em></h2>
+          </div>
+          <p>Temukan tampilan yang paling sesuai dengan cerita dan hari istimewa Anda.</p>
         </div>
-        <div class="price">Rp92.000</div>
+
+        <div class="catalog-grid">
+          <article class="template-card">
+            <div class="template-image">
+              <img src="https://images.unsplash.com/photo-1519741497674-611481863552?auto=format&fit=crop&w=900&q=85" alt="Inspirasi undangan pernikahan klasik">
+              <span class="template-tag">CLASSIC</span>
+            </div>
+            <div class="template-info">
+              <div><h3>The Classic</h3><p>Timeless & graceful</p></div>
+              <span class="template-arrow">↗</span>
+            </div>
+          </article>
+
+          <article class="template-card">
+            <div class="template-image">
+              <img src="https://images.unsplash.com/photo-1511285560929-80b456fea0bc?auto=format&fit=crop&w=900&q=85" alt="Inspirasi undangan pernikahan modern">
+              <span class="template-tag">MODERN</span>
+            </div>
+            <div class="template-info">
+              <div><h3>The Modern</h3><p>Clean & contemporary</p></div>
+              <span class="template-arrow">↗</span>
+            </div>
+          </article>
+
+          <article class="template-card">
+            <div class="template-image">
+              <img src="https://images.unsplash.com/photo-1465495976277-4387d4b0e4a6?auto=format&fit=crop&w=900&q=85" alt="Inspirasi undangan pernikahan romantis">
+              <span class="template-tag">ROMANTIC</span>
+            </div>
+            <div class="template-info">
+              <div><h3>The Romance</h3><p>Soft & romantic</p></div>
+              <span class="template-arrow">↗</span>
+            </div>
+          </article>
+        </div>
+        <p class="catalog-note">Preview inspirasi desain. Katalog template lengkap akan segera tersedia.</p>
       </div>
-      <div class="template-grid" id="exclusive-grid"></div>
     </section>
 
+    <section class="pricing-section section-space" id="harga">
+      <div class="container">
+        <div class="section-heading centered">
+          <span class="eyebrow">SIMPLE & TRANSPARENT</span>
+          <h2>Pilih paket <em>terbaik Anda.</em></h2>
+          <p>Sesuaikan pilihan dengan kebutuhan undangan dan momen istimewa Anda.</p>
+        </div>
+
+        <div class="pricing-grid">
+          <article class="price-card">
+            <span class="price-label">01 / BASIC</span>
+            <h3>Basic</h3>
+            <p class="price-desc">Pilihan praktis untuk undangan digital sederhana.</p>
+            <div class="price">Rp25.000</div>
+            <div class="price-divider"></div>
+            <ul>
+              <li>Informasi acara dan mempelai</li>
+              <li>Foto pasangan</li>
+              <li>Lokasi Google Maps</li>
+              <li>Countdown acara</li>
+              <li>RSVP dan ucapan tamu</li>
+              <li>Musik latar</li>
+              <li>Link undangan</li>
+            </ul>
+            <p class="validity">Masa aktif mengikuti ketentuan paket.</p>
+            <a href="#cara-kerja" class="btn btn-price">Pilih Basic</a>
+          </article>
+
+          <article class="price-card featured">
+            <span class="popular-label">REKOMENDASI</span>
+            <span class="price-label">02 / PREMIUM</span>
+            <h3>Premium</h3>
+            <p class="price-desc">Lebih lengkap untuk cerita yang lebih personal.</p>
+            <div class="price">Rp45.000</div>
+            <div class="price-divider"></div>
+            <ul>
+              <li>Semua fitur Basic</li>
+              <li>Galeri foto lebih banyak</li>
+              <li>Love story / kisah perjalanan</li>
+              <li>Amplop digital</li>
+              <li>Personalisasi warna dan tampilan</li>
+              <li>Video prewedding</li>
+              <li>Konfirmasi kehadiran</li>
+            </ul>
+            <p class="validity">Masa aktif mengikuti ketentuan paket.</p>
+            <a href="#cara-kerja" class="btn btn-gold btn-price">Pilih Premium</a>
+          </article>
+
+          <article class="price-card">
+            <span class="price-label">03 / EXCLUSIVE</span>
+            <h3>Exclusive</h3>
+            <p class="price-desc">Pengalaman undangan lebih istimewa dan interaktif.</p>
+            <div class="price">Rp92.000</div>
+            <div class="price-divider"></div>
+            <ul>
+              <li>Semua fitur Premium</li>
+              <li>Pilihan desain eksklusif</li>
+              <li>Animasi dan transisi premium</li>
+              <li>Galeri foto dan video lebih lengkap</li>
+              <li>Personalisasi desain lebih luas</li>
+              <li>Halaman lebih interaktif</li>
+              <li>Prioritas layanan bantuan</li>
+            </ul>
+            <p class="validity">Masa aktif mengikuti ketentuan paket.</p>
+            <a href="#cara-kerja" class="btn btn-price">Pilih Exclusive</a>
+          </article>
+        </div>
+        <p class="pricing-note">Rincian fitur dan ketentuan setiap paket dapat disesuaikan sebelum pemesanan.</p>
+      </div>
+    </section>
+
+    <section class="process-section section-space" id="cara-kerja">
+      <div class="container process-grid">
+        <div class="process-heading">
+          <span class="eyebrow">HOW IT WORKS</span>
+          <h2>Mudah dibuat,<br><em>mudah dibagikan.</em></h2>
+          <p>Wujudkan undangan digital Anda melalui langkah yang sederhana.</p>
+          <a href="#harga" class="btn btn-gold">Lihat Pilihan Paket <span>↗</span></a>
+        </div>
+        <div class="steps">
+          <article class="step">
+            <span>01</span>
+            <div><h3>Pilih desain</h3><p>Temukan template yang sesuai dengan gaya acara Anda.</p></div>
+          </article>
+          <article class="step">
+            <span>02</span>
+            <div><h3>Pilih paket</h3><p>Tentukan paket sesuai kebutuhan dan fitur yang diinginkan.</p></div>
+          </article>
+          <article class="step">
+            <span>03</span>
+            <div><h3>Lengkapi informasi</h3><p>Siapkan nama, tanggal, lokasi, foto, dan detail acara.</p></div>
+          </article>
+          <article class="step">
+            <span>04</span>
+            <div><h3>Bagikan undangan</h3><p>Undangan digital Anda siap dibagikan kepada para tamu.</p></div>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="quote-section">
+      <div class="container quote-content">
+        <span class="eyebrow light">YOUR MOMENT, YOUR STORY</span>
+     <h2 class="quote-title">Satu tautan sederhana,<br><em>sejuta kenangan bermakna.</em></h2>
+        <p>Jadikan hari istimewa Anda lebih dekat dengan orang-orang tersayang.</p>
+        <a href="#katalog" class="btn btn-gold">Temukan Undangan Anda</a>
+      </div>
+    </section>
+
+    <section class="faq-section section-space" id="faq">
+      <div class="container faq-grid">
+        <div>
+          <span class="eyebrow">NEED TO KNOW</span>
+          <h2>Pertanyaan yang<br><em>sering diajukan.</em></h2>
+          <p>Informasi singkat untuk membantu Anda mengenal SAHDONG.</p>
+        </div>
+        <div class="faq-list">
+          <details>
+            <summary>Apa itu SAHDONG?</summary>
+            <p>SAHDONG adalah platform undangan digital untuk membantu Anda membuat dan membagikan undangan acara secara online.</p>
+          </details>
+          <details>
+            <summary>Bagaimana cara memesan undangan?</summary>
+            <p>Pilih desain dan paket yang diinginkan, kemudian lengkapi informasi acara melalui proses pemesanan yang tersedia.</p>
+          </details>
+          <details>
+            <summary>Apakah undangan bisa dibuka melalui HP?</summary>
+            <p>Ya. Halaman undangan dirancang agar dapat diakses melalui ponsel maupun komputer.</p>
+          </details>
+          <details>
+            <summary>Berapa lama masa aktif undangan?</summary>
+            <p>Masa aktif mengikuti paket yang dipilih. Rincian durasi setiap paket akan ditampilkan pada ketentuan pemesanan.</p>
+          </details>
+          <details>
+            <summary>Bagaimana cara membagikan undangan?</summary>
+            <p>Undangan dibagikan menggunakan tautan yang dapat dikirim melalui WhatsApp atau media sosial.</p>
+          </details>
+        </div>
+      </div>
+    </section>
   </main>
 
-  <footer class="catalog-footer">
-    <div class="brand">SAHDONG</div>
-    Undangan Digital Elegan untuk Hari Istimewa Anda.
-    <br>
-    <span>© 2026 Hilmana Design</span>
+  <footer class="site-footer">
+    <div class="container footer-main">
+      <div class="footer-brand">
+        <a class="brand brand-light" href="#beranda">
+          <span class="brand-mark">S</span>
+          <span>SAHDONG<small>UNDANGAN DIGITAL</small></span>
+        </a>
+        <p>Merangkai momen istimewa menjadi cerita yang selalu dikenang.</p>
+      </div>
+      <div class="footer-links">
+        <h4>NAVIGASI</h4>
+        <a href="#beranda">Beranda</a>
+        <a href="#katalog">Katalog</a>
+        <a href="#harga">Harga</a>
+        <a href="#faq">FAQ</a>
+      </div>
+      <div class="footer-links">
+        <h4>INFORMASI</h4>
+        <a href="#keunggulan">Tentang SAHDONG</a>
+        <a href="#cara-kerja">Cara Pemesanan</a>
+        <a href="#harga">Paket Undangan</a>
+      </div>
+    </div>
+    <div class="container footer-bottom">
+      <span>© <span data-year>2026</span> Hilmana Design</span>
+      <span>Made with care by SAHDONG</span>
+    </div>
   </footer>
 
-  <script>
-    const collections = [
-      {
-        id: "basic",
-        prefix: "BSC",
-        names: [
-          "Ivory Love", "Classic Bloom", "Pure Elegance",
-          "Soft Romance", "Garden White", "Simple Grace",
-          "Floral Dream", "Golden Day", "Timeless Love",
-          "Sweet Minimal"
-        ],
-        images: [
-          "photo-1519741497674-611481863552",
-          "photo-1511285560929-80b456fea0bc",
-          "photo-1519225421980-715cb0215aed",
-          "photo-1537633552985-df8429e8048b",
-          "photo-1529636798458-92182e662485",
-          "photo-1507504031003-b417219a0fde",
-          "photo-1515934751635-c81c6bc9a2d8",
-          "photo-1464366400600-7168b8af9bc3",
-          "photo-1511795409834-ef04bbd61622",
-          "photo-1523438885200-e635ba2c371e"
-        ]
-      },
-      {
-        id: "premium",
-        prefix: "PRM",
-        names: [
-          "Royal Romance", "Champagne Love", "Eternal Story",
-          "Botanical Bliss", "Golden Memories", "Romantic Garden",
-          "Velvet Rose", "The Love Chapter", "Elegant Moment",
-          "Forever Yours"
-        ],
-        images: [
-          "photo-1519167758481-83f550bb49b3",
-          "photo-1511285560929-80b456fea0bc",
-          "photo-1519741497674-611481863552",
-          "photo-1532712938310-34cb3982ef74",
-          "photo-1519225421980-715cb0215aed",
-          "photo-1507504031003-b417219a0fde",
-          "photo-1515934751635-c81c6bc9a2d8",
-          "photo-1464366400600-7168b8af9bc3",
-          "photo-1511795409834-ef04bbd61622",
-          "photo-1523438885200-e635ba2c371e"
-        ]
-      },
-      {
-        id: "exclusive",
-        prefix: "EXC",
-        names: [
-          "The Grand Royal", "Black Elegance", "Majestic Love",
-          "Royal Heritage", "Golden Dynasty", "Luxury Bloom",
-          "Imperial Romance", "The Prestige", "Diamond Story",
-          "Eternal Majesty"
-        ],
-        images: [
-          "photo-1519167758481-83f550bb49b3",
-          "photo-1519741497674-611481863552",
-          "photo-1519225421980-715cb0215aed",
-          "photo-1537633552985-df8429e8048b",
-          "photo-1511285560929-80b456fea0bc",
-          "photo-1464366400600-7168b8af9bc3",
-          "photo-1515934751635-c81c6bc9a2d8",
-          "photo-1511795409834-ef04bbd61622",
-          "photo-1523438885200-e635ba2c371e",
-          "photo-1507504031003-b417219a0fde"
-        ]
-      }
-    ];
-
-    const fallbackImages = [
-      "photo-1519741497674-611481863552",
-      "photo-1511285560929-80b456fea0bc",
-      "photo-1519225421980-715cb0215aed"
-    ];
-
-    collections.forEach(collection => {
-      const grid = document.getElementById(collection.id + "-grid");
-
-      collection.names.forEach((name, index) => {
-        const code = collection.prefix + "-" +
-          String(index + 1).padStart(2, "0");
-
-        const imageId = collection.images[index];
-
-        const image = document.createElement("img");
-        image.className = "template-image";
-        image.alt = "Template " + name;
-        image.loading = "lazy";
-        image.src = "https://images.unsplash.com/" +
-          imageId + "?auto=format&fit=crop&w=700&q=80";
-
-        image.onerror = function () {
-          const fallbackIndex = index % fallbackImages.length;
-          this.onerror = null;
-          this.src = "https://images.unsplash.com/" +
-            fallbackImages[fallbackIndex] +
-            "?auto=format&fit=crop&w=700&q=80";
-        };
-
-        const card = document.createElement("article");
-        card.className = "template-card";
-
-        const info = document.createElement("div");
-        info.className = "template-info";
-
-        const templateCode = document.createElement("div");
-        templateCode.className = "template-code";
-        templateCode.textContent = code;
-
-        const title = document.createElement("h3");
-        title.textContent = name;
-
-        const description = document.createElement("p");
-        description.textContent = "Wedding Invitation Digital";
-
-        const demo = document.createElement("a");
-        demo.className = "demo-button";
-        demo.href = "#";
-        demo.textContent = "Lihat Demo";
-        demo.setAttribute("aria-label", "Demo " + name);
-
-        info.appendChild(templateCode);
-        info.appendChild(title);
-        info.appendChild(description);
-        info.appendChild(demo);
-
-        card.appendChild(image);
-        card.appendChild(info);
-
-        grid.appendChild(card);
-      });
-    });
-  </script>
-
+  <script src="/assets/js/app.js" defer></script>
 </body>
 </html>
