@@ -1,15 +1,29 @@
 
-/* =================================
-   SAHDONG - MAIN JAVASCRIPT
-   ================================= */
+/* SAHDONG - Main JavaScript */
 
-document.addEventListener("DOMContentLoaded", function () {
-  console.log("SAHDONG berhasil dimuat!");
+document.addEventListener("DOMContentLoaded", () => {
+  const menuToggle = document.getElementById("menuToggle");
+  const mainNav = document.getElementById("mainNav");
 
-  // Tahun otomatis pada footer
-  const yearElement = document.querySelector("[data-year]");
+  // Mobile navigation
+  if (menuToggle && mainNav) {
+    menuToggle.addEventListener("click", () => {
+      const isOpen = mainNav.classList.toggle("open");
+      menuToggle.setAttribute("aria-expanded", String(isOpen));
+    });
 
-  if (yearElement) {
-    yearElement.textContent = new Date().getFullYear();
+    mainNav.querySelectorAll("a").forEach(link => {
+      link.addEventListener("click", () => {
+        mainNav.classList.remove("open");
+        menuToggle.setAttribute("aria-expanded", "false");
+      });
+    });
   }
+
+  // Automatic copyright year
+  document.querySelectorAll("[data-year]").forEach(element => {
+    element.textContent = new Date().getFullYear();
+  });
+
+  console.log("SAHDONG homepage berhasil dimuat.");
 });
