@@ -1,1 +1,374 @@
 
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Temukan 30 desain undangan digital pernikahan elegan di SAHDONG. Pilih paket Basic, Premium, atau Exclusive.">
+  <title>Katalog Undangan Digital | SAHDONG</title>
+  <link rel="stylesheet" href="/assets/css/style.css?v=20261125">
+  <style>
+    :root {
+      --navy: #172b40;
+      --gold: #c5a36a;
+      --ivory: #f8f6f1;
+      --white: #fff;
+      --muted: #777;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      background: var(--ivory);
+      color: var(--navy);
+      font-family: Arial, sans-serif;
+    }
+
+    a { color: inherit; text-decoration: none; }
+
+    .catalog-nav {
+      background: var(--navy);
+      color: white;
+      padding: 20px 7%;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .brand {
+      font-family: Georgia, serif;
+      font-size: 26px;
+      letter-spacing: 3px;
+      color: var(--gold);
+      font-weight: bold;
+    }
+
+    .catalog-nav a { font-size: 14px; }
+
+    .hero {
+      text-align: center;
+      padding: 75px 20px 55px;
+      background: linear-gradient(135deg, #172b40, #30475b);
+      color: white;
+    }
+
+    .hero-label {
+      color: var(--gold);
+      letter-spacing: 4px;
+      font-size: 11px;
+      text-transform: uppercase;
+    }
+
+    .hero h1 {
+      font-family: Georgia, serif;
+      font-size: clamp(34px, 5vw, 54px);
+      font-weight: normal;
+      margin: 20px 0 12px;
+    }
+
+    .hero p {
+      color: #e0e0e0;
+      font-size: 15px;
+      line-height: 1.8;
+    }
+
+    .catalog-container {
+      max-width: 1200px;
+      margin: auto;
+      padding: 55px 22px 80px;
+    }
+
+    .package {
+      margin-bottom: 70px;
+      scroll-margin-top: 25px;
+    }
+
+    .package-heading {
+      display: flex;
+      align-items: end;
+      justify-content: space-between;
+      gap: 20px;
+      border-bottom: 1px solid #ded7ca;
+      padding-bottom: 18px;
+      margin-bottom: 25px;
+    }
+
+    .package-heading h2 {
+      font-family: Georgia, serif;
+      font-size: 30px;
+      font-weight: normal;
+      margin: 0 0 8px;
+    }
+
+    .package-heading p {
+      color: var(--muted);
+      margin: 0;
+      font-size: 13px;
+    }
+
+    .price {
+      color: #a17d43;
+      font-size: 23px;
+      font-weight: bold;
+      white-space: nowrap;
+    }
+
+    .template-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 22px;
+    }
+
+    .template-card {
+      background: white;
+      border-radius: 9px;
+      overflow: hidden;
+      box-shadow: 0 5px 22px rgba(0,0,0,.06);
+      transition: transform .25s;
+    }
+
+    .template-card:hover {
+      transform: translateY(-5px);
+    }
+
+    .template-image {
+      width: 100%;
+      aspect-ratio: 3 / 4;
+      object-fit: cover;
+      display: block;
+      background: #e8e2d8;
+    }
+
+    .template-info { padding: 17px; }
+
+    .template-code {
+      color: #aa8955;
+      font-size: 10px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+    }
+
+    .template-info h3 {
+      font-family: Georgia, serif;
+      font-size: 19px;
+      font-weight: normal;
+      margin: 8px 0;
+    }
+
+    .template-info p {
+      font-size: 12px;
+      color: var(--muted);
+      margin: 0 0 16px;
+    }
+
+    .demo-button {
+      display: block;
+      text-align: center;
+      border: 1px solid var(--gold);
+      padding: 11px;
+      border-radius: 4px;
+      color: var(--navy);
+      font-size: 12px;
+      font-weight: bold;
+    }
+
+    .demo-button:hover {
+      background: var(--navy);
+      border-color: var(--navy);
+      color: white;
+    }
+
+    .catalog-footer {
+      text-align: center;
+      background: var(--navy);
+      color: white;
+      padding: 35px 20px;
+      font-size: 12px;
+      line-height: 2;
+    }
+
+    .catalog-footer span { color: var(--gold); }
+
+    @media(max-width: 900px) {
+      .template-grid { grid-template-columns: repeat(3, 1fr); }
+    }
+
+    @media(max-width: 600px) {
+      .catalog-nav { padding: 17px 20px; }
+      .brand { font-size: 21px; }
+      .hero { padding: 55px 18px 45px; }
+      .catalog-container { padding: 38px 15px 60px; }
+      .package-heading { align-items: start; }
+      .package-heading h2 { font-size: 25px; }
+      .price { font-size: 18px; }
+      .template-grid { grid-template-columns: repeat(2, 1fr); gap: 12px; }
+      .template-info { padding: 12px; }
+      .template-info h3 { font-size: 16px; }
+    }
+  </style>
+</head>
+<body>
+
+  <nav class="catalog-nav">
+    <a class="brand" href="/">SAHDONG</a>
+    <a href="/">Kembali ke Beranda</a>
+  </nav>
+
+  <header class="hero">
+    <div class="hero-label">Our Wedding Collection</div>
+    <h1>Pilihan Desain Undangan</h1>
+    <p>Temukan desain yang menggambarkan kisah cinta dan hari istimewa Anda.</p>
+  </header>
+
+  <main class="catalog-container">
+
+    <section class="package" id="basic">
+      <div class="package-heading">
+        <div>
+          <h2>Basic Collection</h2>
+          <p>Simple, minimalis dan elegan · 10 desain</p>
+        </div>
+        <div class="price">Rp25.000</div>
+      </div>
+
+      <div class="template-grid" id="basic-grid"></div>
+    </section>
+
+    <section class="package" id="premium">
+      <div class="package-heading">
+        <div>
+          <h2>Premium Collection</h2>
+          <p>Romantis, modern dan personal · 10 desain</p>
+        </div>
+        <div class="price">Rp45.000</div>
+      </div>
+
+      <div class="template-grid" id="premium-grid"></div>
+    </section>
+
+    <section class="package" id="exclusive">
+      <div class="package-heading">
+        <div>
+          <h2>Exclusive Collection</h2>
+          <p>Luxury, istimewa dan eksklusif · 10 desain</p>
+        </div>
+        <div class="price">Rp92.000</div>
+      </div>
+
+      <div class="template-grid" id="exclusive-grid"></div>
+    </section>
+
+  </main>
+
+  <footer class="catalog-footer">
+    <div class="brand">SAHDONG</div>
+    Undangan Digital Elegan untuk Hari Istimewa Anda.
+    <br>
+    <span>© 2026 Hilmana Design</span>
+  </footer>
+
+  <script>
+    const collections = [
+      {
+        id: "basic",
+        prefix: "BSC",
+        names: [
+          "Ivory Love", "Classic Bloom", "Pure Elegance",
+          "Soft Romance", "Garden White", "Simple Grace",
+          "Floral Dream", "Golden Day", "Timeless Love",
+          "Sweet Minimal"
+        ],
+        images: [
+          "photo-1519741497674-611481863552",
+          "photo-1511285560929-80b456fea0bc",
+          "photo-1519225421980-715cb0215aed",
+          "photo-1537633552985-df8429e8048b",
+          "photo-1465495976277-4387d4b0e4a6",
+          "photo-1507504031003-b417219a0fde",
+          "photo-1515934751635-c81c6bc9a2d8",
+          "photo-1464366400600-7168b8af9bc3",
+          "photo-1511795409834-ef04bbd61622",
+          "photo-1523438885200-e635ba2c371e"
+        ]
+      },
+      {
+        id: "premium",
+        prefix: "PRM",
+        names: [
+          "Royal Romance", "Champagne Love", "Eternal Story",
+          "Botanical Bliss", "Golden Memories", "Romantic Garden",
+          "Velvet Rose", "The Love Chapter", "Elegant Moment",
+          "Forever Yours"
+        ],
+        images: [
+          "photo-1519167758481-83f550bb49b3",
+          "photo-1465495976277-4387d4b0e4a6",
+          "photo-1519741497674-611481863552",
+          "photo-1532712938310-34cb3982ef74",
+          "photo-1519225421980-715cb0215aed",
+          "photo-1507504031003-b417219a0fde",
+          "photo-1515934751635-c81c6bc9a2d8",
+          "photo-1464366400600-7168b8af9bc3",
+          "photo-1511795409834-ef04bbd61622",
+          "photo-1523438885200-e635ba2c371e"
+        ]
+      },
+      {
+        id: "exclusive",
+        prefix: "EXC",
+        names: [
+          "The Grand Royal", "Black Elegance", "Majestic Love",
+          "Royal Heritage", "Golden Dynasty", "Luxury Bloom",
+          "Imperial Romance", "The Prestige", "Diamond Story",
+          "Eternal Majesty"
+        ],
+        images: [
+          "photo-1519167758481-83f550bb49b3",
+          "photo-1519741497674-611481863552",
+          "photo-1519225421980-715cb0215aed",
+          "photo-1537633552985-df8429e8048b",
+          "photo-1511285560929-80b456fea0bc",
+          "photo-1464366400600-7168b8af9bc3",
+          "photo-1515934751635-c81c6bc9a2d8",
+          "photo-1511795409834-ef04bbd61622",
+          "photo-1523438885200-e635ba2c371e",
+          "photo-1507504031003-b417219a0fde"
+        ]
+      }
+    ];
+
+    collections.forEach(collection => {
+      const grid = document.getElementById(collection.id + "-grid");
+
+      collection.names.forEach((name, index) => {
+        const code = collection.prefix + "-" + String(index + 1).padStart(2, "0");
+        const image = "https://images.unsplash.com/" +
+          collection.images[index] + "?auto=format&fit=crop&w=700&q=80";
+
+        const card = document.createElement("article");
+        card.className = "template-card";
+
+        card.innerHTML = `
+          <img class="template-image"
+               src="${image}"
+               alt="Template ${name}"
+               loading="lazy">
+          <div class="template-info">
+            <div class="template-code">${code}</div>
+            <h3>${name}</h3>
+            <p>Wedding Invitation Digital</p>
+            <a class="demo-button" href="#" aria-label="Demo ${name}">
+              Lihat Demo
+            </a>
+          </div>
+        `;
+
+        grid.appendChild(card);
+      });
+    });
+  </script>
+
+</body>
+</html>
+
