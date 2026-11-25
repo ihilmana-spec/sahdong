@@ -1,0 +1,158 @@
+
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Login - SAHDONG</title>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      padding: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #f5f6fa;
+      font-family: Arial, sans-serif;
+      color: #252525;
+    }
+    .container {
+      width: 100%;
+      max-width: 430px;
+      background: white;
+      padding: 30px;
+      border-radius: 14px;
+      box-shadow: 0 5px 25px rgba(0,0,0,.07);
+    }
+    h1 { text-align: center; margin-bottom: 8px; }
+    .subtitle {
+      text-align: center;
+      color: #777;
+      margin-bottom: 25px;
+    }
+    label {
+      display: block;
+      margin: 14px 0 7px;
+      font-weight: bold;
+      font-size: 14px;
+    }
+    input {
+      width: 100%;
+      padding: 13px;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      font-size: 15px;
+    }
+    button {
+      width: 100%;
+      margin-top: 22px;
+      padding: 14px;
+      border: 0;
+      border-radius: 8px;
+      background: #202b46;
+      color: white;
+      font-size: 16px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+    button:disabled { opacity: .6; }
+    #message {
+      margin-top: 15px;
+      font-size: 14px;
+      line-height: 1.5;
+    }
+    .footer {
+      text-align: center;
+      margin-top: 20px;
+      font-size: 14px;
+    }
+    a { color: #202b46; }
+  </style>
+</head>
+<body>
+  <main class="container">
+    <h1>SAHDONG</h1>
+    <p class="subtitle">Masuk ke akun pelanggan</p>
+
+    <form id="loginForm">
+      <label for="email">Email</label>
+      <input
+        id="email"
+        type="email"
+        required
+        autocomplete="username"
+      >
+
+      <label for="password">Password</label>
+      <input
+        id="password"
+        type="password"
+        required
+        autocomplete="current-password"
+      >
+
+      <button id="submitButton" type="submit">
+        Masuk
+      </button>
+    </form>
+
+    <div id="message" role="status"></div>
+
+    <div class="footer">
+      Belum punya akun?
+      <a href="/register.html">Daftar sekarang</a>
+    </div>
+  </main>
+
+  <script>
+    const form = document.getElementById("loginForm");
+    const message = document.getElementById("message");
+    const button = document.getElementById("submitButton");
+
+    form.addEventListener("submit", async function(event) {
+      event.preventDefault();
+
+      message.textContent = "";
+      button.disabled = true;
+      button.textContent = "Memproses...";
+
+      const data = {
+        email: document.getElementById("email").value.trim(),
+        password: document.getElementById("password").value
+      };
+
+      try {
+        const response = await fetch("/api/login", {
+          method: "POST",
+          credentials: "same-origin",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify(data)
+        });
+
+        const result = await response.json();
+
+        if (!response.ok || !result.success) {
+          throw new Error(result.message || "Login gagal.");
+        }
+
+        message.style.color = "green";
+        message.textContent = "Login berhasil. Mengalihkan...";
+
+        window.location.href = "/dashboard.html";
+
+      } catch (error) {
+        message.style.color = "red";
+        message.textContent =
+          error.message || "Tidak dapat menghubungi server.";
+      } finally {
+        button.disabled = false;
+        button.textContent = "Masuk";
+      }
+    });
+  </script>
+</body>
+</html>
