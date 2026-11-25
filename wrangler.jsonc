@@ -3,9 +3,6 @@
   "$schema": "https://schema.workers.dev/wrangler.json",
   "name": "sahdong",
   "pages_build_output_dir": "./public",
-  "vars": {
-    "DOKU_ENV": "sandbox"
-  },
   "d1_databases": [
     {
       "binding": "DB",
