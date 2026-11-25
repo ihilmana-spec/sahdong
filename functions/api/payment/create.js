@@ -63,9 +63,13 @@ async function authenticateCustomer(request, env) {
   return { user };
 }
 
-function jsonError(message, status) {
+function jsonError(message, status, extra = {}) {
   return Response.json(
-    { success: false, message },
+    {
+      success: false,
+      message,
+      ...extra
+    },
     { status }
   );
 }
@@ -119,6 +123,58 @@ async function createSignature(
   );
 
   return `HMACSHA256=${toBase64(signature)}`;
+}
+
+function parseDokuExpiredDate(value) {
+  if (!value) return null;
+
+  const dateString = String(value);
+
+  if (!/^\d{14}$/.test(dateString)) {
+    return null;
+  }
+
+  const formatted =
+    dateString.slice(0, 4) + "-" +
+    dateString.slice(4, 6) + "-" +
+    dateString.slice(6, 8) + "T" +
+    dateString.slice(8, 10) + ":" +
+    dateString.slice(10, 12) + ":" +
+    dateString.slice(12, 14) + "+07:00";
+
+  const date = new Date(formatted);
+
+  if (Number.isNaN(date.getTime())) {
+    return null;
+  }
+
+  return date.toISOString();
+}
+
+function isValidCheckoutUrl(value, environment) {
+  try {
+    const url = new URL(value);
+
+    if (url.protocol !== "https:") return false;
+
+    if (
+      url.hostname !== "doku.com" &&
+      !url.hostname.endsWith(".doku.com")
+    ) {
+      return false;
+    }
+
+    if (
+      environment === "sandbox" &&
+      url.hostname !== "sandbox.doku.com"
+    ) {
+      return false;
+    }
+
+    return true;
+  } catch {
+    return false;
+  }
 }
 
 export async function onRequestPost({ request, env }) {
@@ -204,6 +260,26 @@ export async function onRequestPost({ request, env }) {
       return jsonError("Nominal pesanan tidak valid.", 400);
     }
 
+    // Gunakan kembali halaman checkout jika masih berlaku.
+    if (order.checkout_url && order.checkout_expired_at) {
+      const expiry = new Date(order.checkout_expired_at);
+
+      if (
+        !Number.isNaN(expiry.getTime()) &&
+        expiry.getTime() > Date.now() &&
+        isValidCheckoutUrl(order.checkout_url, environment)
+      ) {
+        return Response.json({
+          success: true,
+          message: "Halaman pembayaran masih tersedia.",
+          order_number: order.order_number,
+          amount: order.amount,
+          checkout_url: order.checkout_url,
+          checkout_expired_at: order.checkout_expired_at
+        });
+      }
+    }
+
     const requestTarget = "/checkout/v1/payment";
 
     const endpoint = environment === "production"
@@ -234,27 +310,166 @@ export async function onRequestPost({ request, env }) {
       digest
     );
 
-    // TES CHECKPOINT:
-    // Berhenti sebelum mengirim request ke DOKU.
+    // Menghubungi DOKU Sandbox atau Production.
+    let dokuResponse;
+
+    try {
+      dokuResponse = await fetch(
+        endpoint + requestTarget,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "Accept": "application/json",
+            "Client-Id": clientId,
+            "Request-Id": requestId,
+            "Request-Timestamp": timestamp,
+            "Signature": signature
+          },
+          body: requestBody
+        }
+      );
+    } catch (error) {
+      console.error(
+        "DOKU CONNECTION ERROR:",
+        error.name,
+        error.message
+      );
+
+      return jsonError(
+        "Cloudflare gagal menghubungi server DOKU.",
+        502,
+        {
+          diagnostic: "DOKU_FETCH_FAILED",
+          error_name: error.name,
+          error_message: error.message
+        }
+      );
+    }
+
+    const responseText = await dokuResponse.text();
+
+    let dokuData;
+
+    try {
+      dokuData = JSON.parse(responseText);
+    } catch {
+      console.error(
+        "DOKU INVALID RESPONSE:",
+        dokuResponse.status,
+        responseText.slice(0, 1000)
+      );
+
+      return jsonError(
+        "Respons DOKU bukan JSON yang valid.",
+        502,
+        {
+          diagnostic: "DOKU_INVALID_RESPONSE",
+          doku_http_status: dokuResponse.status,
+          content_type: dokuResponse.headers.get("content-type"),
+          response_preview: responseText.slice(0, 1500)
+        }
+      );
+    }
+
+    if (!dokuResponse.ok) {
+      console.error(
+        "DOKU CHECKOUT ERROR:",
+        dokuResponse.status,
+        JSON.stringify(dokuData).slice(0, 1000)
+      );
+
+      return jsonError(
+        "DOKU menolak permintaan pembuatan pembayaran.",
+        502,
+        {
+          diagnostic: "DOKU_HTTP_ERROR",
+          doku_http_status: dokuResponse.status,
+          doku_response: dokuData
+        }
+      );
+    }
+
+    const paymentData = dokuData.response?.payment;
+    const responseOrder = dokuData.response?.order;
+
+    const checkoutUrl = paymentData?.url;
+    const tokenId = paymentData?.token_id;
+
+    const expiredAt = parseDokuExpiredDate(
+      paymentData?.expired_date
+    );
+
+    if (
+      !checkoutUrl ||
+      !tokenId ||
+      !expiredAt ||
+      responseOrder?.invoice_number !== order.order_number ||
+      Number(responseOrder?.amount) !== order.amount ||
+      !isValidCheckoutUrl(checkoutUrl, environment)
+    ) {
+      console.error(
+        "DOKU RESPONSE VALIDATION FAILED:",
+        JSON.stringify(dokuData).slice(0, 1500)
+      );
+
+      return jsonError(
+        "Respons pembayaran DOKU tidak memenuhi validasi SAHDONG.",
+        502,
+        {
+          diagnostic: "DOKU_RESPONSE_VALIDATION_FAILED"
+        }
+      );
+    }
+
+    // Simpan informasi Checkout.
+    // Status pembayaran tetap pending.
+    const update = await env.DB.prepare(`
+      UPDATE payments
+      SET
+        payment_gateway = 'DOKU',
+        gateway_reference = ?,
+        checkout_url = ?,
+        checkout_expired_at = ?
+      WHERE id = ?
+        AND order_id = ?
+        AND status = 'pending'
+    `).bind(
+      tokenId,
+      checkoutUrl,
+      expiredAt,
+      order.payment_id,
+      order.id
+    ).run();
+
+    if (update.meta.changes !== 1) {
+      return jsonError(
+        "Data pembayaran berubah. Silakan periksa pesanan.",
+        409
+      );
+    }
+
     return Response.json({
       success: true,
-      checkpoint: "BEFORE_DOKU_REQUEST",
-      message: "Proses sebelum menghubungi DOKU berhasil.",
+      message: "Halaman pembayaran berhasil dibuat.",
       order_number: order.order_number,
       amount: order.amount,
-      environment: environment,
-      endpoint: endpoint,
-      request_target: requestTarget,
-      signature_created: Boolean(signature),
-      request_id_created: Boolean(requestId)
+      payment_gateway: "DOKU",
+      payment_status: "pending",
+      checkout_url: checkoutUrl,
+      checkout_expired_at: expiredAt
     });
 
   } catch (error) {
-    console.error("SAHDONG PAYMENT CHECK ERROR:", error);
+    console.error("SAHDONG DOKU CREATE ERROR:", error);
 
     return jsonError(
-      "Terjadi kesalahan saat pemeriksaan pembayaran.",
-      500
+      "Terjadi kesalahan saat membuat pembayaran.",
+      500,
+      {
+        error_name: error.name,
+        error_message: error.message
+      }
     );
   }
 }
