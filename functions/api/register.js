@@ -1,5 +1,5 @@
 
-const ITERATIONS = 310000;
+const ITERATIONS = 100000;
 
 async function hashPassword(password) {
   const salt = crypto.getRandomValues(new Uint8Array(16));
