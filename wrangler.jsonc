@@ -1,0 +1,24 @@
+
+{
+  "$schema": "https://schema.workers.dev/wrangler.json",
+  "name": "sahdong",
+  "pages_build_output_dir": "./public",
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "sahdong-db",
+      "database_id": "8c292015-8dbb-49f2-923b-3f651acfd26d",
+      "migrations_dir": "migrations"
+    }
+  ],
+  "r2_buckets": [
+    {
+      "binding": "GALLERY",
+      "bucket_name": "sahdong-gallery"
+    },
+    {
+      "binding": "MUSIC",
+      "bucket_name": "sahdong-music"
+    }
+  ]
+}
