@@ -59,9 +59,7 @@ export async function onRequestPost({ env }) {
     const requestId = crypto.randomUUID();
     const timestamp = new Date().toISOString();
 
-    const invoiceNumber =
-      "SHD-TEST-" +
-      new Date().toISOString().replace(/\D/g, "").slice(0, 14) +
+    const invoiceNumber = "SHD" + Date.now();.toISOString().replace(/\D/g, "").slice(0, 14) +
       "-" +
       crypto.randomUUID().slice(0, 8);
 
