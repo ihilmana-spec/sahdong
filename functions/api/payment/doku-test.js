@@ -8,8 +8,11 @@ function toBase64(bytes) {
 }
 
 async function createDigest(body) {
-  const encoded = new TextEncoder().encode(body);
-  const hash = await crypto.subtle.digest("SHA-256", encoded);
+  const hash = await crypto.subtle.digest(
+    "SHA-256",
+    new TextEncoder().encode(body)
+  );
+
   return toBase64(new Uint8Array(hash));
 }
 
@@ -37,7 +40,7 @@ export async function onRequestPost({ env }) {
       return Response.json({
         success: false,
         stage: "CONFIGURATION",
-        message: "DOKU Client ID atau Secret Key belum tersedia."
+        message: "Kredensial DOKU belum tersedia."
       }, { status: 500 });
     }
 
@@ -45,23 +48,38 @@ export async function onRequestPost({ env }) {
       return Response.json({
         success: false,
         stage: "ENVIRONMENT",
-        message: "Pengujian dihentikan. DOKU_ENV bukan sandbox."
+        message: "Pengujian hanya boleh dilakukan di Sandbox."
       }, { status: 400 });
     }
 
-    const endpoint = "https://api-sandbox.doku.com/checkout/v1/payment";
+    const endpoint =
+      "https://api-sandbox.doku.com/checkout/v1/payment";
+
     const requestTarget = "/checkout/v1/payment";
-
-    // Payload sengaja tidak lengkap untuk pengujian validasi API.
-    const body = "{}";
-
-    const clientId = env.DOKU_CLIENT_ID;
     const requestId = crypto.randomUUID();
     const timestamp = new Date().toISOString();
+
+    const invoiceNumber =
+      "SHD-TEST-" +
+      new Date().toISOString().replace(/\D/g, "").slice(0, 14) +
+      "-" +
+      crypto.randomUUID().slice(0, 8);
+
+    const payload = {
+      order: {
+        amount: 25000,
+        invoice_number: invoiceNumber
+      },
+      payment: {
+        payment_due_date: 60
+      }
+    };
+
+    const body = JSON.stringify(payload);
     const digest = await createDigest(body);
 
     const components = [
-      `Client-Id:${clientId}`,
+      `Client-Id:${env.DOKU_CLIENT_ID}`,
       `Request-Id:${requestId}`,
       `Request-Timestamp:${timestamp}`,
       `Request-Target:${requestTarget}`,
@@ -80,7 +98,7 @@ export async function onRequestPost({ env }) {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          "Client-Id": clientId,
+          "Client-Id": env.DOKU_CLIENT_ID,
           "Request-Id": requestId,
           "Request-Timestamp": timestamp,
           "Signature": signature
@@ -91,7 +109,6 @@ export async function onRequestPost({ env }) {
       return Response.json({
         success: false,
         stage: "FETCH",
-        message: "Gagal menghubungi API Checkout DOKU.",
         error_name: error.name,
         error_message: error.message
       }, { status: 502 });
@@ -99,13 +116,34 @@ export async function onRequestPost({ env }) {
 
     const responseText = await response.text();
 
+    let dokuData;
+
+    try {
+      dokuData = JSON.parse(responseText);
+    } catch {
+      return Response.json({
+        success: false,
+        stage: "INVALID_RESPONSE",
+        doku_http_status: response.status,
+        doku_response: responseText.slice(0, 3000),
+        invoice_number: invoiceNumber
+      }, { status: 502 });
+    }
+
+    const payment = dokuData.response?.payment || {};
+    const order = dokuData.response?.order || {};
+
     return Response.json({
-      success: true,
-      stage: "DOKU_RESPONSE",
-      message: "Server menerima respons dari API Checkout DOKU.",
+      success: response.ok,
+      stage: "CHECKOUT_RESULT",
       doku_http_status: response.status,
-      doku_response: responseText.slice(0, 3000),
-      request_id: requestId
+      invoice_number: invoiceNumber,
+      amount: 25000,
+      doku_message: dokuData.message || null,
+      checkout_url: payment.url || null,
+      token_id_received: Boolean(payment.token_id),
+      expired_date: payment.expired_date || null,
+      response: dokuData
     });
 
   } catch (error) {
@@ -121,6 +159,6 @@ export async function onRequestPost({ env }) {
 export async function onRequestGet() {
   return Response.json({
     success: true,
-    message: "DOKU diagnostic endpoint aktif. Gunakan POST."
+    message: "DOKU Sandbox Checkout test aktif. Gunakan POST."
   });
 }
