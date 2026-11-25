@@ -111,8 +111,21 @@ export async function onRequestPost({ request, env }) {
       { status: 201 }
     );
 
-  } catch (error) {
+    } catch (error) {
+    console.error("SAHDONG REGISTER ERROR:", error);
+
     if (error.message?.includes("UNIQUE constraint failed")) {
+      return Response.json(
+        { success: false, message: "Email sudah terdaftar." },
+        { status: 409 }
+      );
+    }
+
+    return Response.json(
+      { success: false, message: "Terjadi kesalahan pada server." },
+      { status: 500 }
+    );
+  }
       return Response.json(
         { success: false, message: "Email sudah terdaftar." },
         { status: 409 }
