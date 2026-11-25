@@ -1,0 +1,67 @@
+
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Tes Pesanan SAHDONG</title>
+</head>
+<body style="font-family:Arial;padding:20px;max-width:500px;margin:auto">
+  <h2>SAHDONG - Tes Pembuatan Pesanan</h2>
+
+  <label>ID Undangan</label>
+  <input id="invitationId"
+    value="d8449e23-60ea-469e-b8c3-9cd9163f2d64"
+    style="width:100%;padding:12px;box-sizing:border-box">
+
+  <br><br>
+
+  <label>Pilih Paket</label>
+  <select id="package" style="width:100%;padding:12px">
+    <option value="basic">Basic - Rp25.000</option>
+    <option value="premium">Premium - Rp45.000</option>
+    <option value="exclusive">Exclusive - Rp92.000</option>
+  </select>
+
+  <br><br>
+
+  <button onclick="createOrder()" id="button"
+    style="width:100%;padding:14px">
+    Buat Pesanan
+  </button>
+
+  <pre id="result" style="white-space:pre-wrap;overflow-wrap:anywhere"></pre>
+
+  <script>
+    async function createOrder() {
+      const button = document.getElementById("button");
+      const result = document.getElementById("result");
+
+      button.disabled = true;
+      result.textContent = "Membuat pesanan...";
+
+      try {
+        const response = await fetch("/api/orders", {
+          method: "POST",
+          credentials: "same-origin",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({
+            invitation_id: document.getElementById("invitationId").value.trim(),
+            package: document.getElementById("package").value
+          })
+        });
+
+        const data = await response.json();
+        result.textContent = JSON.stringify(data, null, 2);
+
+      } catch (error) {
+        result.textContent = "Kesalahan: " + error.message;
+      } finally {
+        button.disabled = false;
+      }
+    }
+  </script>
+</body>
+</html>
