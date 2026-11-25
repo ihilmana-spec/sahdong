@@ -121,58 +121,6 @@ async function createSignature(
   return `HMACSHA256=${toBase64(signature)}`;
 }
 
-function parseDokuExpiredDate(value) {
-  if (!value) return null;
-
-  const dateString = String(value);
-
-  if (!/^\d{14}$/.test(dateString)) {
-    return null;
-  }
-
-  const formatted =
-    dateString.slice(0, 4) + "-" +
-    dateString.slice(4, 6) + "-" +
-    dateString.slice(6, 8) + "T" +
-    dateString.slice(8, 10) + ":" +
-    dateString.slice(10, 12) + ":" +
-    dateString.slice(12, 14) + "+07:00";
-
-  const date = new Date(formatted);
-
-  if (Number.isNaN(date.getTime())) {
-    return null;
-  }
-
-  return date.toISOString();
-}
-
-function isValidCheckoutUrl(value, environment) {
-  try {
-    const url = new URL(value);
-
-    if (url.protocol !== "https:") return false;
-
-    if (
-      url.hostname !== "doku.com" &&
-      !url.hostname.endsWith(".doku.com")
-    ) {
-      return false;
-    }
-
-    if (
-      environment === "sandbox" &&
-      url.hostname !== "sandbox.doku.com"
-    ) {
-      return false;
-    }
-
-    return true;
-  } catch {
-    return false;
-  }
-}
-
 export async function onRequestPost({ request, env }) {
   try {
     if (!env.DB) {
@@ -217,7 +165,6 @@ export async function onRequestPost({ request, env }) {
       return jsonError("ID pesanan wajib diisi.", 400);
     }
 
-    // Ambil pesanan milik pelanggan yang sedang login
     const order = await env.DB.prepare(`
       SELECT
         o.id,
@@ -257,26 +204,6 @@ export async function onRequestPost({ request, env }) {
       return jsonError("Nominal pesanan tidak valid.", 400);
     }
 
-    // Gunakan kembali checkout jika belum kedaluwarsa
-    if (order.checkout_url && order.checkout_expired_at) {
-      const expiry = new Date(order.checkout_expired_at);
-
-      if (
-        !Number.isNaN(expiry.getTime()) &&
-        expiry.getTime() > Date.now() &&
-        isValidCheckoutUrl(order.checkout_url, environment)
-      ) {
-        return Response.json({
-          success: true,
-          message: "Halaman pembayaran masih tersedia.",
-          order_number: order.order_number,
-          amount: order.amount,
-          checkout_url: order.checkout_url,
-          checkout_expired_at: order.checkout_expired_at
-        });
-      }
-    }
-
     const requestTarget = "/checkout/v1/payment";
 
     const endpoint = environment === "production"
@@ -307,119 +234,31 @@ export async function onRequestPost({ request, env }) {
       digest
     );
 
-    // Kirim permintaan Checkout ke DOKU
-    const dokuResponse = await fetch(
-      endpoint + requestTarget,
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "Client-Id": clientId,
-          "Request-Id": requestId,
-          "Request-Timestamp": timestamp,
-          "Signature": signature
-        },
-        body: requestBody
-      }
-    );
-
-    let dokuData;
-
-    try {
-      dokuData = await dokuResponse.json();
-    } catch {
-      return jsonError(
-        "Respons DOKU tidak dapat dibaca.",
-        502
-      );
-    }
-
-    if (!dokuResponse.ok) {
-      console.error(
-        "DOKU CHECKOUT ERROR:",
-        dokuResponse.status,
-        JSON.stringify(dokuData).slice(0, 1000)
-      );
-
-      return jsonError(
-        "DOKU gagal membuat halaman pembayaran.",
-        502
-      );
-    }
-
-    const paymentData = dokuData.response?.payment;
-    const responseOrder = dokuData.response?.order;
-
-    const checkoutUrl = paymentData?.url;
-    const tokenId = paymentData?.token_id;
-
-    const expiredAt = parseDokuExpiredDate(
-      paymentData?.expired_date
-    );
-
-    if (
-      !checkoutUrl ||
-      !tokenId ||
-      !expiredAt ||
-      responseOrder?.invoice_number !== order.order_number ||
-      Number(responseOrder?.amount) !== order.amount ||
-      !isValidCheckoutUrl(checkoutUrl, environment)
-    ) {
-      console.error("DOKU RESPONSE VALIDATION FAILED");
-
-      return jsonError(
-        "Respons pembayaran DOKU tidak valid.",
-        502
-      );
-    }
-
-    // Simpan informasi Checkout.
-    // Status pembayaran tetap pending.
-    const update = await env.DB.prepare(`
-      UPDATE payments
-      SET
-        payment_gateway = 'DOKU',
-        gateway_reference = ?,
-        checkout_url = ?,
-        checkout_expired_at = ?
-      WHERE id = ?
-        AND order_id = ?
-        AND status = 'pending'
-    `).bind(
-      tokenId,
-      checkoutUrl,
-      expiredAt,
-      order.payment_id,
-      order.id
-    ).run();
-
-    if (update.meta.changes !== 1) {
-      return jsonError(
-        "Data pembayaran berubah. Silakan periksa pesanan.",
-        409
-      );
-    }
-
+    // TES CHECKPOINT:
+    // Berhenti sebelum mengirim request ke DOKU.
     return Response.json({
       success: true,
-      message: "Halaman pembayaran berhasil dibuat.",
+      checkpoint: "BEFORE_DOKU_REQUEST",
+      message: "Proses sebelum menghubungi DOKU berhasil.",
       order_number: order.order_number,
       amount: order.amount,
-      payment_gateway: "DOKU",
-      payment_status: "pending",
-      checkout_url: checkoutUrl,
-      checkout_expired_at: expiredAt
+      environment: environment,
+      endpoint: endpoint,
+      request_target: requestTarget,
+      signature_created: Boolean(signature),
+      request_id_created: Boolean(requestId)
     });
 
   } catch (error) {
-    console.error("SAHDONG DOKU CREATE ERROR:", error);
+    console.error("SAHDONG PAYMENT CHECK ERROR:", error);
 
     return jsonError(
-      "Terjadi kesalahan saat membuat pembayaran.",
+      "Terjadi kesalahan saat pemeriksaan pembayaran.",
       500
     );
   }
 }
+
 export async function onRequestGet() {
   return Response.json({
     success: true,
