@@ -420,3 +420,9 @@ export async function onRequestPost({ request, env }) {
     );
   }
 }
+export async function onRequestGet() {
+  return Response.json({
+    success: true,
+    message: "Endpoint pembayaran SAHDONG aktif. Gunakan metode POST."
+  }, { status: 405 });
+}
