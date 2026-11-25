@@ -219,6 +219,175 @@
       .template-info { padding: 12px; }
       .template-info h3 { font-size: 16px; }
     }
+    
+/* ==================================
+   SAHDONG MOBILE FRIENDLY CATALOG
+================================== */
+
+html {
+  scroll-behavior: smooth;
+  scroll-padding-top: 120px;
+}
+
+body {
+  overflow-x: hidden;
+}
+
+.catalog-nav {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  min-height: 60px;
+  padding: 12px 5%;
+  box-shadow: 0 3px 15px rgba(0,0,0,.12);
+}
+
+.catalog-nav a:last-child {
+  padding: 10px 14px;
+  border: 1px solid rgba(255,255,255,.3);
+  border-radius: 25px;
+}
+
+.template-card {
+  min-width: 0;
+  border-radius: 12px;
+  transition: transform .3s ease, box-shadow .3s ease;
+}
+
+.template-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 12px 28px rgba(0,0,0,.12);
+}
+
+.template-image {
+  aspect-ratio: 3 / 4;
+  object-fit: cover;
+}
+
+.demo-button {
+  min-height: 42px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: .25s ease;
+}
+
+.package-heading {
+  flex-wrap: wrap;
+}
+
+@media (max-width: 650px) {
+  .catalog-nav {
+    padding: 11px 15px;
+  }
+
+  .brand {
+    font-size: 21px;
+    letter-spacing: 2px;
+  }
+
+  .catalog-nav a:last-child {
+    font-size: 11px;
+    padding: 9px 12px;
+  }
+
+  .hero {
+    padding: 45px 18px 38px;
+  }
+
+  .hero h1 {
+    font-size: 32px;
+    line-height: 1.2;
+  }
+
+  .hero p {
+    font-size: 13px;
+    line-height: 1.7;
+  }
+
+  .catalog-container {
+    padding: 30px 12px 50px;
+  }
+
+  .package {
+    margin-bottom: 45px;
+    scroll-margin-top: 80px;
+  }
+
+  .package-heading {
+    align-items: flex-start;
+    gap: 8px;
+    padding-bottom: 14px;
+    margin-bottom: 17px;
+  }
+
+  .package-heading h2 {
+    font-size: 22px;
+    line-height: 1.25;
+  }
+
+  .package-heading p {
+    font-size: 11px;
+    line-height: 1.5;
+  }
+
+  .price {
+    font-size: 16px;
+    padding-top: 3px;
+  }
+
+  .template-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 11px;
+  }
+
+  .template-info {
+    padding: 10px;
+  }
+
+  .template-code {
+    font-size: 9px;
+    letter-spacing: 1px;
+  }
+
+  .template-info h3 {
+    font-size: 15px;
+    line-height: 1.3;
+    overflow-wrap: anywhere;
+  }
+
+  .template-info p {
+    font-size: 10px;
+    line-height: 1.4;
+  }
+
+  .demo-button {
+    font-size: 11px;
+    padding: 10px 5px;
+  }
+
+  .catalog-footer {
+    padding: 28px 15px;
+  }
+}
+
+@media (max-width: 360px) {
+  .template-grid {
+    gap: 8px;
+  }
+
+  .template-info {
+    padding: 8px;
+  }
+
+  .template-info h3 {
+    font-size: 14px;
+  }
+
+  .price {
+    font-size: 14px;
+  }
+}
+
   </style>
 </head>
 
@@ -433,6 +602,34 @@
         grid.appendChild(createTemplateCard(collection, name, index));
       });
     });
+
+    
+const catalogCards = document.querySelectorAll(".template-card");
+
+if ("IntersectionObserver" in window) {
+  const catalogObserver = new IntersectionObserver((entries, observer) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.style.opacity = "1";
+        entry.target.style.transform = "translateY(0)";
+        observer.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.1 });
+
+  catalogCards.forEach(card => {
+    card.style.opacity = "0";
+    card.style.transform = "translateY(20px)";
+    card.style.transition = "opacity .6s ease, transform .6s ease";
+    catalogObserver.observe(card);
+  });
+} else {
+  catalogCards.forEach(card => {
+    card.style.opacity = "1";
+    card.style.transform = "none";
+  });
+}
+
   </script>
 </body>
 </html>
