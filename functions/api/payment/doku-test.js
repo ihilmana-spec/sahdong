@@ -66,14 +66,16 @@ export async function onRequestPost({ env }) {
       crypto.randomUUID().slice(0, 8);
 
     const payload = {
-      order: {
-        amount: 25000,
-        invoice_number: invoiceNumber
-      },
-      payment: {
-        payment_due_date: 60
-      }
-    };
+  order: {
+    amount: 25000,
+    invoice_number: invoiceNumber,
+    currency: "IDR",
+    auto_redirect: true
+  },
+  payment: {
+    payment_due_date: 60
+  }
+};
 
     const body = JSON.stringify(payload);
     const digest = await createDigest(body);
