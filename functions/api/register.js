@@ -122,12 +122,11 @@ export async function onRequestPost({ request, env }) {
     }
 
     return Response.json(
-      {
-        success: false,
-        message: "Terjadi kesalahan pada server.",
-        debug: error.message || String(error)
-      },
-      { status: 500 }
-    );
+  {
+    success: false,
+    message: "Terjadi kesalahan pada server."
+  },
+  { status: 500 }
+);
   }
 }
