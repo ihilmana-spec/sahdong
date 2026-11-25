@@ -270,3 +270,79 @@ export async function onRequestPost({ request, env }) {
     );
   }
 }
+
+export async function onRequestGet({ request, env }) {
+  try {
+    const cookie = request.headers.get("Cookie") || "";
+    const match = cookie.match(/(?:^|;\s*)sahdong_session=([^;]+)/);
+
+    if (!match) {
+      return Response.json(
+        { success: false, message: "Belum login." },
+        { status: 401 }
+      );
+    }
+
+    const token = match[1];
+    const tokenHash = await hashToken(token);
+    const now = Math.floor(Date.now() / 1000);
+
+    const session = await env.DB.prepare(`
+      SELECT
+        users.id,
+        users.role,
+        users.status
+      FROM sessions
+      JOIN users ON users.id = sessions.user_id
+      WHERE sessions.token_hash = ?
+        AND sessions.expires_at > ?
+      LIMIT 1
+    `).bind(tokenHash, now).first();
+
+    if (!session || session.status !== "active") {
+      return Response.json(
+        { success: false, message: "Sesi tidak valid atau sudah kedaluwarsa." },
+        { status: 401 }
+      );
+    }
+
+    if (session.role !== "customer") {
+      return Response.json(
+        { success: false, message: "Akses hanya untuk pelanggan." },
+        { status: 403 }
+      );
+    }
+
+    const result = await env.DB.prepare(`
+      SELECT
+        id,
+        title,
+        slug,
+        template_code,
+        activation_date,
+        status,
+        review_status,
+        created_at,
+        updated_at
+      FROM invitations
+      WHERE user_id = ?
+      ORDER BY created_at DESC
+    `).bind(session.id).all();
+
+    return Response.json({
+      success: true,
+      message: "Daftar undangan berhasil diambil.",
+      total: result.results.length,
+      invitations: result.results
+    });
+
+  } catch (error) {
+    return Response.json(
+      {
+        success: false,
+        message: "Terjadi kesalahan pada server."
+      },
+      { status: 500 }
+    );
+  }
+}
