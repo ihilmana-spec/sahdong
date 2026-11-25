@@ -48,7 +48,7 @@ export async function onRequestPost({ env }) {
       return Response.json({
         success: false,
         stage: "ENVIRONMENT",
-        message: "Pengujian hanya boleh dilakukan di Sandbox."
+        message: "Pengujian hanya diizinkan untuk Sandbox."
       }, { status: 400 });
     }
 
@@ -59,21 +59,19 @@ export async function onRequestPost({ env }) {
     const requestId = crypto.randomUUID();
     const timestamp = new Date().toISOString();
 
-    const invoiceNumber = "SHD" + Date.now();.toISOString().replace(/\D/g, "").slice(0, 14) +
-      "-" +
-      crypto.randomUUID().slice(0, 8);
+    const invoiceNumber = "SHD" + Date.now();
 
     const payload = {
-  order: {
-    amount: 25000,
-    invoice_number: invoiceNumber,
-    currency: "IDR",
-    auto_redirect: true
-  },
-  payment: {
-    payment_due_date: 60
-  }
-};
+      order: {
+        amount: 25000,
+        invoice_number: invoiceNumber,
+        currency: "IDR",
+        auto_redirect: true
+      },
+      payment: {
+        payment_due_date: 60
+      }
+    };
 
     const body = JSON.stringify(payload);
     const digest = await createDigest(body);
@@ -131,7 +129,6 @@ export async function onRequestPost({ env }) {
     }
 
     const payment = dokuData.response?.payment || {};
-    const order = dokuData.response?.order || {};
 
     return Response.json({
       success: response.ok,
