@@ -581,11 +581,27 @@ body {
       const description = document.createElement("p");
       description.textContent = "Wedding Invitation Digital";
 
-      const demo = document.createElement("a");
-      demo.className = "demo-button";
-      demo.href = "/demo/BSC-01/";
-      demo.setAttribute("aria-label", "Demo " + name);
-      demo.textContent = "Lihat Demo";
+      
+const demo = document.createElement("a");
+demo.className = "demo-button";
+demo.setAttribute("aria-label", "Demo " + name);
+
+if (code === "BSC-01") {
+  demo.href = "/demo/BSC-01/";
+  demo.textContent = "Lihat Demo";
+} else {
+  demo.href = "#";
+  demo.textContent = "Segera Hadir";
+
+  demo.addEventListener("click", function(event) {
+    event.preventDefault();
+    alert(
+      "Demo " + code + " - " + name +
+      " sedang dalam proses pembuatan. Nantikan segera di SAHDONG!"
+    );
+  });
+}
+
 
       info.append(templateCode, title, description, demo);
       card.append(image, info);
