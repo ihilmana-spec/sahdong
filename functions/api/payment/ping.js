@@ -1,7 +1,7 @@
-export async function onRequest(context) {
+export async function onRequest({ request }) {
   return Response.json({
     success: true,
-    message: "Payment API berjalan",
-    method: context.request.method
+    message: "POST Payment API berjalan",
+    method: request.method
   });
 }
