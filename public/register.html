@@ -1,0 +1,160 @@
+
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Daftar Akun - SAHDONG</title>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: #f5f6fa;
+      color: #252525;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+    .container {
+      width: 100%;
+      max-width: 430px;
+      background: white;
+      padding: 30px;
+      border-radius: 14px;
+      box-shadow: 0 5px 25px rgba(0,0,0,.07);
+    }
+    h1 { text-align: center; margin-bottom: 8px; }
+    .subtitle {
+      text-align: center;
+      color: #777;
+      margin-bottom: 25px;
+    }
+    label {
+      display: block;
+      margin: 14px 0 7px;
+      font-weight: bold;
+      font-size: 14px;
+    }
+    input {
+      width: 100%;
+      padding: 13px;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      font-size: 15px;
+    }
+    button {
+      width: 100%;
+      margin-top: 22px;
+      padding: 14px;
+      border: 0;
+      border-radius: 8px;
+      background: #202b46;
+      color: white;
+      font-size: 16px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+    button:disabled { opacity: .6; }
+    #message {
+      margin-top: 15px;
+      font-size: 14px;
+      line-height: 1.5;
+    }
+    .footer {
+      text-align: center;
+      margin-top: 20px;
+      font-size: 14px;
+    }
+    a { color: #202b46; }
+  </style>
+</head>
+<body>
+  <main class="container">
+    <h1>SAHDONG</h1>
+    <p class="subtitle">Buat akun pelanggan baru</p>
+
+    <form id="registerForm">
+      <label for="full_name">Nama Lengkap</label>
+      <input id="full_name" name="full_name"
+        maxlength="100" required autocomplete="name">
+
+      <label for="email">Email</label>
+      <input id="email" name="email"
+        type="email" maxlength="254" required autocomplete="email">
+
+      <label for="phone">Nomor HP (Opsional)</label>
+      <input id="phone" name="phone"
+        type="tel" maxlength="20" autocomplete="tel">
+
+      <label for="password">Password</label>
+      <input id="password" name="password"
+        type="password" minlength="8" maxlength="128"
+        required autocomplete="new-password">
+
+      <button id="submitButton" type="submit">
+        Daftar Sekarang
+      </button>
+    </form>
+
+    <div id="message" role="status"></div>
+
+    <div class="footer">
+      Sudah punya akun? <a href="/login.html">Masuk di sini</a>
+    </div>
+  </main>
+
+  <script>
+    const form = document.getElementById("registerForm");
+    const message = document.getElementById("message");
+    const button = document.getElementById("submitButton");
+
+    form.addEventListener("submit", async function(event) {
+      event.preventDefault();
+
+      message.textContent = "";
+      button.disabled = true;
+      button.textContent = "Memproses...";
+
+      const data = {
+        full_name: document.getElementById("full_name").value.trim(),
+        email: document.getElementById("email").value.trim(),
+        phone: document.getElementById("phone").value.trim(),
+        password: document.getElementById("password").value
+      };
+
+      try {
+        const response = await fetch("/api/register", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify(data)
+        });
+
+        const result = await response.json();
+
+        if (!response.ok || !result.success) {
+          throw new Error(result.message || "Registrasi gagal.");
+        }
+
+        message.style.color = "green";
+        message.textContent =
+          "Registrasi berhasil! Silakan masuk menggunakan akun kamu.";
+
+        form.reset();
+
+      } catch (error) {
+        message.style.color = "red";
+        message.textContent = error.message ||
+          "Tidak dapat menghubungi server.";
+      } finally {
+        button.disabled = false;
+        button.textContent = "Daftar Sekarang";
+      }
+    });
+  </script>
+</body>
+</html>
