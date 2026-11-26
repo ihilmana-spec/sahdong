@@ -31,27 +31,22 @@ function getSessionCookie(request) {
 
 export async function onRequestGet({ request, env }) {
   try {
+    // 1. Periksa database
     if (!env.DB) {
-      return Response.json(
-        {
-          success: false,
-          message: "Database tidak tersedia."
-        },
-        { status: 500 }
-      );
+      return Response.json({
+        success: false,
+        message: "Database tidak tersedia."
+      }, { status: 500 });
     }
 
-    // Memeriksa session pengguna
+    // 2. Periksa sesi login
     const token = getSessionCookie(request);
 
     if (!token) {
-      return Response.json(
-        {
-          success: false,
-          message: "Belum login."
-        },
-        { status: 401 }
-      );
+      return Response.json({
+        success: false,
+        message: "Belum login."
+      }, { status: 401 });
     }
 
     const tokenHash = await hashToken(token);
@@ -76,35 +71,32 @@ export async function onRequestGet({ request, env }) {
       .first();
 
     if (!user || user.status !== "active") {
-      return Response.json(
-        {
-          success: false,
-          message: "Session tidak valid atau sudah kedaluwarsa."
-        },
-        { status: 401 }
-      );
+      return Response.json({
+        success: false,
+        message: "Session tidak valid atau sudah kedaluwarsa."
+      }, { status: 401 });
     }
 
-    // Hanya customer yang dapat menggunakan dashboard ini
+    // 3. Hanya customer yang dapat mengakses dashboard
     if (user.role !== "customer") {
-      return Response.json(
-        {
-          success: false,
-          message: "Akses khusus customer."
-        },
-        { status: 403 }
-      );
+      return Response.json({
+        success: false,
+        message: "Akses khusus customer."
+      }, { status: 403 });
     }
 
-    // Mengambil ringkasan data dashboard
+    // 4. Ambil seluruh ringkasan dan data terbaru
     const [
       invitationCount,
       orderCount,
       paymentCount,
+      pendingOrderCount,
+      activeInvitationCount,
       recentInvitations,
       recentOrders
     ] = await Promise.all([
 
+      // Total undangan
       env.DB.prepare(`
         SELECT COUNT(*) AS total
         FROM invitations
@@ -113,6 +105,7 @@ export async function onRequestGet({ request, env }) {
         .bind(user.id)
         .first(),
 
+      // Total pesanan
       env.DB.prepare(`
         SELECT COUNT(*) AS total
         FROM orders
@@ -121,6 +114,7 @@ export async function onRequestGet({ request, env }) {
         .bind(user.id)
         .first(),
 
+      // Total pembayaran lunas
       env.DB.prepare(`
         SELECT COUNT(*) AS total
         FROM payments
@@ -132,6 +126,27 @@ export async function onRequestGet({ request, env }) {
         .bind(user.id)
         .first(),
 
+      // Pesanan menunggu pembayaran
+      env.DB.prepare(`
+        SELECT COUNT(*) AS total
+        FROM orders
+        WHERE user_id = ?
+          AND status = 'pending'
+      `)
+        .bind(user.id)
+        .first(),
+
+      // Undangan aktif atau sudah dipublikasikan
+      env.DB.prepare(`
+        SELECT COUNT(*) AS total
+        FROM invitations
+        WHERE user_id = ?
+          AND status IN ('active', 'published')
+      `)
+        .bind(user.id)
+        .first(),
+
+      // Lima undangan terbaru
       env.DB.prepare(`
         SELECT
           id,
@@ -151,15 +166,18 @@ export async function onRequestGet({ request, env }) {
         .bind(user.id)
         .all(),
 
+      // Lima pesanan terbaru
       env.DB.prepare(`
         SELECT
           orders.id,
           orders.order_number,
+          orders.invitation_id,
           orders.package_name,
           orders.amount,
           orders.status,
           orders.created_at,
           invitations.title AS invitation_title,
+
           (
             SELECT payments.status
             FROM payments
@@ -167,6 +185,7 @@ export async function onRequestGet({ request, env }) {
             ORDER BY payments.created_at DESC
             LIMIT 1
           ) AS payment_status,
+
           (
             SELECT payments.paid_at
             FROM payments
@@ -174,17 +193,21 @@ export async function onRequestGet({ request, env }) {
             ORDER BY payments.created_at DESC
             LIMIT 1
           ) AS paid_at
+
         FROM orders
         LEFT JOIN invitations
           ON invitations.id = orders.invitation_id
+
         WHERE orders.user_id = ?
         ORDER BY orders.created_at DESC
         LIMIT 5
       `)
         .bind(user.id)
         .all()
+
     ]);
 
+    // 5. Kirim respons dashboard
     return Response.json({
       success: true,
       message: "Dashboard berhasil diambil.",
@@ -200,22 +223,21 @@ export async function onRequestGet({ request, env }) {
       summary: {
         total_invitations: invitationCount.total,
         total_orders: orderCount.total,
-        total_paid_payments: paymentCount.total
+        total_paid_payments: paymentCount.total,
+        pending_orders: pendingOrderCount.total,
+        active_invitations: activeInvitationCount.total
       },
 
-      invitations: recentInvitations.results,
-      orders: recentOrders.results
+      invitations: recentInvitations.results || [],
+      orders: recentOrders.results || []
     });
 
   } catch (error) {
     console.error("SAHDONG DASHBOARD ERROR:", error);
 
-    return Response.json(
-      {
-        success: false,
-        message: "Terjadi kesalahan pada server."
-      },
-      { status: 500 }
-    );
+    return Response.json({
+      success: false,
+      message: "Terjadi kesalahan pada server."
+    }, { status: 500 });
   }
 }
