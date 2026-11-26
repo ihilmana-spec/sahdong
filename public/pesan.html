@@ -3,501 +3,279 @@
 <html lang="id">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="theme-color" content="#f7f3eb">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Pemesanan Undangan - SAHDONG</title>
-
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:wght@500;600;700&display=swap" rel="stylesheet">
-
   <style>
-    :root {
-      --ink: #26362f;
-      --ink-deep: #1d2d27;
-      --gold: #b89a68;
-      --gold-light: #d9c49c;
-      --paper: #f7f3eb;
-      --white: #fffdf9;
-      --text: #4e554f;
-      --muted: #85877f;
-      --line: #e3dccf;
-      --danger: #a13d35;
-      --success: #28633c;
+    * {
+      box-sizing: border-box;
     }
-
-    * { box-sizing: border-box; }
 
     body {
       margin: 0;
-      padding: 30px 16px 50px;
-      background:
-        radial-gradient(ellipse at top left, #fffdf9 0%, transparent 45%),
-        linear-gradient(135deg, var(--paper), #eee8dc);
-      color: var(--text);
-      font-family: "DM Sans", sans-serif;
+      padding: 24px 16px;
+      background: #f5f6fa;
+      color: #252525;
+      font-family: Arial, sans-serif;
     }
 
     .container {
       width: 100%;
-      max-width: 760px;
-      margin: auto;
-    }
-
-    .back {
-      display: inline-block;
-      margin-bottom: 18px;
-      color: var(--ink);
-      font-size: 13px;
-      font-weight: 700;
-      text-decoration: none;
-    }
-
-    .header {
-      margin-bottom: 25px;
-      text-align: center;
+      max-width: 520px;
+      margin: 40px auto;
+      padding: 28px;
+      background: #fff;
+      border-radius: 16px;
+      box-shadow: 0 5px 25px rgba(0,0,0,.06);
     }
 
     .brand {
-      color: var(--gold);
-      font-family: "Playfair Display", serif;
-      font-size: 13px;
-      letter-spacing: 4px;
+      text-align: center;
+      font-size: 27px;
+      font-weight: bold;
+      letter-spacing: 1px;
+      color: #9b7653;
     }
 
     h1 {
-      margin: 9px 0;
-      color: var(--ink);
-      font-family: "Playfair Display", serif;
-      font-size: 34px;
-      font-weight: 600;
+      margin: 12px 0 8px;
+      text-align: center;
+      font-size: 23px;
     }
 
-    .header p {
-      margin: 0;
-      color: var(--muted);
-      font-size: 13px;
-      line-height: 1.7;
-    }
-
-    .card {
-      margin-bottom: 20px;
-      padding: 28px;
-      border: 1px solid rgba(184,154,104,.3);
-      border-radius: 15px;
-      background: var(--white);
-      box-shadow: 0 12px 35px rgba(38,54,47,.06);
-    }
-
-    .section-title {
-      margin: 0 0 5px;
-      color: var(--ink);
-      font-family: "Playfair Display", serif;
-      font-size: 21px;
-    }
-
-    .section-desc {
-      margin: 0 0 22px;
-      color: var(--muted);
-      font-size: 12px;
+    .subtitle {
+      margin: 0 0 25px;
+      text-align: center;
+      color: #777;
+      font-size: 14px;
       line-height: 1.6;
     }
 
-    .template-box {
-      padding: 15px;
-      border: 1px solid var(--gold-light);
-      border-radius: 10px;
-      background: #faf6ed;
+    .section {
+      padding: 20px;
+      background: #faf8f5;
+      border: 1px solid #eee5db;
+      border-radius: 12px;
     }
 
-    .template-label {
-      color: var(--muted);
-      font-size: 11px;
-      text-transform: uppercase;
-      letter-spacing: 1px;
+    .label {
+      display: block;
+      margin-bottom: 8px;
+      color: #777;
+      font-size: 13px;
     }
 
     .template-code {
-      margin-top: 5px;
-      color: var(--ink);
-      font-size: 21px;
-      font-weight: 700;
-    }
-
-    .grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 17px;
-    }
-
-    .field {
-      margin-bottom: 17px;
-    }
-
-    .field.full {
-      grid-column: 1 / -1;
-    }
-
-    label {
-      display: block;
-      margin-bottom: 7px;
-      color: var(--ink);
-      font-size: 12px;
-      font-weight: 700;
-    }
-
-    input, textarea {
-      width: 100%;
-      min-height: 46px;
-      padding: 12px 13px;
-      border: 1px solid var(--line);
-      border-radius: 8px;
-      outline: none;
-      background: #fffefa;
-      color: var(--ink);
-      font-family: inherit;
-      font-size: 13px;
-    }
-
-    textarea {
-      min-height: 90px;
-      resize: vertical;
-    }
-
-    input:focus, textarea:focus {
-      border-color: var(--gold);
-      box-shadow: 0 0 0 3px rgba(184,154,104,.12);
-    }
-
-    .packages {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 12px;
-    }
-
-    .package {
-      position: relative;
-      padding: 17px 12px;
-      border: 1px solid var(--line);
-      border-radius: 10px;
-      background: #fffefa;
-      cursor: pointer;
-      transition: .2s;
-    }
-
-    .package:has(input:checked) {
-      border: 2px solid var(--gold);
-      background: #faf6ed;
-    }
-
-    .package input {
-      width: auto;
-      min-height: auto;
-      margin: 0 0 12px;
-      accent-color: var(--ink);
+      font-size: 25px;
+      font-weight: bold;
+      color: #8b6849;
     }
 
     .package-name {
-      color: var(--ink);
-      font-size: 14px;
-      font-weight: 700;
+      margin-top: 22px;
+      font-size: 19px;
+      font-weight: bold;
     }
 
-    .package-price {
-      margin-top: 7px;
-      color: var(--gold);
-      font-size: 16px;
-      font-weight: 700;
-    }
-
-    .package-duration {
-      margin-top: 5px;
-      color: var(--muted);
-      font-size: 11px;
-    }
-
-    .package-info {
+    .price {
       margin-top: 8px;
-      color: var(--text);
-      font-size: 11px;
-      line-height: 1.6;
+      font-size: 29px;
+      font-weight: bold;
+      color: #292929;
+    }
+
+    .duration {
+      margin-top: 5px;
+      color: #777;
+      font-size: 14px;
     }
 
     .notice {
-      margin-top: 15px;
-      padding: 12px;
-      border-radius: 8px;
-      background: #f5f1e8;
-      color: var(--text);
-      font-size: 11px;
-      line-height: 1.7;
+      margin: 20px 0;
+      padding: 13px;
+      border-radius: 9px;
+      background: #f4f5f7;
+      color: #666;
+      font-size: 13px;
+      line-height: 1.6;
     }
 
-    .submit {
+    button {
       width: 100%;
-      min-height: 53px;
-      border: 0;
+      padding: 15px;
+      border: none;
       border-radius: 9px;
-      background: var(--ink-deep);
+      background: #9b7653;
       color: white;
-      font-family: inherit;
-      font-size: 14px;
-      font-weight: 700;
+      font-size: 16px;
+      font-weight: bold;
       cursor: pointer;
     }
 
-    .submit:hover { background: #344b40; }
-
-    .submit:disabled {
+    button:disabled {
       opacity: .6;
       cursor: not-allowed;
     }
 
-    #message {
+    .message {
       display: none;
-      margin-bottom: 18px;
+      margin-top: 18px;
       padding: 14px;
-      border-radius: 8px;
-      font-size: 13px;
-      line-height: 1.7;
+      border-radius: 9px;
+      font-size: 14px;
+      line-height: 1.6;
     }
 
-    #message.error {
+    .error {
       display: block;
-      background: #fbefed;
-      color: var(--danger);
+      background: #fff0f0;
+      color: #b42318;
     }
 
-    #message.success {
+    .success {
       display: block;
-      background: #edf5ee;
-      color: var(--success);
+      background: #edf8f0;
+      color: #216e39;
     }
 
-    .footer {
-      margin-top: 30px;
-      color: var(--muted);
-      font-size: 11px;
+    .success a {
+      display: inline-block;
+      margin-top: 10px;
+      color: #216e39;
+      font-weight: bold;
+    }
+
+    .back {
+      display: block;
+      margin-top: 22px;
       text-align: center;
+      color: #777;
+      text-decoration: none;
+      font-size: 14px;
     }
 
-    @media(max-width: 600px) {
-      body { padding: 20px 12px 35px; }
-      .card { padding: 21px 17px; }
-      h1 { font-size: 28px; }
-      .grid { grid-template-columns: 1fr; gap: 0; }
-      .field.full { grid-column: auto; }
-      .packages { grid-template-columns: 1fr; }
-      .package { display: grid; grid-template-columns: 24px 1fr; }
-      .package input { grid-row: 1 / 4; }
-      .package-price, .package-duration, .package-info { grid-column: 2; }
+    @media (max-width: 480px) {
+      .container {
+        margin: 10px auto;
+        padding: 22px;
+      }
     }
   </style>
 </head>
-
 <body>
+
   <main class="container">
-    <a href="/template/" class="back">← Kembali ke Pilihan Template</a>
+    <div class="brand">SAHDONG</div>
 
-    <header class="header">
-      <div class="brand">SAHDONG</div>
-      <h1>Buat Undangan Anda</h1>
-      <p>Lengkapi informasi acara dan pilih paket undangan digital Anda.</p>
-    </header>
+    <h1>Konfirmasi Pesanan</h1>
 
-    <div id="message" role="status" aria-live="polite"></div>
+    <p class="subtitle">
+      Periksa template dan paket undangan sebelum melanjutkan pemesanan.
+    </p>
 
-    <form id="orderForm">
-      <section class="card">
-        <h2 class="section-title">Template Pilihan</h2>
-        <p class="section-desc">Template yang Anda pilih dari katalog.</p>
+    <div class="section">
+      <span class="label">Template yang dipilih</span>
+      <div class="template-code" id="templateCode">Memuat...</div>
 
-        <div class="template-box">
-          <div class="template-label">Kode Template</div>
-          <div class="template-code" id="templateCode">Memuat...</div>
-        </div>
-      </section>
+      <div class="package-name" id="packageName">-</div>
+      <div class="price" id="packagePrice">-</div>
+      <div class="duration" id="packageDuration">-</div>
+    </div>
 
-      <section class="card">
-        <h2 class="section-title">Informasi Undangan</h2>
-        <p class="section-desc">Masukkan informasi dasar undangan Anda.</p>
+    <div class="notice">
+      Paket dan harga ditentukan otomatis berdasarkan template.
+      Masa aktif undangan baru dimulai ketika Anda menekan tombol
+      <strong>Terbitkan Undangan</strong> setelah pembayaran lunas
+      dan data undangan selesai diisi.
+    </div>
 
-        <div class="field">
-          <label for="title">Judul Undangan *</label>
-          <input id="title" maxlength="150" required
-            placeholder="Contoh: Pernikahan Iman dan Pasangan">
-        </div>
+    <button id="orderButton" disabled>
+      Memeriksa akun...
+    </button>
 
-        <div class="grid">
-          <div class="field">
-            <label for="bride">Nama Mempelai Wanita *</label>
-            <input id="bride" required maxlength="100"
-              placeholder="Nama lengkap wanita">
-          </div>
+    <div id="message" class="message"></div>
 
-          <div class="field">
-            <label for="groom">Nama Mempelai Pria *</label>
-            <input id="groom" required maxlength="100"
-              placeholder="Nama lengkap pria">
-          </div>
-        </div>
-      </section>
-
-      <section class="card">
-        <h2 class="section-title">Detail Acara</h2>
-        <p class="section-desc">Isi jadwal akad dan resepsi sesuai rencana acara.</p>
-
-        <h3 style="color:var(--ink);font-size:14px;">Akad Nikah</h3>
-
-        <div class="grid">
-          <div class="field">
-            <label for="akadDate">Tanggal Akad *</label>
-            <input type="date" id="akadDate" required>
-          </div>
-
-          <div class="field">
-            <label for="akadTime">Waktu Akad *</label>
-            <input type="time" id="akadTime" required>
-          </div>
-
-          <div class="field full">
-            <label for="akadLocation">Tempat Akad *</label>
-            <input id="akadLocation" required maxlength="200"
-              placeholder="Contoh: Masjid atau gedung">
-          </div>
-
-          <div class="field full">
-            <label for="akadAddress">Alamat Akad *</label>
-            <textarea id="akadAddress" required maxlength="1000"
-              placeholder="Alamat lengkap lokasi akad"></textarea>
-          </div>
-        </div>
-
-        <hr style="border:0;border-top:1px solid var(--line);margin:10px 0 22px;">
-
-        <h3 style="color:var(--ink);font-size:14px;">Resepsi</h3>
-
-        <div class="grid">
-          <div class="field">
-            <label for="receptionDate">Tanggal Resepsi *</label>
-            <input type="date" id="receptionDate" required>
-          </div>
-
-          <div class="field">
-            <label for="receptionTime">Waktu Resepsi *</label>
-            <input type="time" id="receptionTime" required>
-          </div>
-
-          <div class="field full">
-            <label for="receptionLocation">Tempat Resepsi *</label>
-            <input id="receptionLocation" required maxlength="200"
-              placeholder="Nama gedung atau tempat">
-          </div>
-
-          <div class="field full">
-            <label for="receptionAddress">Alamat Resepsi *</label>
-            <textarea id="receptionAddress" required maxlength="1000"
-              placeholder="Alamat lengkap lokasi resepsi"></textarea>
-          </div>
-
-          <div class="field full">
-            <label for="mapsLink">Link Google Maps (Opsional)</label>
-            <input id="mapsLink" type="url"
-              placeholder="https://maps.app.goo.gl/...">
-          </div>
-        </div>
-
-        <div class="field">
-          <label for="messageText">Kata-kata Pembuka (Opsional)</label>
-          <textarea id="messageText" maxlength="2000"
-            placeholder="Tuliskan kata-kata pembuka undangan..."></textarea>
-        </div>
-      </section>
-
-      <section class="card">
-        <h2 class="section-title">Tanggal Aktivasi</h2>
-        <p class="section-desc">
-          Tentukan tanggal mulai undangan Anda aktif dan dapat diakses.
-        </p>
-
-        <div class="field">
-          <label for="activationDate">Tanggal Aktivasi *</label>
-          <input type="date" id="activationDate" required>
-        </div>
-
-        <div class="notice">
-          Masa aktif paket dihitung mulai dari tanggal aktivasi yang Anda pilih,
-          bukan dari tanggal pembayaran.
-        </div>
-      </section>
-
-      <section class="card">
-        <h2 class="section-title">Pilih Paket</h2>
-        <p class="section-desc">Pilih paket sesuai kebutuhan Anda.</p>
-
-        <div class="packages">
-          <label class="package">
-            <input type="radio" name="package" value="basic" required>
-            <span class="package-name">Basic</span>
-            <span class="package-price">Rp25.000</span>
-            <span class="package-duration">3 Bulan</span>
-            <span class="package-info">Maksimal 6 foto</span>
-          </label>
-
-          <label class="package">
-            <input type="radio" name="package" value="premium">
-            <span class="package-name">Premium</span>
-            <span class="package-price">Rp45.000</span>
-            <span class="package-duration">6 Bulan</span>
-            <span class="package-info">Maksimal 12 foto</span>
-          </label>
-
-          <label class="package">
-            <input type="radio" name="package" value="exclusive">
-            <span class="package-name">Exclusive</span>
-            <span class="package-price">Rp92.000</span>
-            <span class="package-duration">12 Bulan</span>
-            <span class="package-info">Maksimal 20 foto</span>
-          </label>
-        </div>
-      </section>
-
-      <section class="card">
-        <button type="submit" class="submit" id="submitButton">
-          Buat Pesanan
-        </button>
-        <p class="section-desc" style="margin:13px 0 0;text-align:center;">
-          Periksa kembali informasi sebelum membuat pesanan.
-        </p>
-      </section>
-    </form>
-
-    <footer class="footer">© 2026 Hilmana Design</footer>
+    <a href="/template/" class="back">
+      ← Kembali ke katalog template
+    </a>
   </main>
 
   <script>
     const params = new URLSearchParams(window.location.search);
-    const templateCode = (params.get("template") || "").toUpperCase();
+    const templateCode = (params.get("template") || "").trim().toUpperCase();
 
-    const validTemplates = [];
+    const templateElement = document.getElementById("templateCode");
+    const packageNameElement = document.getElementById("packageName");
+    const packagePriceElement = document.getElementById("packagePrice");
+    const packageDurationElement = document.getElementById("packageDuration");
+    const orderButton = document.getElementById("orderButton");
+    const messageElement = document.getElementById("message");
 
-    ["BSC", "PRM", "EXC"].forEach(prefix => {
-      for (let i = 1; i <= 10; i++) {
-        validTemplates.push(prefix + "-" + String(i).padStart(2, "0"));
+    const PACKAGES = {
+      BSC: {
+        name: "Paket Basic",
+        price: 25000,
+        duration: "3 bulan"
+      },
+      PRM: {
+        name: "Paket Premium",
+        price: 45000,
+        duration: "6 bulan"
+      },
+      EXC: {
+        name: "Paket Exclusive",
+        price: 92000,
+        duration: "12 bulan"
       }
-    });
+    };
 
-    const messageBox = document.getElementById("message");
-    const submitButton = document.getElementById("submitButton");
-    const form = document.getElementById("orderForm");
-
+    let selectedPackage = null;
     let savedInvitationId = null;
     let isSubmitting = false;
 
-    function showMessage(type, text) {
-      messageBox.className = type;
-      messageBox.textContent = text;
-      messageBox.scrollIntoView({ behavior: "smooth", block: "center" });
+    function showMessage(message, type) {
+      messageElement.className = "message " + type;
+      messageElement.textContent = message;
+    }
+
+    function formatRupiah(amount) {
+      return new Intl.NumberFormat("id-ID", {
+        style: "currency",
+        currency: "IDR",
+        maximumFractionDigits: 0
+      }).format(amount);
+    }
+
+    function validateTemplate() {
+      const match = templateCode.match(
+        /^(BSC|PRM|EXC)-(0[1-9]|10)$/
+      );
+
+      if (!match) {
+        templateElement.textContent = "Tidak valid";
+        packageNameElement.textContent = "Template tidak ditemukan";
+        packagePriceElement.textContent = "-";
+        packageDurationElement.textContent = "-";
+
+        showMessage(
+          "Kode template tidak valid. Silakan pilih template melalui katalog SAHDONG.",
+          "error"
+        );
+
+        orderButton.disabled = true;
+        return false;
+      }
+
+      selectedPackage = PACKAGES[match[1]];
+
+      templateElement.textContent = templateCode;
+      packageNameElement.textContent = selectedPackage.name;
+      packagePriceElement.textContent = formatRupiah(
+        selectedPackage.price
+      );
+      packageDurationElement.textContent =
+        "Masa aktif: " + selectedPackage.duration;
+
+      return true;
     }
 
     async function checkLogin() {
@@ -506,217 +284,151 @@
           credentials: "same-origin"
         });
 
-        const result = await response.json();
-
-        if (!response.ok || !result.success || !result.user) {
-          const redirect = "/pesan.html?template=" +
-            encodeURIComponent(templateCode);
-
-          window.location.replace(
-            "/login.html?redirect=" + encodeURIComponent(redirect)
+        if (!response.ok) {
+          const redirect = encodeURIComponent(
+            window.location.pathname + window.location.search
           );
+
+          window.location.href =
+            "/login.html?redirect=" + redirect;
+
           return false;
         }
 
-        if (result.user.role !== "customer") {
-          window.location.replace("/dashboard.html");
+        const data = await response.json();
+
+        if (data.success === false || !data.user) {
+          const redirect = encodeURIComponent(
+            window.location.pathname + window.location.search
+          );
+
+          window.location.href =
+            "/login.html?redirect=" + redirect;
+
           return false;
         }
 
         return true;
-      } catch {
-        showMessage("error", "Tidak dapat memeriksa login. Silakan muat ulang halaman.");
+
+      } catch (error) {
+        showMessage(
+          "Tidak dapat memeriksa akun. Periksa koneksi internet Anda.",
+          "error"
+        );
+
         return false;
       }
     }
 
-    function localToday() {
-      const now = new Date();
-      const year = now.getFullYear();
-      const month = String(now.getMonth() + 1).padStart(2, "0");
-      const day = String(now.getDate()).padStart(2, "0");
-      return `${year}-${month}-${day}`;
-    }
-
-    function getInvitationData() {
-      return {
-        bride_name: document.getElementById("bride").value.trim(),
-        groom_name: document.getElementById("groom").value.trim(),
-
-        akad: {
-          date: document.getElementById("akadDate").value,
-          time: document.getElementById("akadTime").value,
-          location: document.getElementById("akadLocation").value.trim(),
-          address: document.getElementById("akadAddress").value.trim()
-        },
-
-        reception: {
-          date: document.getElementById("receptionDate").value,
-          time: document.getElementById("receptionTime").value,
-          location: document.getElementById("receptionLocation").value.trim(),
-          address: document.getElementById("receptionAddress").value.trim()
-        },
-
-        maps_link: document.getElementById("mapsLink").value.trim(),
-        opening_message: document.getElementById("messageText").value.trim()
-      };
-    }
-
-    async function postJSON(url, data) {
-      const response = await fetch(url, {
-        method: "POST",
-        credentials: "same-origin",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify(data)
-      });
-
-      let result;
-
-      try {
-        result = await response.json();
-      } catch {
-        throw new Error("Server memberikan respons yang tidak valid.");
-      }
-
-      if (!response.ok || !result.success) {
-        throw new Error(result.message || "Permintaan gagal diproses.");
-      }
-
-      return result;
-    }
-
-    async function checkExistingLogin() {
-      if (!validTemplates.includes(templateCode)) {
-        showMessage("error", "Kode template tidak valid. Silakan pilih template dari katalog.");
-        form.style.display = "none";
-        return;
-      }
-
-      document.getElementById("templateCode").textContent = templateCode;
-
-      const activation = document.getElementById("activationDate");
-      activation.min = localToday();
-      activation.value = localToday();
-
-      const loggedIn = await checkLogin();
-
-      if (!loggedIn) {
-        form.style.display = "none";
-      }
-    }
-
-    form.addEventListener("submit", async function(event) {
-      event.preventDefault();
-
+    async function createOrder() {
       if (isSubmitting) return;
 
-      if (!form.reportValidity()) return;
-
-      const selectedPackage = document.querySelector(
-        'input[name="package"]:checked'
-      );
-
-      if (!selectedPackage) {
-        showMessage("error", "Silakan pilih paket terlebih dahulu.");
-        return;
-      }
-
-      const activationDate = document.getElementById("activationDate").value;
-
-      if (activationDate < localToday()) {
-        showMessage("error", "Tanggal aktivasi tidak boleh sebelum hari ini.");
-        return;
-      }
-
-      const mapsLink = document.getElementById("mapsLink").value.trim();
-
-      if (mapsLink) {
-        try {
-          const parsedUrl = new URL(mapsLink);
-          if (parsedUrl.protocol !== "https:" && parsedUrl.protocol !== "http:") {
-            throw new Error();
-          }
-        } catch {
-          showMessage("error", "Link Google Maps tidak valid.");
-          return;
-        }
-      }
-
       isSubmitting = true;
-      submitButton.disabled = true;
-      submitButton.textContent = savedInvitationId
-        ? "Membuat Pesanan..."
-        : "Menyimpan Undangan...";
-
-      messageBox.className = "";
-      messageBox.textContent = "";
+      orderButton.disabled = true;
+      orderButton.textContent = "Memproses pesanan...";
+      messageElement.className = "message";
+      messageElement.textContent = "";
 
       try {
+        // Buat draft undangan hanya sekali.
         if (!savedInvitationId) {
-          const invitationResult = await postJSON("/api/invitations", {
-            title: document.getElementById("title").value.trim(),
-            template_code: templateCode,
-            activation_date: activationDate,
-            invitation_data: getInvitationData()
-          });
+          const invitationResponse = await fetch(
+            "/api/invitations",
+            {
+              method: "POST",
+              credentials: "same-origin",
+              headers: {
+                "Content-Type": "application/json"
+              },
+              body: JSON.stringify({
+                template_code: templateCode
+              })
+            }
+          );
 
-          savedInvitationId = invitationResult.invitation.id;
+          const invitationData = await invitationResponse.json();
+
+          if (!invitationResponse.ok || !invitationData.success) {
+            throw new Error(
+              invitationData.message ||
+              "Gagal membuat data undangan."
+            );
+          }
+
+          savedInvitationId =
+            invitationData.invitation?.id ||
+            invitationData.id;
+
+          if (!savedInvitationId) {
+            throw new Error(
+              "ID undangan tidak ditemukan dari server."
+            );
+          }
         }
 
-        submitButton.textContent = "Membuat Pesanan...";
-
-        const orderResult = await postJSON("/api/orders", {
-          invitation_id: savedInvitationId,
-          package: selectedPackage.value
+        // Paket dan harga ditentukan oleh server dari template.
+        const orderResponse = await fetch("/api/orders", {
+          method: "POST",
+          credentials: "same-origin",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({
+            invitation_id: savedInvitationId
+          })
         });
 
-        const order = orderResult.order;
+        const orderData = await orderResponse.json();
 
-        showMessage(
-          "success",
-          "Pesanan berhasil dibuat! Nomor pesanan: " +
-          order.order_number +
-          ". Total pembayaran: Rp" +
-          Number(order.amount).toLocaleString("id-ID") +
-          ". Silakan lanjutkan ke halaman pesanan untuk pembayaran."
-        );
+        if (!orderResponse.ok || !orderData.success) {
+          throw new Error(
+            orderData.message ||
+            "Gagal membuat pesanan."
+          );
+        }
 
-        form.style.display = "none";
+        const order = orderData.order;
 
-        const next = document.createElement("a");
-        next.href = "/dashboard.html";
-        next.textContent = "Buka Dashboard";
-        next.style.display = "block";
-        next.style.margin = "20px auto";
-        next.style.padding = "15px";
-        next.style.maxWidth = "300px";
-        next.style.textAlign = "center";
-        next.style.borderRadius = "8px";
-        next.style.background = "#1d2d27";
-        next.style.color = "#fff";
-        next.style.textDecoration = "none";
-        next.style.fontWeight = "700";
+        messageElement.className = "message success";
+        messageElement.innerHTML = `
+          Pesanan berhasil dibuat.<br>
+          Nomor pesanan: <strong>${order.order_number}</strong><br>
+          Total pembayaran: <strong>${formatRupiah(order.amount)}</strong><br>
+          <a href="/detail-pesanan.html?id=${encodeURIComponent(order.id)}">
+            Lihat Detail Pesanan dan Lanjutkan Pembayaran →
+          </a>
+        `;
 
-        messageBox.after(next);
+        orderButton.textContent = "Pesanan Berhasil";
+        orderButton.disabled = true;
 
       } catch (error) {
         showMessage(
-          "error",
-          error.message +
-          (savedInvitationId
-            ? " Undangan sudah tersimpan. Anda dapat mencoba membuat pesanan kembali tanpa membuat undangan baru."
-            : "")
+          error.message || "Terjadi kesalahan saat membuat pesanan.",
+          "error"
         );
-      } finally {
-        isSubmitting = false;
-        submitButton.disabled = false;
-        submitButton.textContent = "Buat Pesanan";
-      }
-    });
 
-    checkExistingLogin();
+        orderButton.disabled = false;
+        orderButton.textContent = "Coba Lagi";
+        isSubmitting = false;
+      }
+    }
+
+    async function initialize() {
+      if (!validateTemplate()) return;
+
+      const loggedIn = await checkLogin();
+
+      if (!loggedIn) return;
+
+      orderButton.disabled = false;
+      orderButton.textContent = "Buat Pesanan";
+
+      orderButton.addEventListener("click", createOrder);
+    }
+
+    initialize();
   </script>
+
 </body>
 </html>
