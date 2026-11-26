@@ -1,0 +1,808 @@
+
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#f8f7f4">
+  <title>Pesanan Saya - SAHDONG</title>
+
+  <style>
+    :root {
+      --bg: #f8f7f4;
+      --surface: #ffffff;
+      --text: #292820;
+      --muted: #85847c;
+      --gold: #a88a55;
+      --gold-light: #f4efe5;
+      --border: #eae8e1;
+      --green: #26845a;
+      --green-bg: #eaf6ef;
+      --orange: #b7791f;
+      --orange-bg: #fff5e5;
+      --red: #c34b4b;
+      --red-bg: #fff0f0;
+      --shadow: 0 8px 30px rgba(40, 35, 20, .04);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: Arial, Helvetica, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+    }
+
+    a {
+      color: inherit;
+      text-decoration: none;
+    }
+
+    .topbar {
+      height: 70px;
+      background: #fff;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 6%;
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+
+    .brand {
+      font-family: Georgia, serif;
+      font-size: 27px;
+      font-weight: bold;
+      letter-spacing: 1px;
+      color: var(--gold);
+    }
+
+    .back-link {
+      font-size: 13px;
+      color: #68665e;
+      padding: 10px 15px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+    }
+
+    .back-link:hover {
+      background: var(--gold-light);
+    }
+
+    .container {
+      max-width: 1100px;
+      width: 90%;
+      margin: 38px auto 70px;
+    }
+
+    .page-heading {
+      margin-bottom: 28px;
+    }
+
+    .eyebrow {
+      color: var(--gold);
+      font-size: 11px;
+      font-weight: bold;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      margin-bottom: 9px;
+    }
+
+    h1 {
+      font-family: Georgia, serif;
+      font-size: 34px;
+      font-weight: normal;
+      margin-bottom: 8px;
+    }
+
+    .subtitle {
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.6;
+    }
+
+    .summary {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+      margin-bottom: 25px;
+    }
+
+    .summary-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 13px;
+      padding: 21px;
+      box-shadow: var(--shadow);
+    }
+
+    .summary-label {
+      color: var(--muted);
+      font-size: 12px;
+      margin-bottom: 12px;
+    }
+
+    .summary-number {
+      font-family: Georgia, serif;
+      font-size: 29px;
+      font-weight: bold;
+    }
+
+    .toolbar {
+      background: #fff;
+      border: 1px solid var(--border);
+      border-radius: 13px;
+      padding: 17px;
+      display: flex;
+      gap: 12px;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 18px;
+      flex-wrap: wrap;
+    }
+
+    .search-box {
+      flex: 1;
+      min-width: 200px;
+    }
+
+    .search-box input {
+      width: 100%;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 12px 14px;
+      outline: none;
+      font-size: 13px;
+      background: #fff;
+    }
+
+    .search-box input:focus {
+      border-color: var(--gold);
+    }
+
+    .filters {
+      display: flex;
+      gap: 7px;
+      flex-wrap: wrap;
+    }
+
+    .filter-btn {
+      border: 1px solid var(--border);
+      background: #fff;
+      padding: 10px 13px;
+      border-radius: 8px;
+      font-size: 12px;
+      color: #77756d;
+      cursor: pointer;
+    }
+
+    .filter-btn.active {
+      background: var(--gold-light);
+      color: #866b3d;
+      border-color: #d9c9a9;
+      font-weight: bold;
+    }
+
+    .order-list {
+      display: grid;
+      gap: 14px;
+    }
+
+    .order-card {
+      background: #fff;
+      border: 1px solid var(--border);
+      border-radius: 13px;
+      padding: 21px;
+      box-shadow: var(--shadow);
+    }
+
+    .order-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 18px;
+      flex-wrap: wrap;
+    }
+
+    .order-number {
+      font-size: 13px;
+      font-weight: bold;
+      word-break: break-word;
+    }
+
+    .order-date {
+      color: var(--muted);
+      font-size: 12px;
+      margin-top: 5px;
+    }
+
+    .status {
+      display: inline-flex;
+      align-items: center;
+      padding: 7px 11px;
+      border-radius: 20px;
+      font-size: 11px;
+      font-weight: bold;
+      white-space: nowrap;
+    }
+
+    .status.paid {
+      color: var(--green);
+      background: var(--green-bg);
+    }
+
+    .status.pending {
+      color: var(--orange);
+      background: var(--orange-bg);
+    }
+
+    .status.failed {
+      color: var(--red);
+      background: var(--red-bg);
+    }
+
+    .status.other {
+      color: #777;
+      background: #f1f1ef;
+    }
+
+    .order-info {
+      display: grid;
+      grid-template-columns: 1.5fr 1fr 1fr;
+      gap: 15px;
+      padding: 17px 0;
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .info-label {
+      color: var(--muted);
+      font-size: 11px;
+      margin-bottom: 8px;
+    }
+
+    .info-value {
+      font-size: 14px;
+      font-weight: bold;
+      line-height: 1.5;
+      overflow-wrap: anywhere;
+    }
+
+    .order-bottom {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding-top: 17px;
+      flex-wrap: wrap;
+    }
+
+    .amount-label {
+      color: var(--muted);
+      font-size: 11px;
+      margin-bottom: 5px;
+    }
+
+    .amount {
+      font-size: 20px;
+      font-weight: bold;
+      color: var(--text);
+    }
+
+    .detail-btn {
+      display: inline-block;
+      background: var(--gold);
+      color: white;
+      padding: 12px 18px;
+      border-radius: 8px;
+      font-size: 12px;
+      font-weight: bold;
+      transition: .2s;
+    }
+
+    .detail-btn:hover {
+      background: #8e7140;
+      transform: translateY(-1px);
+    }
+
+    .empty-state,
+    .loading-state,
+    .error-state {
+      text-align: center;
+      background: #fff;
+      border: 1px solid var(--border);
+      border-radius: 13px;
+      padding: 55px 20px;
+      color: var(--muted);
+      line-height: 1.7;
+    }
+
+    .empty-icon {
+      font-size: 38px;
+      margin-bottom: 15px;
+    }
+
+    .empty-state h3 {
+      color: var(--text);
+      font-size: 17px;
+      margin-bottom: 7px;
+    }
+
+    .primary-link {
+      display: inline-block;
+      margin-top: 18px;
+      background: var(--gold);
+      color: white;
+      padding: 12px 18px;
+      border-radius: 8px;
+      font-size: 12px;
+      font-weight: bold;
+    }
+
+    .retry-btn {
+      border: none;
+      background: var(--gold);
+      color: white;
+      padding: 11px 18px;
+      border-radius: 8px;
+      cursor: pointer;
+      margin-top: 15px;
+    }
+
+    .footer {
+      text-align: center;
+      padding: 25px 15px;
+      border-top: 1px solid var(--border);
+      color: var(--muted);
+      font-size: 11px;
+      background: #fff;
+    }
+
+    @media (max-width: 650px) {
+      .topbar {
+        height: 62px;
+        padding: 0 5%;
+      }
+
+      .brand {
+        font-size: 23px;
+      }
+
+      .container {
+        width: 92%;
+        margin-top: 27px;
+      }
+
+      h1 {
+        font-size: 29px;
+      }
+
+      .summary {
+        gap: 9px;
+      }
+
+      .summary-card {
+        padding: 14px 11px;
+      }
+
+      .summary-label {
+        font-size: 10px;
+        line-height: 1.4;
+      }
+
+      .summary-number {
+        font-size: 23px;
+      }
+
+      .toolbar {
+        padding: 13px;
+      }
+
+      .search-box {
+        min-width: 100%;
+      }
+
+      .filters {
+        width: 100%;
+      }
+
+      .filter-btn {
+        flex: 1;
+        padding: 10px 7px;
+      }
+
+      .order-card {
+        padding: 16px;
+      }
+
+      .order-info {
+        grid-template-columns: 1fr 1fr;
+        gap: 17px 10px;
+      }
+
+      .order-info > div:first-child {
+        grid-column: 1 / -1;
+      }
+
+      .order-bottom {
+        align-items: flex-start;
+      }
+
+      .detail-btn {
+        width: 100%;
+        text-align: center;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <header class="topbar">
+    <a href="/dashboard.html" class="brand">SAHDONG</a>
+    <a href="/dashboard.html" class="back-link">← Dashboard</a>
+  </header>
+
+  <main class="container">
+
+    <section class="page-heading">
+      <div class="eyebrow">Area Pelanggan</div>
+      <h1>Pesanan Saya</h1>
+      <p class="subtitle">
+        Pantau semua pesanan, pembayaran, dan detail transaksi
+        undangan digital Anda.
+      </p>
+    </section>
+
+    <section class="summary">
+      <div class="summary-card">
+        <div class="summary-label">Total Pesanan</div>
+        <div class="summary-number" id="totalOrders">0</div>
+      </div>
+
+      <div class="summary-card">
+        <div class="summary-label">Pembayaran Lunas</div>
+        <div class="summary-number" id="paidOrders">0</div>
+      </div>
+
+      <div class="summary-card">
+        <div class="summary-label">Menunggu Pembayaran</div>
+        <div class="summary-number" id="pendingOrders">0</div>
+      </div>
+    </section>
+
+    <section class="toolbar">
+      <div class="search-box">
+        <input
+          type="search"
+          id="searchInput"
+          placeholder="Cari nomor pesanan atau nama undangan..."
+          autocomplete="off"
+        >
+      </div>
+
+      <div class="filters">
+        <button class="filter-btn active" data-filter="all">Semua</button>
+        <button class="filter-btn" data-filter="pending">Menunggu</button>
+        <button class="filter-btn" data-filter="paid">Lunas</button>
+        <button class="filter-btn" data-filter="failed">Gagal</button>
+      </div>
+    </section>
+
+    <section id="orderContainer" class="order-list">
+      <div class="loading-state">
+        Memuat data pesanan Anda...
+      </div>
+    </section>
+
+  </main>
+
+  <footer class="footer">
+    © 2026 Hilmana Design. All Rights Reserved.
+  </footer>
+
+  <script>
+    let allOrders = [];
+    let currentFilter = "all";
+
+    const orderContainer =
+      document.getElementById("orderContainer");
+
+    const searchInput =
+      document.getElementById("searchInput");
+
+    function escapeHTML(value) {
+      return String(value ?? "").replace(/[&<>"']/g, function(char) {
+        return {
+          "&": "&amp;",
+          "<": "&lt;",
+          ">": "&gt;",
+          '"': "&quot;",
+          "'": "&#039;"
+        }[char];
+      });
+    }
+
+    function formatRupiah(value) {
+      return new Intl.NumberFormat("id-ID", {
+        style: "currency",
+        currency: "IDR",
+        maximumFractionDigits: 0
+      }).format(Number(value) || 0);
+    }
+
+    function formatDate(value) {
+      if (!value) return "-";
+
+      let dateString = String(value);
+
+      // SQLite CURRENT_TIMESTAMP menggunakan format
+      // YYYY-MM-DD HH:mm:ss tanpa penanda zona waktu.
+      if (/^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$/.test(dateString)) {
+        dateString = dateString.replace(" ", "T") + "Z";
+      }
+
+      const date = new Date(dateString);
+
+      if (Number.isNaN(date.getTime())) return "-";
+
+      return new Intl.DateTimeFormat("id-ID", {
+        day: "numeric",
+        month: "long",
+        year: "numeric",
+        timeZone: "Asia/Jakarta"
+      }).format(date);
+    }
+
+    function getPaymentState(order) {
+      const paymentStatus =
+        String(order.payment_status || "").toLowerCase();
+
+      const orderStatus =
+        String(order.status || "").toLowerCase();
+
+      if (
+        paymentStatus === "paid" ||
+        paymentStatus === "success" ||
+        paymentStatus === "completed" ||
+        orderStatus === "paid" ||
+        orderStatus === "completed"
+      ) {
+        return "paid";
+      }
+
+      if (
+        paymentStatus === "failed" ||
+        paymentStatus === "expired" ||
+        paymentStatus === "cancelled" ||
+        orderStatus === "failed" ||
+        orderStatus === "cancelled" ||
+        orderStatus === "expired"
+      ) {
+        return "failed";
+      }
+
+      if (
+        paymentStatus === "pending" ||
+        orderStatus === "pending"
+      ) {
+        return "pending";
+      }
+
+      return "other";
+    }
+
+    function getStatusLabel(state) {
+      const labels = {
+        paid: "Lunas",
+        pending: "Menunggu Pembayaran",
+        failed: "Gagal / Kedaluwarsa",
+        other: "Perlu Pemeriksaan"
+      };
+
+      return labels[state] || labels.other;
+    }
+
+    function updateSummary() {
+      document.getElementById("totalOrders").textContent =
+        allOrders.length;
+
+      document.getElementById("paidOrders").textContent =
+        allOrders.filter(order =>
+          getPaymentState(order) === "paid"
+        ).length;
+
+      document.getElementById("pendingOrders").textContent =
+        allOrders.filter(order =>
+          getPaymentState(order) === "pending"
+        ).length;
+    }
+
+    function renderOrders() {
+      const keyword = searchInput.value.trim().toLowerCase();
+
+      const filteredOrders = allOrders.filter(order => {
+        const state = getPaymentState(order);
+
+        const matchesFilter =
+          currentFilter === "all" ||
+          state === currentFilter;
+
+        const searchableText = [
+          order.order_number,
+          order.invitation_title,
+          order.package_name
+        ].join(" ").toLowerCase();
+
+        const matchesSearch =
+          searchableText.includes(keyword);
+
+        return matchesFilter && matchesSearch;
+      });
+
+      if (filteredOrders.length === 0) {
+        orderContainer.innerHTML = `
+          <div class="empty-state">
+            <div class="empty-icon">▤</div>
+            <h3>Pesanan Tidak Ditemukan</h3>
+            <p>
+              Tidak ada pesanan yang sesuai dengan pencarian
+              atau filter yang dipilih.
+            </p>
+          </div>
+        `;
+        return;
+      }
+
+      orderContainer.innerHTML = filteredOrders.map(order => {
+        const state = getPaymentState(order);
+        const orderId = encodeURIComponent(String(order.id || ""));
+
+        const detailUrl = orderId
+          ? "/detail-pesanan.html?id=" + orderId
+          : "#";
+
+        return `
+          <article class="order-card">
+
+            <div class="order-top">
+              <div>
+                <div class="order-number">
+                  ${escapeHTML(order.order_number || "-")}
+                </div>
+                <div class="order-date">
+                  ${escapeHTML(formatDate(order.created_at))}
+                </div>
+              </div>
+
+              <span class="status ${state}">
+                ${escapeHTML(getStatusLabel(state))}
+              </span>
+            </div>
+
+            <div class="order-info">
+
+              <div>
+                <div class="info-label">Nama Undangan</div>
+                <div class="info-value">
+                  ${escapeHTML(order.invitation_title || "Undangan")}
+                </div>
+              </div>
+
+              <div>
+                <div class="info-label">Paket</div>
+                <div class="info-value">
+                  ${escapeHTML(order.package_name || "-")}
+                </div>
+              </div>
+
+              <div>
+                <div class="info-label">Tanggal Aktivasi</div>
+                <div class="info-value">
+                  ${escapeHTML(order.activation_date || "-")}
+                </div>
+              </div>
+
+            </div>
+
+            <div class="order-bottom">
+              <div>
+                <div class="amount-label">Total Pembayaran</div>
+                <div class="amount">
+                  ${escapeHTML(formatRupiah(order.amount))}
+                </div>
+              </div>
+
+              <a
+                href="${detailUrl}"
+                class="detail-btn"
+                ${order.id ? "" : "aria-disabled='true'"}
+              >
+                Lihat Detail Pesanan →
+              </a>
+            </div>
+
+          </article>
+        `;
+      }).join("");
+    }
+
+    async function loadOrders() {
+      orderContainer.innerHTML = `
+        <div class="loading-state">
+          Memuat data pesanan Anda...
+        </div>
+      `;
+
+      try {
+        const response = await fetch("/api/orders", {
+          method: "GET",
+          credentials: "same-origin",
+          headers: {
+            "Accept": "application/json"
+          }
+        });
+
+        const payload = await response.json();
+
+        if (response.status === 401) {
+          window.location.href = "/login.html";
+          return;
+        }
+
+        if (!response.ok || !payload.success) {
+          throw new Error(
+            payload.message || "Gagal mengambil data pesanan."
+          );
+        }
+
+        allOrders = Array.isArray(payload.orders)
+          ? payload.orders
+          : [];
+
+        updateSummary();
+        renderOrders();
+
+      } catch (error) {
+        console.error("SAHDONG PESANAN ERROR:", error);
+
+        orderContainer.innerHTML = `
+          <div class="error-state">
+            <h3>Data Pesanan Belum Dapat Dimuat</h3>
+            <p>${escapeHTML(error.message)}</p>
+            <button class="retry-btn" onclick="loadOrders()">
+              Coba Lagi
+            </button>
+          </div>
+        `;
+      }
+    }
+
+    document.querySelectorAll(".filter-btn").forEach(button => {
+      button.addEventListener("click", function() {
+        document.querySelectorAll(".filter-btn").forEach(item => {
+          item.classList.remove("active");
+        });
+
+        this.classList.add("active");
+        currentFilter = this.dataset.filter;
+
+        renderOrders();
+      });
+    });
+
+    searchInput.addEventListener("input", renderOrders);
+
+    loadOrders();
+  </script>
+
+</body>
+</html>
