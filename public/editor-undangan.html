@@ -57,6 +57,11 @@
       font-weight: bold;
     }
 
+    button:disabled {
+      opacity: .6;
+      cursor: not-allowed;
+    }
+
     .btn-primary {
       background: var(--gold);
       color: white;
@@ -65,6 +70,12 @@
     .btn-light {
       background: var(--cream);
       color: var(--dark);
+    }
+
+    .btn-publish {
+      background: #287a45;
+      color: white;
+      padding: 14px 20px;
     }
 
     .container {
@@ -207,6 +218,7 @@
       border-radius: 8px;
       font-size: 13px;
       display: none;
+      overflow-wrap: anywhere;
     }
 
     .status.success {
@@ -231,6 +243,60 @@
       display: flex;
       justify-content: flex-end;
       margin-top: 18px;
+    }
+
+    .publish-panel {
+      margin-top: 22px;
+      padding: 20px;
+      border: 1px solid #dce8dc;
+      border-radius: 12px;
+      background: #f5faf5;
+    }
+
+    .publish-panel h2 {
+      font-size: 18px;
+      margin: 0 0 10px;
+    }
+
+    .publish-panel p {
+      color: #5e695e;
+      font-size: 13px;
+      line-height: 1.7;
+    }
+
+    .publish-actions {
+      display: flex;
+      justify-content: flex-end;
+      margin-top: 16px;
+    }
+
+    .published-panel {
+      display: none;
+      margin-top: 22px;
+      padding: 20px;
+      border: 1px solid #cfe3d2;
+      border-radius: 12px;
+      background: #edf7ee;
+      color: #286b35;
+    }
+
+    .published-panel a {
+      display: inline-block;
+      margin-top: 10px;
+      color: #205c32;
+      font-weight: bold;
+      overflow-wrap: anywhere;
+    }
+
+    .readonly-note {
+      display: none;
+      margin-top: 12px;
+      padding: 12px;
+      background: #f4f0e8;
+      border-radius: 8px;
+      color: #715b37;
+      font-size: 13px;
+      line-height: 1.6;
     }
 
     @media(max-width: 850px) {
@@ -264,6 +330,14 @@
       .heading h1 {
         font-size: 22px;
       }
+
+      .publish-actions {
+        justify-content: stretch;
+      }
+
+      .publish-actions button {
+        width: 100%;
+      }
     }
   </style>
 </head>
@@ -274,7 +348,7 @@
   <div class="brand">SAHDONG</div>
   <div class="header-actions">
     <button class="btn-light" onclick="history.back()">Kembali</button>
-    <button class="btn-primary" onclick="saveInvitation()">Simpan</button>
+    <button class="btn-primary" id="headerSaveButton" onclick="saveInvitation()">Simpan</button>
   </div>
 </header>
 
@@ -414,16 +488,21 @@
         </div>
       </div>
 
-      <div class="save-bottom">
-        <button class="btn-primary" onclick="saveInvitation()">
+      <div class="save-bottom" id="saveBottom">
+        <button class="btn-primary" id="bottomSaveButton" onclick="saveInvitation()">
           Simpan Perubahan
         </button>
+      </div>
+
+      <div class="readonly-note" id="readonlyNote">
+        Undangan ini sudah diterbitkan. Untuk mengubah isi undangan,
+        silakan ajukan permintaan revisi melalui fitur revisi SAHDONG.
       </div>
 
     </section>
 
     <aside class="preview-card">
-      <div class="preview-label">Pratinjau Sementara</div>
+      <div class="preview-label">Pratinjau Undangan</div>
 
       <div class="invitation-preview">
         <div class="preview-small">The Wedding Of</div>
@@ -447,8 +526,32 @@
       </div>
 
       <p style="font-size:12px;color:#81796e;line-height:1.6">
-        Pratinjau ini merupakan gambaran awal isi undangan, belum merupakan tampilan akhir template.
+        Periksa kembali nama, tanggal, waktu, dan lokasi sebelum menerbitkan undangan.
+        Pratinjau ini merupakan gambaran awal, bukan tampilan akhir template.
       </p>
+
+      <div class="publish-panel" id="publishPanel">
+        <h2>Siap menerbitkan undangan?</h2>
+        <p>
+          Pastikan seluruh informasi sudah benar. Setelah tombol publikasi
+          dikonfirmasi, undangan akan aktif dan masa berlaku paket mulai dihitung
+          sejak tanggal penerbitan.
+        </p>
+
+        <div class="publish-actions">
+          <button class="btn-publish" id="publishButton" onclick="publishInvitation()">
+            Tinjau & Terbitkan Undangan
+          </button>
+        </div>
+      </div>
+
+      <div class="published-panel" id="publishedPanel">
+        <h3>Undangan Sudah Terbit!</h3>
+        <p id="publishedInfo"></p>
+        <a id="publicInvitationLink" href="#" target="_blank" rel="noopener">
+          Buka Undangan
+        </a>
+      </div>
     </aside>
 
   </div>
@@ -481,6 +584,9 @@
   ];
 
   const $ = (id) => document.getElementById(id);
+
+  let invitationPublished = false;
+  let invitationLoaded = false;
 
   function showStatus(message, type = "info") {
     const element = $("statusMessage");
@@ -537,6 +643,37 @@
     });
   }
 
+  function setEditorLocked(locked) {
+    invitationPublished = locked;
+
+    fields.forEach((field) => {
+      $(field).disabled = locked;
+    });
+
+    $("headerSaveButton").style.display = locked ? "none" : "";
+    $("saveBottom").style.display = locked ? "none" : "flex";
+    $("publishPanel").style.display = locked ? "none" : "block";
+    $("readonlyNote").style.display = locked ? "block" : "none";
+  }
+
+  function showPublished(invitation) {
+    setEditorLocked(true);
+
+    $("publishedPanel").style.display = "block";
+
+    const expiry = invitation.expires_at || "-";
+    const activation = invitation.activation_date || "-";
+
+    $("publishedInfo").textContent =
+      "Tanggal aktivasi: " + activation +
+      ". Masa aktif sampai: " + expiry + ".";
+
+    const link = invitation.public_url || "";
+    const publicUrl = new URL(link, window.location.origin);
+
+    $("publicInvitationLink").href = publicUrl.href;
+  }
+
   async function loadInvitation() {
     if (!invitationId) {
       showStatus(
@@ -563,13 +700,24 @@
         throw new Error(result.message || "Gagal mengambil data undangan.");
       }
 
-      $("title").value = result.invitation.title || "";
+      const invitation = result.invitation;
 
-      const data = result.invitation.invitation_data || {};
+      $("title").value = invitation.title || "";
 
+      const data = invitation.invitation_data || {};
       fillForm(data);
 
-      showStatus("Data undangan berhasil dimuat.", "success");
+      invitationLoaded = true;
+
+      if (
+        invitation.status === "published" ||
+        invitation.published_at
+      ) {
+        showPublished(invitation);
+        showStatus("Undangan ini sudah diterbitkan.", "success");
+      } else {
+        showStatus("Data undangan berhasil dimuat.", "success");
+      }
 
     } catch (error) {
       showStatus(error.message, "error");
@@ -577,9 +725,14 @@
   }
 
   async function saveInvitation() {
-    if (!invitationId) {
-      showStatus("ID undangan tidak ditemukan.", "error");
-      return;
+    if (!invitationId || !invitationLoaded) {
+      showStatus("Data undangan belum siap disimpan.", "error");
+      return false;
+    }
+
+    if (invitationPublished) {
+      showStatus("Undangan sudah diterbitkan dan tidak dapat diedit langsung.", "error");
+      return false;
     }
 
     const title = $("title").value.trim();
@@ -587,12 +740,15 @@
     if (!title) {
       showStatus("Judul undangan wajib diisi.", "error");
       $("title").focus();
-      return;
+      return false;
     }
 
     const invitationData = getFormData();
 
     try {
+      $("headerSaveButton").disabled = true;
+      $("bottomSaveButton").disabled = true;
+
       const response = await fetch(
         "/api/invitations?id=" + encodeURIComponent(invitationId),
         {
@@ -612,7 +768,7 @@
 
       if (response.status === 401) {
         window.location.href = "/login.html";
-        return;
+        return false;
       }
 
       if (!response.ok || !result.success) {
@@ -620,14 +776,114 @@
       }
 
       showStatus("Perubahan undangan berhasil disimpan.", "success");
+      return true;
 
     } catch (error) {
       showStatus(error.message, "error");
+      return false;
+
+    } finally {
+      $("headerSaveButton").disabled = false;
+      $("bottomSaveButton").disabled = false;
+    }
+  }
+
+  async function publishInvitation() {
+    if (!invitationId || !invitationLoaded) {
+      showStatus("Data undangan belum siap.", "error");
+      return;
+    }
+
+    if (invitationPublished) {
+      showStatus("Undangan sudah diterbitkan.", "info");
+      return;
+    }
+
+    const title = $("title").value.trim();
+    const groom = $("groom").value.trim();
+    const bride = $("bride").value.trim();
+    const akadDate = $("akadDate").value;
+    const akadLocation = $("akadLocation").value.trim();
+
+    if (!title || !groom || !bride || !akadDate || !akadLocation) {
+      showStatus(
+        "Lengkapi judul, nama kedua mempelai, tanggal akad, dan lokasi akad sebelum menerbitkan undangan.",
+        "error"
+      );
+      return;
+    }
+
+    const confirmed = window.confirm(
+      "Periksa kembali data undangan kamu.\n\n" +
+      "Setelah diterbitkan, undangan akan aktif dan masa berlaku paket mulai dihitung dari tanggal penerbitan.\n\n" +
+      "Apakah kamu yakin ingin menerbitkan undangan sekarang?"
+    );
+
+    if (!confirmed) {
+      return;
+    }
+
+    $("publishButton").disabled = true;
+    $("publishButton").textContent = "Menyimpan dan menerbitkan...";
+
+    try {
+      // Simpan perubahan terakhir sebelum publikasi.
+      const saved = await saveInvitation();
+
+      if (!saved) {
+        throw new Error(
+          "Perubahan belum berhasil disimpan. Undangan belum diterbitkan."
+        );
+      }
+
+      const response = await fetch(
+        "/api/invitations/" + encodeURIComponent(invitationId) + "/publish",
+        {
+          method: "POST",
+          credentials: "same-origin",
+          headers: {
+            "Content-Type": "application/json"
+          }
+        }
+      );
+
+      const result = await response.json();
+
+      if (response.status === 401) {
+        window.location.href = "/login.html";
+        return;
+      }
+
+      if (!response.ok || !result.success) {
+        throw new Error(
+          result.message || "Undangan gagal diterbitkan."
+        );
+      }
+
+      showPublished(result.invitation);
+
+      showStatus(
+        result.message || "Selamat! Undangan berhasil diterbitkan.",
+        "success"
+      );
+
+      $("publishedPanel").scrollIntoView({
+        behavior: "smooth",
+        block: "center"
+      });
+
+    } catch (error) {
+      showStatus(error.message, "error");
+
+    } finally {
+      $("publishButton").disabled = false;
+      $("publishButton").textContent = "Tinjau & Terbitkan Undangan";
     }
   }
 
   fields.forEach((field) => {
     $(field).addEventListener("input", updatePreview);
+    $(field).addEventListener("change", updatePreview);
   });
 
   loadInvitation();
