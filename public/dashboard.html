@@ -60,8 +60,6 @@
       min-height: 100vh;
     }
 
-    /* SIDEBAR */
-
     .sidebar {
       width: 255px;
       background: var(--ink-deep);
@@ -111,7 +109,7 @@
       font-size: 10px;
       font-weight: 700;
       letter-spacing: 1.5px;
-      padding: 12px 12px;
+      padding: 12px;
     }
 
     .side-nav {
@@ -152,8 +150,6 @@
     .sidebar-bottom .nav-link {
       color: #d5d9d4;
     }
-
-    /* MAIN */
 
     .main {
       margin-left: 255px;
@@ -220,8 +216,6 @@
       margin: 0 auto;
       padding: 38px;
     }
-
-    /* WELCOME */
 
     .welcome {
       background: var(--ink-deep);
@@ -297,8 +291,6 @@
       transform: translateY(-1px);
     }
 
-    /* STATS */
-
     .section-heading {
       display: flex;
       align-items: center;
@@ -363,8 +355,6 @@
       font-size: 12px;
       margin-top: 4px;
     }
-
-    /* PANELS */
 
     .dashboard-grid {
       display: grid;
@@ -472,7 +462,7 @@
     .order-meta {
       font-size: 10px;
       color: var(--muted);
-      line-height: 1.6;
+      line-height: 1.7;
     }
 
     .status {
@@ -577,8 +567,6 @@
       display: none;
     }
 
-    /* RESPONSIVE */
-
     @media (max-width: 1100px) {
       .stats-grid {
         grid-template-columns: repeat(2,1fr);
@@ -670,6 +658,16 @@
 
       .user-name {
         font-size: 11px;
+      }
+
+      .order-item {
+        align-items: flex-start;
+        gap: 8px;
+      }
+
+      .status {
+        white-space: normal;
+        text-align: center;
       }
     }
   </style>
@@ -924,6 +922,12 @@
     el.style.display = "block";
   }
 
+  function hideError() {
+    const el = $("errorMessage");
+    el.textContent = "";
+    el.style.display = "none";
+  }
+
   function setUser(user) {
     const name =
       user.full_name ||
@@ -939,12 +943,18 @@
 
   function formatNumber(value) {
     const number = Number(value);
-    return Number.isFinite(number) ? number.toLocaleString("id-ID") : "0";
+
+    return Number.isFinite(number)
+      ? number.toLocaleString("id-ID")
+      : "0";
   }
 
   function formatCurrency(value) {
     const number = Number(value);
-    if (!Number.isFinite(number)) return "Nominal tidak tersedia";
+
+    if (!Number.isFinite(number)) {
+      return "Nominal tidak tersedia";
+    }
 
     return new Intl.NumberFormat("id-ID", {
       style: "currency",
@@ -953,11 +963,37 @@
     }).format(number);
   }
 
+  function formatDate(value) {
+    if (!value) return "";
+
+    const date = new Date(value);
+
+    if (Number.isNaN(date.getTime())) {
+      return "";
+    }
+
+    return date.toLocaleDateString("id-ID", {
+      day: "2-digit",
+      month: "short",
+      year: "numeric"
+    });
+  }
+
+  function escapeHTML(value) {
+    return String(value ?? "").replace(/[&<>"']/g, char => ({
+      "&": "&amp;",
+      "<": "&lt;",
+      ">": "&gt;",
+      '"': "&quot;",
+      "'": "&#039;"
+    })[char]);
+  }
+
   function getStatusLabel(status) {
     const value = String(status || "").toLowerCase();
 
     const labels = {
-      pending: "Menunggu",
+      pending: "Menunggu Pembayaran",
       paid: "Lunas",
       success: "Berhasil",
       completed: "Selesai",
@@ -968,7 +1004,8 @@
       draft: "Draft",
       active: "Aktif",
       published: "Terpublikasi",
-      processing: "Diproses"
+      processing: "Diproses",
+      refunded: "Dikembalikan"
     };
 
     return labels[value] || status || "Belum tersedia";
@@ -977,35 +1014,44 @@
   function getStatusClass(status) {
     const value = String(status || "").toLowerCase();
 
-    if (["paid", "success", "completed", "active", "published"].includes(value)) {
+    if ([
+      "paid",
+      "success",
+      "completed",
+      "active",
+      "published"
+    ].includes(value)) {
       return "success";
     }
 
-    if (["failed", "cancelled", "canceled", "expired"].includes(value)) {
+    if ([
+      "failed",
+      "cancelled",
+      "canceled",
+      "expired",
+      "refunded"
+    ].includes(value)) {
       return "danger";
     }
 
     return "";
   }
 
-  function findArray(source, keys) {
-    for (const key of keys) {
-      if (Array.isArray(source?.[key])) return source[key];
-    }
-
-    return [];
-  }
-
   function renderOrders(orders) {
     const container = $("ordersContainer");
 
-    if (!orders.length) {
+    if (!Array.isArray(orders) || orders.length === 0) {
       container.innerHTML = `
         <div class="empty-state">
           <div class="empty-icon">♡</div>
           <h4>Belum Ada Pesanan</h4>
-          <p>Anda belum memiliki pesanan. Mulailah memilih desain undangan yang Anda sukai.</p>
-          <a href="/template/index.html" class="btn-outline">Lihat Katalog</a>
+          <p>
+            Anda belum memiliki pesanan.
+            Mulailah memilih desain undangan yang Anda sukai.
+          </p>
+          <a href="/template/index.html" class="btn-outline">
+            Lihat Katalog
+          </a>
         </div>
       `;
       return;
@@ -1014,41 +1060,51 @@
     container.innerHTML = `
       <div class="order-list">
         ${orders.slice(0, 5).map(order => {
-          const name =
+          const title =
             order.invitation_title ||
             order.title ||
-            order.invitation_name ||
-            order.order_number ||
-            order.order_code ||
+            order.package_name ||
             "Pesanan SAHDONG";
 
-          const code =
+          const orderNumber =
             order.order_number ||
             order.order_code ||
             order.id ||
             "";
+
+          const packageName =
+            order.package_name || "Paket SAHDONG";
+
+          const amount =
+            order.amount ??
+            order.total_amount ??
+            order.price ??
+            0;
 
           const status =
             order.payment_status ||
             order.status ||
             "pending";
 
-          const price =
-            order.total_amount ??
-            order.amount ??
-            order.price ??
-            order.total ??
-            null;
+          const date = formatDate(order.created_at);
 
           return `
             <div class="order-item">
               <div style="min-width:0">
-                <div class="order-name">${escapeHTML(name)}</div>
+                <div class="order-name">
+                  ${escapeHTML(title)}
+                </div>
+
                 <div class="order-meta">
-                  ${escapeHTML(String(code))}
-                  ${price !== null ? " · " + formatCurrency(price) : ""}
+                  ${escapeHTML(orderNumber)}
+                  <br>
+                  ${escapeHTML(packageName)}
+                  ${date ? " · " + escapeHTML(date) : ""}
+                  <br>
+                  <strong>${escapeHTML(formatCurrency(amount))}</strong>
                 </div>
               </div>
+
               <span class="status ${getStatusClass(status)}">
                 ${escapeHTML(getStatusLabel(status))}
               </span>
@@ -1059,71 +1115,36 @@
     `;
   }
 
-  function escapeHTML(value) {
-    return String(value).replace(/[&<>"']/g, char => ({
-      "&": "&amp;",
-      "<": "&lt;",
-      ">": "&gt;",
-      '"': "&quot;",
-      "'": "&#039;"
-    })[char]);
-  }
-
   function renderDashboard(data) {
     const payload = getPayload(data);
+    const summary = payload.summary || payload.stats || {};
 
-    const orders = findArray(payload, [
-      "orders",
-      "recent_orders",
-      "latest_orders"
-    ]);
+    $("totalOrders").textContent =
+      formatNumber(summary.total_orders ?? 0);
 
-    const invitations = findArray(payload, [
-      "invitations",
-      "my_invitations"
-    ]);
+    $("totalInvitations").textContent =
+      formatNumber(summary.total_invitations ?? 0);
 
-    const stats = payload.stats || payload.summary || {};
+    $("pendingOrders").textContent =
+      formatNumber(summary.pending_orders ?? 0);
 
-    const totalOrders =
-      stats.total_orders ??
-      stats.totalOrders ??
-      payload.total_orders ??
-      orders.length;
+    $("activeInvitations").textContent =
+      formatNumber(summary.active_invitations ?? 0);
 
-    const totalInvitations =
-      stats.total_invitations ??
-      stats.totalInvitations ??
-      payload.total_invitations ??
-      invitations.length;
-
-    const pendingOrders =
-      stats.pending_orders ??
-      stats.pendingOrders ??
-      payload.pending_orders ??
-      orders.filter(item =>
-        String(item.payment_status || item.status || "").toLowerCase() === "pending"
-      ).length;
-
-    const activeInvitations =
-      stats.active_invitations ??
-      stats.activeInvitations ??
-      payload.active_invitations ??
-      invitations.filter(item =>
-        ["active", "published"].includes(
-          String(item.status || "").toLowerCase()
-        )
-      ).length;
-
-    $("totalOrders").textContent = formatNumber(totalOrders);
-    $("totalInvitations").textContent = formatNumber(totalInvitations);
-    $("pendingOrders").textContent = formatNumber(pendingOrders);
-    $("activeInvitations").textContent = formatNumber(activeInvitations);
+    const orders = Array.isArray(payload.orders)
+      ? payload.orders
+      : [];
 
     renderOrders(orders);
   }
 
   async function loadDashboard() {
+    hideError();
+
+    $("ordersContainer").innerHTML = `
+      <div class="loading">Memuat data pesanan...</div>
+    `;
+
     try {
       const meResult = await apiRequest(API.me);
 
@@ -1137,27 +1158,49 @@
       }
 
       if (!meResult.response.ok) {
-        throw new Error("Tidak dapat memeriksa sesi akun.");
+        throw new Error(
+          "Tidak dapat memeriksa sesi akun."
+        );
       }
 
       const user = getUser(meResult.data);
 
-      if (!user || (!user.email && !user.full_name && !user.name && !user.id)) {
+      if (
+        !user ||
+        (
+          !user.email &&
+          !user.full_name &&
+          !user.name &&
+          !user.id
+        )
+      ) {
         window.location.replace("/login.html");
         return;
       }
 
       setUser(user);
 
-      const dashboardResult = await apiRequest(API.dashboard);
+      const dashboardResult =
+        await apiRequest(API.dashboard);
+
+      if (
+        dashboardResult.response.status === 401 ||
+        dashboardResult.response.status === 403
+      ) {
+        window.location.replace("/login.html");
+        return;
+      }
 
       if (!dashboardResult.response.ok) {
-        throw new Error("Data dashboard belum dapat dimuat.");
+        throw new Error(
+          "Data dashboard belum dapat dimuat."
+        );
       }
 
       if (dashboardResult.data?.success === false) {
         throw new Error(
-          dashboardResult.data.message || "Gagal mengambil data dashboard."
+          dashboardResult.data.message ||
+          "Gagal mengambil data dashboard."
         );
       }
 
@@ -1169,14 +1212,24 @@
       $("ordersContainer").innerHTML = `
         <div class="empty-state">
           <h4>Data Belum Dapat Ditampilkan</h4>
-          <p>Silakan muat ulang halaman. Jika masalah berlanjut, hubungi admin.</p>
-          <button type="button" class="btn-outline" onclick="loadDashboard()">
+          <p>
+            Silakan muat ulang halaman.
+            Jika masalah berlanjut, hubungi admin.
+          </p>
+          <button
+            type="button"
+            class="btn-outline"
+            onclick="loadDashboard()"
+          >
             Muat Ulang
           </button>
         </div>
       `;
 
-      showError(error.message || "Terjadi kesalahan saat memuat dashboard.");
+      showError(
+        error.message ||
+        "Terjadi kesalahan saat memuat dashboard."
+      );
     }
   }
 
@@ -1190,7 +1243,9 @@
       });
 
       if (!result.response.ok) {
-        throw new Error("Logout belum berhasil. Silakan coba kembali.");
+        throw new Error(
+          "Logout belum berhasil. Silakan coba kembali."
+        );
       }
 
       window.location.replace("/login.html");
@@ -1218,11 +1273,14 @@
 
   overlay.addEventListener("click", closeMenu);
 
-  document.querySelectorAll(".sidebar .nav-link").forEach(link => {
-    link.addEventListener("click", closeMenu);
-  });
+  document
+    .querySelectorAll(".sidebar .nav-link")
+    .forEach(link => {
+      link.addEventListener("click", closeMenu);
+    });
 
   loadDashboard();
 </script>
+
 </body>
 </html>
