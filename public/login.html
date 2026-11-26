@@ -370,67 +370,91 @@
     </div>
   </main>
 
-  <script>
-    const form = document.getElementById("loginForm");
-    const message = document.getElementById("message");
-    const button = document.getElementById("submitButton");
-    const passwordInput = document.getElementById("password");
-    const togglePassword = document.getElementById("togglePassword");
+  
+<script>
+  const form = document.getElementById("loginForm");
+  const message = document.getElementById("message");
+  const button = document.getElementById("submitButton");
+  const passwordInput = document.getElementById("password");
+  const togglePassword = document.getElementById("togglePassword");
 
-    togglePassword.addEventListener("click", function() {
-      const isHidden = passwordInput.type === "password";
+  // Menentukan halaman tujuan setelah login.
+  function getRedirectUrl() {
+    const params = new URLSearchParams(window.location.search);
+    const redirect = params.get("redirect");
 
-      passwordInput.type = isHidden ? "text" : "password";
-      togglePassword.textContent = isHidden ? "Sembunyikan" : "Lihat";
-      togglePassword.setAttribute(
-        "aria-label",
-        isHidden ? "Sembunyikan password" : "Tampilkan password"
-      );
-    });
+    if (!redirect || !redirect.startsWith("/") || redirect.startsWith("//")) {
+      return "/dashboard.html";
+    }
 
-    form.addEventListener("submit", async function(event) {
-      event.preventDefault();
+    try {
+      const target = new URL(redirect, window.location.origin);
 
-      message.className = "";
-      message.textContent = "";
-      button.disabled = true;
-      button.textContent = "Memproses...";
-
-      const data = {
-        email: document.getElementById("email").value.trim(),
-        password: passwordInput.value
-      };
-
-      try {
-        const response = await fetch("/api/login", {
-          method: "POST",
-          credentials: "same-origin",
-          headers: {
-            "Content-Type": "application/json"
-          },
-          body: JSON.stringify(data)
-        });
-
-        const result = await response.json();
-
-        if (!response.ok || !result.success) {
-          throw new Error(result.message || "Login gagal.");
-        }
-
-        message.className = "success";
-        message.textContent = "Login berhasil. Mengalihkan...";
-
-        window.location.href = "/dashboard.html";
-
-      } catch (error) {
-        message.className = "error";
-        message.textContent =
-          error.message || "Tidak dapat menghubungi server.";
-      } finally {
-        button.disabled = false;
-        button.textContent = "Masuk ke Akun";
+      if (target.origin !== window.location.origin) {
+        return "/dashboard.html";
       }
-    });
-  </script>
+
+      return target.pathname + target.search + target.hash;
+    } catch {
+      return "/dashboard.html";
+    }
+  }
+
+  togglePassword.addEventListener("click", function() {
+    const isHidden = passwordInput.type === "password";
+
+    passwordInput.type = isHidden ? "text" : "password";
+    togglePassword.textContent = isHidden ? "Sembunyikan" : "Lihat";
+    togglePassword.setAttribute(
+      "aria-label",
+      isHidden ? "Sembunyikan password" : "Tampilkan password"
+    );
+  });
+
+  form.addEventListener("submit", async function(event) {
+    event.preventDefault();
+
+    message.className = "";
+    message.textContent = "";
+    button.disabled = true;
+    button.textContent = "Memproses...";
+
+    const data = {
+      email: document.getElementById("email").value.trim(),
+      password: passwordInput.value
+    };
+
+    try {
+      const response = await fetch("/api/login", {
+        method: "POST",
+        credentials: "same-origin",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify(data)
+      });
+
+      const result = await response.json();
+
+      if (!response.ok || !result.success) {
+        throw new Error(result.message || "Login gagal.");
+      }
+
+      message.className = "success";
+      message.textContent = "Login berhasil. Mengalihkan...";
+
+      window.location.href = getRedirectUrl();
+
+    } catch (error) {
+      message.className = "error";
+      message.textContent =
+        error.message || "Tidak dapat menghubungi server.";
+
+      button.disabled = false;
+      button.textContent = "Masuk ke Akun";
+    }
+  });
+</script>
+
 </body>
 </html>
