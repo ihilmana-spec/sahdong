@@ -31,10 +31,7 @@ async function authenticateCustomer(request, env) {
   const token = getSessionCookie(request);
 
   if (!token) {
-    return {
-      error: "Belum login.",
-      status: 401
-    };
+    return { error: "Belum login.", status: 401 };
   }
 
   const tokenHash = await hashToken(token);
@@ -67,17 +64,17 @@ async function authenticateCustomer(request, env) {
 }
 
 const PACKAGES = {
-  basic: {
+  BSC: {
     name: "Basic",
     amount: 25000,
     duration_months: 3
   },
-  premium: {
+  PRM: {
     name: "Premium",
     amount: 45000,
     duration_months: 6
   },
-  exclusive: {
+  EXC: {
     name: "Exclusive",
     amount: 92000,
     duration_months: 12
@@ -116,26 +113,19 @@ export async function onRequestPost({ request, env }) {
       body.invitation_id || ""
     ).trim();
 
-    const packageCode = String(
-      body.package || ""
-    ).trim().toLowerCase();
-
-    if (!invitationId || !packageCode) {
-      return jsonError(
-        "ID undangan dan paket wajib diisi.",
-        400
-      );
+    if (!invitationId) {
+      return jsonError("ID undangan wajib diisi.", 400);
     }
 
-    const selectedPackage = PACKAGES[packageCode];
-
-    if (!selectedPackage) {
-      return jsonError("Paket tidak tersedia.", 400);
-    }
-
-    // Pastikan undangan milik pelanggan
+    // Ambil template dari data undangan.
+    // Paket tidak boleh ditentukan oleh input pelanggan.
     const invitation = await env.DB.prepare(`
-      SELECT id, title, status, activation_date
+      SELECT
+        id,
+        title,
+        template_code,
+        status,
+        activation_date
       FROM invitations
       WHERE id = ?
         AND user_id = ?
@@ -156,7 +146,46 @@ export async function onRequestPost({ request, env }) {
       );
     }
 
-    // Membuat nomor pesanan unik
+    const templateCode = String(
+      invitation.template_code || ""
+    ).trim().toUpperCase();
+
+    const templateMatch = templateCode.match(
+      /^(BSC|PRM|EXC)-(0[1-9]|10)$/
+    );
+
+    if (!templateMatch) {
+      return jsonError(
+        "Kode template undangan tidak valid.",
+        400
+      );
+    }
+
+    const selectedPackage = PACKAGES[templateMatch[1]];
+
+    if (!selectedPackage) {
+      return jsonError(
+        "Paket untuk template ini tidak tersedia.",
+        400
+      );
+    }
+
+    // Cegah pembuatan pesanan ganda untuk undangan yang sama.
+    const existingOrder = await env.DB.prepare(`
+      SELECT id, order_number, status
+      FROM orders
+      WHERE invitation_id = ?
+        AND user_id = ?
+      LIMIT 1
+    `).bind(invitationId, auth.user.id).first();
+
+    if (existingOrder) {
+      return jsonError(
+        "Undangan ini sudah memiliki pesanan. Silakan buka detail pesanan Anda.",
+        409
+      );
+    }
+
     const orderId = crypto.randomUUID();
     const paymentId = crypto.randomUUID();
 
@@ -172,7 +201,6 @@ export async function onRequestPost({ request, env }) {
 
     const orderNumber = `SHD-${dateCode}-${randomCode}`;
 
-    // Simpan pesanan dan catatan pembayaran
     const orderStatement = env.DB.prepare(`
       INSERT INTO orders (
         id,
@@ -223,10 +251,11 @@ export async function onRequestPost({ request, env }) {
         order_number: orderNumber,
         invitation_id: invitationId,
         invitation_title: invitation.title,
+        template_code: templateCode,
         package: selectedPackage.name,
         amount: selectedPackage.amount,
         duration_months: selectedPackage.duration_months,
-        activation_date: invitation.activation_date,
+        activation_date: null,
         status: "pending",
         payment: {
           id: paymentId,
@@ -272,6 +301,7 @@ export async function onRequestGet({ request, env }) {
           o.status,
           o.created_at,
           i.title AS invitation_title,
+          i.template_code,
           i.activation_date,
           p.id AS payment_id,
           p.payment_gateway,
@@ -309,6 +339,7 @@ export async function onRequestGet({ request, env }) {
         o.status,
         o.created_at,
         i.title AS invitation_title,
+        i.template_code,
         i.activation_date,
         p.id AS payment_id,
         p.status AS payment_status,
