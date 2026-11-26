@@ -650,10 +650,14 @@ function renderInvitations() {
   }).join("");
 }
 
-function showEditorNotice() {
-  alert(
-    "Halaman editor akan disambungkan setelah alamat editor undangan dipastikan."
-  );
+function showEditorNotice(invitationId) {
+  if (!invitationId) {
+    alert("ID undangan tidak ditemukan.");
+    return;
+  }
+
+  window.location.href =
+    "/editor-undangan.html?id=" + encodeURIComponent(invitationId);
 }
 
 async function loadInvitations() {
