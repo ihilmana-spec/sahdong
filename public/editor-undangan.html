@@ -1,0 +1,637 @@
+
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Editor Undangan - SAHDONG</title>
+  <style>
+    :root {
+      --gold: #b08b50;
+      --dark: #29251f;
+      --cream: #f8f5ef;
+      --line: #e9e2d7;
+      --muted: #81796e;
+      --white: #fff;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: var(--cream);
+      color: var(--dark);
+    }
+
+    header {
+      background: white;
+      border-bottom: 1px solid var(--line);
+      padding: 16px 5%;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+
+    .brand {
+      font-size: 22px;
+      font-weight: bold;
+      letter-spacing: 2px;
+      color: var(--gold);
+    }
+
+    .header-actions {
+      display: flex;
+      gap: 8px;
+    }
+
+    button {
+      border: 0;
+      border-radius: 8px;
+      padding: 11px 16px;
+      cursor: pointer;
+      font-weight: bold;
+    }
+
+    .btn-primary {
+      background: var(--gold);
+      color: white;
+    }
+
+    .btn-light {
+      background: var(--cream);
+      color: var(--dark);
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 28px auto;
+      padding: 0 18px;
+    }
+
+    .heading {
+      margin-bottom: 22px;
+    }
+
+    .heading h1 {
+      margin: 0 0 8px;
+      font-size: 26px;
+    }
+
+    .heading p {
+      color: var(--muted);
+      margin: 0;
+      font-size: 14px;
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: 1fr 380px;
+      gap: 22px;
+      align-items: start;
+    }
+
+    .editor, .preview-card {
+      background: white;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 22px;
+    }
+
+    .section {
+      border-bottom: 1px solid var(--line);
+      padding-bottom: 22px;
+      margin-bottom: 22px;
+    }
+
+    .section:last-child {
+      border-bottom: 0;
+    }
+
+    .section h2 {
+      font-size: 17px;
+      margin: 0 0 18px;
+    }
+
+    .field {
+      margin-bottom: 15px;
+    }
+
+    label {
+      display: block;
+      font-size: 13px;
+      font-weight: bold;
+      margin-bottom: 7px;
+    }
+
+    input, textarea, select {
+      width: 100%;
+      padding: 12px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      font: inherit;
+      font-size: 14px;
+      background: white;
+    }
+
+    textarea {
+      min-height: 90px;
+      resize: vertical;
+    }
+
+    input:focus, textarea:focus, select:focus {
+      outline: 2px solid #e6d4b5;
+      border-color: var(--gold);
+    }
+
+    .preview-card {
+      position: sticky;
+      top: 90px;
+    }
+
+    .preview-label {
+      font-size: 12px;
+      color: var(--muted);
+      margin-bottom: 12px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .invitation-preview {
+      background: #f9f4e9;
+      border: 1px solid #e8ddc8;
+      border-radius: 12px;
+      min-height: 480px;
+      padding: 30px 20px;
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .preview-small {
+      font-size: 12px;
+      letter-spacing: 3px;
+      color: var(--gold);
+      text-transform: uppercase;
+    }
+
+    .preview-names {
+      font-family: Georgia, serif;
+      font-size: 30px;
+      line-height: 1.3;
+      margin: 25px 0;
+      color: #51422d;
+    }
+
+    .preview-date {
+      font-size: 14px;
+      color: #75664f;
+      margin-top: 20px;
+    }
+
+    .preview-location {
+      font-size: 13px;
+      color: #75664f;
+      margin-top: 10px;
+    }
+
+    .status {
+      margin-top: 15px;
+      padding: 12px;
+      border-radius: 8px;
+      font-size: 13px;
+      display: none;
+    }
+
+    .status.success {
+      display: block;
+      background: #edf7ee;
+      color: #286b35;
+    }
+
+    .status.error {
+      display: block;
+      background: #fff0ee;
+      color: #a33225;
+    }
+
+    .status.info {
+      display: block;
+      background: #f4f0e8;
+      color: #715b37;
+    }
+
+    .save-bottom {
+      display: flex;
+      justify-content: flex-end;
+      margin-top: 18px;
+    }
+
+    @media(max-width: 850px) {
+      .layout {
+        grid-template-columns: 1fr;
+      }
+
+      .preview-card {
+        position: static;
+      }
+    }
+
+    @media(max-width: 500px) {
+      header {
+        padding: 13px;
+      }
+
+      .brand {
+        font-size: 18px;
+      }
+
+      button {
+        padding: 10px;
+        font-size: 12px;
+      }
+
+      .editor, .preview-card {
+        padding: 16px;
+      }
+
+      .heading h1 {
+        font-size: 22px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+<header>
+  <div class="brand">SAHDONG</div>
+  <div class="header-actions">
+    <button class="btn-light" onclick="history.back()">Kembali</button>
+    <button class="btn-primary" onclick="saveInvitation()">Simpan</button>
+  </div>
+</header>
+
+<main class="container">
+
+  <div class="heading">
+    <h1>Editor Undangan</h1>
+    <p>Kelola informasi dan konten undangan pernikahan kamu.</p>
+  </div>
+
+  <div id="statusMessage" class="status"></div>
+
+  <div class="layout">
+
+    <section class="editor">
+
+      <div class="section">
+        <h2>01. Informasi Undangan</h2>
+
+        <div class="field">
+          <label>Judul Undangan</label>
+          <input id="title" maxlength="150" placeholder="Pernikahan Andi & Sinta">
+        </div>
+
+        <div class="field">
+          <label>Nama Mempelai Pria</label>
+          <input id="groom" placeholder="Nama lengkap mempelai pria">
+        </div>
+
+        <div class="field">
+          <label>Nama Mempelai Wanita</label>
+          <input id="bride" placeholder="Nama lengkap mempelai wanita">
+        </div>
+      </div>
+
+      <div class="section">
+        <h2>02. Profil Mempelai</h2>
+
+        <div class="field">
+          <label>Nama Ayah Mempelai Pria</label>
+          <input id="groomFather" placeholder="Nama ayah">
+        </div>
+
+        <div class="field">
+          <label>Nama Ibu Mempelai Pria</label>
+          <input id="groomMother" placeholder="Nama ibu">
+        </div>
+
+        <div class="field">
+          <label>Nama Ayah Mempelai Wanita</label>
+          <input id="brideFather" placeholder="Nama ayah">
+        </div>
+
+        <div class="field">
+          <label>Nama Ibu Mempelai Wanita</label>
+          <input id="brideMother" placeholder="Nama ibu">
+        </div>
+      </div>
+
+      <div class="section">
+        <h2>03. Akad Nikah</h2>
+
+        <div class="field">
+          <label>Tanggal Akad</label>
+          <input id="akadDate" type="date">
+        </div>
+
+        <div class="field">
+          <label>Waktu Akad</label>
+          <input id="akadTime" type="time">
+        </div>
+
+        <div class="field">
+          <label>Lokasi Akad</label>
+          <textarea id="akadLocation" placeholder="Alamat lengkap akad nikah"></textarea>
+        </div>
+      </div>
+
+      <div class="section">
+        <h2>04. Resepsi</h2>
+
+        <div class="field">
+          <label>Tanggal Resepsi</label>
+          <input id="receptionDate" type="date">
+        </div>
+
+        <div class="field">
+          <label>Waktu Resepsi</label>
+          <input id="receptionTime" type="time">
+        </div>
+
+        <div class="field">
+          <label>Lokasi Resepsi</label>
+          <textarea id="receptionLocation" placeholder="Alamat lengkap resepsi"></textarea>
+        </div>
+
+        <div class="field">
+          <label>Link Google Maps</label>
+          <input id="mapsUrl" type="url" placeholder="https://maps.google.com/...">
+        </div>
+      </div>
+
+      <div class="section">
+        <h2>05. Cerita Cinta</h2>
+
+        <div class="field">
+          <label>Cerita Perjalanan Cinta</label>
+          <textarea id="loveStory" placeholder="Tuliskan cerita perjalanan cinta kalian..."></textarea>
+        </div>
+      </div>
+
+      <div class="section">
+        <h2>06. Amplop Digital</h2>
+
+        <div class="field">
+          <label>Nama Bank</label>
+          <input id="bankName" placeholder="Contoh: BCA">
+        </div>
+
+        <div class="field">
+          <label>Nomor Rekening</label>
+          <input id="accountNumber" placeholder="Nomor rekening">
+        </div>
+
+        <div class="field">
+          <label>Nama Pemilik Rekening</label>
+          <input id="accountOwner" placeholder="Nama pemilik rekening">
+        </div>
+      </div>
+
+      <div class="section">
+        <h2>07. Penutup</h2>
+
+        <div class="field">
+          <label>Ucapan Penutup</label>
+          <textarea id="closing" placeholder="Merupakan suatu kehormatan bagi kami..."></textarea>
+        </div>
+      </div>
+
+      <div class="save-bottom">
+        <button class="btn-primary" onclick="saveInvitation()">
+          Simpan Perubahan
+        </button>
+      </div>
+
+    </section>
+
+    <aside class="preview-card">
+      <div class="preview-label">Pratinjau Sementara</div>
+
+      <div class="invitation-preview">
+        <div class="preview-small">The Wedding Of</div>
+
+        <div class="preview-names">
+          <span id="previewGroom">Mempelai Pria</span>
+          <br>&
+          <br>
+          <span id="previewBride">Mempelai Wanita</span>
+        </div>
+
+        <div>Dengan memohon rahmat dan ridho Allah SWT</div>
+
+        <div class="preview-date" id="previewDate">
+          Hari dan tanggal acara
+        </div>
+
+        <div class="preview-location" id="previewLocation">
+          Lokasi pernikahan
+        </div>
+      </div>
+
+      <p style="font-size:12px;color:#81796e;line-height:1.6">
+        Pratinjau ini merupakan gambaran awal isi undangan, belum merupakan tampilan akhir template.
+      </p>
+    </aside>
+
+  </div>
+</main>
+
+<script>
+  const params = new URLSearchParams(window.location.search);
+  const invitationId = params.get("id");
+
+  const fields = [
+    "title",
+    "groom",
+    "bride",
+    "groomFather",
+    "groomMother",
+    "brideFather",
+    "brideMother",
+    "akadDate",
+    "akadTime",
+    "akadLocation",
+    "receptionDate",
+    "receptionTime",
+    "receptionLocation",
+    "mapsUrl",
+    "loveStory",
+    "bankName",
+    "accountNumber",
+    "accountOwner",
+    "closing"
+  ];
+
+  const $ = (id) => document.getElementById(id);
+
+  function showStatus(message, type = "info") {
+    const element = $("statusMessage");
+    element.textContent = message;
+    element.className = "status " + type;
+  }
+
+  function getFormData() {
+    const data = {};
+
+    fields.forEach((field) => {
+      data[field] = $(field).value.trim();
+    });
+
+    return data;
+  }
+
+  function fillForm(data) {
+    fields.forEach((field) => {
+      $(field).value = data[field] || "";
+    });
+
+    updatePreview();
+  }
+
+  function updatePreview() {
+    $("previewGroom").textContent =
+      $("groom").value || "Mempelai Pria";
+
+    $("previewBride").textContent =
+      $("bride").value || "Mempelai Wanita";
+
+    const date = $("receptionDate").value || $("akadDate").value;
+    const location =
+      $("receptionLocation").value || $("akadLocation").value;
+
+    $("previewDate").textContent =
+      date ? formatDate(date) : "Hari dan tanggal acara";
+
+    $("previewLocation").textContent =
+      location || "Lokasi pernikahan";
+  }
+
+  function formatDate(value) {
+    if (!value) return "";
+
+    const date = new Date(value + "T00:00:00");
+
+    return date.toLocaleDateString("id-ID", {
+      weekday: "long",
+      day: "numeric",
+      month: "long",
+      year: "numeric"
+    });
+  }
+
+  async function loadInvitation() {
+    if (!invitationId) {
+      showStatus(
+        "ID undangan tidak ditemukan. Silakan buka editor melalui menu Undangan Saya.",
+        "error"
+      );
+      return;
+    }
+
+    try {
+      const response = await fetch(
+        "/api/invitations?id=" + encodeURIComponent(invitationId),
+        { credentials: "same-origin" }
+      );
+
+      const result = await response.json();
+
+      if (response.status === 401) {
+        window.location.href = "/login.html";
+        return;
+      }
+
+      if (!response.ok || !result.success) {
+        throw new Error(result.message || "Gagal mengambil data undangan.");
+      }
+
+      $("title").value = result.invitation.title || "";
+
+      const data = result.invitation.invitation_data || {};
+
+      fillForm(data);
+
+      showStatus("Data undangan berhasil dimuat.", "success");
+
+    } catch (error) {
+      showStatus(error.message, "error");
+    }
+  }
+
+  async function saveInvitation() {
+    if (!invitationId) {
+      showStatus("ID undangan tidak ditemukan.", "error");
+      return;
+    }
+
+    const title = $("title").value.trim();
+
+    if (!title) {
+      showStatus("Judul undangan wajib diisi.", "error");
+      $("title").focus();
+      return;
+    }
+
+    const invitationData = getFormData();
+
+    try {
+      const response = await fetch(
+        "/api/invitations?id=" + encodeURIComponent(invitationId),
+        {
+          method: "PUT",
+          credentials: "same-origin",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({
+            title,
+            invitation_data: invitationData
+          })
+        }
+      );
+
+      const result = await response.json();
+
+      if (response.status === 401) {
+        window.location.href = "/login.html";
+        return;
+      }
+
+      if (!response.ok || !result.success) {
+        throw new Error(result.message || "Gagal menyimpan undangan.");
+      }
+
+      showStatus("Perubahan undangan berhasil disimpan.", "success");
+
+    } catch (error) {
+      showStatus(error.message, "error");
+    }
+  }
+
+  fields.forEach((field) => {
+    $(field).addEventListener("input", updatePreview);
+  });
+
+  loadInvitation();
+</script>
+
+</body>
+</html>
