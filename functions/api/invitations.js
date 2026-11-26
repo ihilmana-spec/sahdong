@@ -6,7 +6,7 @@ async function hashToken(token) {
   );
 
   return Array.from(new Uint8Array(hash))
-    .map((byte) => byte.toString(16).padStart(2, "0"))
+    .map(byte => byte.toString(16).padStart(2, "0"))
     .join("");
 }
 
@@ -21,9 +21,7 @@ function getSessionCookie(request) {
     const name = cookie.slice(0, separator).trim();
     const value = cookie.slice(separator + 1).trim();
 
-    if (name === "sahdong_session") {
-      return value;
-    }
+    if (name === "sahdong_session") return value;
   }
 
   return null;
@@ -38,6 +36,10 @@ function createSlug(text) {
     .replace(/[^a-z0-9]+/g, "-")
     .replace(/^-+|-+$/g, "")
     .slice(0, 60);
+}
+
+function isValidTemplate(code) {
+  return /^(BSC|PRM|EXC)-(0[1-9]|10)$/.test(code);
 }
 
 async function authenticateCustomer(request, env) {
@@ -77,7 +79,10 @@ async function authenticateCustomer(request, env) {
   if (!user || user.status !== "active") {
     return {
       error: Response.json(
-        { success: false, message: "Sesi tidak valid atau sudah kedaluwarsa." },
+        {
+          success: false,
+          message: "Sesi tidak valid atau sudah kedaluwarsa."
+        },
         { status: 401 }
       )
     };
@@ -96,7 +101,7 @@ async function authenticateCustomer(request, env) {
 }
 
 // ======================================
-// POST: MEMBUAT UNDANGAN BARU
+// POST: MEMBUAT UNDANGAN DRAFT KOSONG
 // ======================================
 
 export async function onRequestPost({ request, env }) {
@@ -104,8 +109,6 @@ export async function onRequestPost({ request, env }) {
     const auth = await authenticateCustomer(request, env);
 
     if (auth.error) return auth.error;
-
-    const user = auth.user;
 
     let body;
 
@@ -118,81 +121,25 @@ export async function onRequestPost({ request, env }) {
       );
     }
 
-    const title = String(body.title || "").trim();
-    const templateCode = String(body.template_code || "").trim();
-    const activationDate = String(body.activation_date || "").trim();
+    const templateCode = String(
+      body.template_code || ""
+    ).trim().toUpperCase();
 
-    if (!title || !templateCode || !activationDate) {
+    if (!isValidTemplate(templateCode)) {
       return Response.json(
         {
           success: false,
-          message: "Judul, template, dan tanggal aktivasi wajib diisi."
+          message: "Kode template tidak valid. Silakan pilih dari katalog."
         },
         { status: 400 }
       );
     }
 
-    if (title.length > 150 || templateCode.length > 50) {
-      return Response.json(
-        { success: false, message: "Judul atau kode template terlalu panjang." },
-        { status: 400 }
-      );
-    }
-
-    if (!/^\d{4}-\d{2}-\d{2}$/.test(activationDate)) {
-      return Response.json(
-        { success: false, message: "Format tanggal aktivasi harus YYYY-MM-DD." },
-        { status: 400 }
-      );
-    }
-
-    const parsedDate = new Date(`${activationDate}T00:00:00.000Z`);
-
-    if (
-      Number.isNaN(parsedDate.getTime()) ||
-      parsedDate.toISOString().slice(0, 10) !== activationDate
-    ) {
-      return Response.json(
-        { success: false, message: "Tanggal aktivasi tidak valid." },
-        { status: 400 }
-      );
-    }
-
-    const invitationData =
-      body.invitation_data === undefined ? {} : body.invitation_data;
-
-    if (
-      invitationData === null ||
-      typeof invitationData !== "object" ||
-      Array.isArray(invitationData)
-    ) {
-      return Response.json(
-        { success: false, message: "Data undangan harus berupa objek JSON." },
-        { status: 400 }
-      );
-    }
-
-    const invitationJson = JSON.stringify(invitationData);
-
-    if (invitationJson.length > 100000) {
-      return Response.json(
-        { success: false, message: "Data undangan terlalu besar." },
-        { status: 400 }
-      );
-    }
+    const title = `Undangan ${templateCode}`;
+    const invitationData = "{}";
 
     const invitationId = crypto.randomUUID();
     const baseSlug = createSlug(title);
-
-    if (!baseSlug) {
-      return Response.json(
-        {
-          success: false,
-          message: "Judul tidak dapat digunakan untuk membuat slug."
-        },
-        { status: 400 }
-      );
-    }
 
     const slug = `${baseSlug}-${crypto.randomUUID().slice(0, 8)}`;
 
@@ -208,29 +155,29 @@ export async function onRequestPost({ request, env }) {
         activation_date,
         review_status
       )
-      VALUES (?, ?, ?, ?, ?, ?, 'draft', ?, 'draft')
+      VALUES (?, ?, ?, ?, ?, ?, 'draft', NULL, 'draft')
     `).bind(
       invitationId,
-      user.id,
+      auth.user.id,
       title,
       slug,
       templateCode,
-      invitationJson,
-      activationDate
+      invitationData
     ).run();
 
     return Response.json(
       {
         success: true,
-        message: "Undangan berhasil dibuat sebagai draft.",
+        message: "Undangan draft berhasil dibuat.",
         invitation: {
           id: invitationId,
           title,
           slug,
           template_code: templateCode,
-          activation_date: activationDate,
+          activation_date: null,
           status: "draft",
-          review_status: "draft"
+          review_status: "draft",
+          invitation_data: {}
         }
       },
       { status: 201 }
@@ -260,7 +207,6 @@ export async function onRequestGet({ request, env }) {
     const url = new URL(request.url);
     const invitationId = url.searchParams.get("id");
 
-    // Jika ID tersedia, ambil detail satu undangan
     if (invitationId) {
       const invitation = await env.DB.prepare(`
         SELECT
@@ -290,7 +236,9 @@ export async function onRequestGet({ request, env }) {
       let invitationData = {};
 
       try {
-        invitationData = JSON.parse(invitation.invitation_data || "{}");
+        invitationData = JSON.parse(
+          invitation.invitation_data || "{}"
+        );
       } catch {
         invitationData = {};
       }
@@ -304,7 +252,6 @@ export async function onRequestGet({ request, env }) {
       });
     }
 
-    // Jika tidak ada ID, tampilkan seluruh undangan pelanggan
     const result = await env.DB.prepare(`
       SELECT
         id,
