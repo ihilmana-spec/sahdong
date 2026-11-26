@@ -1,21 +1,58 @@
 
-export async function onRequestGet({ request, env }) {
-  const headers = {
-    "Content-Type": "application/json; charset=utf-8",
-    "Cache-Control": "no-store"
-  };
+function jsonResponse(data, status = 200) {
+  return Response.json(data, {
+    status,
+    headers: {
+      "Content-Type": "application/json; charset=utf-8",
+      "Cache-Control": "no-store"
+    }
+  });
+}
 
+// Mengambil waktu sekarang berdasarkan WIB.
+function getJakartaDateTime() {
+  const parts = new Intl.DateTimeFormat("en-GB", {
+    timeZone: "Asia/Jakarta",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+    second: "2-digit",
+    hourCycle: "h23"
+  }).formatToParts(new Date());
+
+  const values = {};
+
+  for (const part of parts) {
+    if (part.type !== "literal") {
+      values[part.type] = part.value;
+    }
+  }
+
+  return `${values.year}-${values.month}-${values.day} ${values.hour}:${values.minute}:${values.second}`;
+}
+
+export async function onRequestGet({ request, env }) {
   try {
+    if (!env.DB) {
+      return jsonResponse({
+        success: false,
+        message: "Database tidak tersedia."
+      }, 500);
+    }
+
     const url = new URL(request.url);
     const slug = (url.searchParams.get("slug") || "").trim();
 
     if (!slug || slug.length > 200) {
-      return Response.json({
+      return jsonResponse({
         success: false,
         message: "Slug tidak valid."
-      }, { status: 400, headers });
+      }, 400);
     }
 
+    // Hanya mengambil undangan yang benar-benar sudah diterbitkan.
     const invitation = await env.DB.prepare(`
       SELECT
         i.id,
@@ -25,98 +62,86 @@ export async function onRequestGet({ request, env }) {
         i.invitation_data,
         i.activation_date,
         i.published_at,
+        i.expires_at,
         i.status AS invitation_status,
         o.status AS order_status,
         o.package_name,
         p.status AS payment_status
       FROM invitations i
-      INNER JOIN orders o ON o.invitation_id = i.id
-      INNER JOIN payments p ON p.order_id = o.id
+      INNER JOIN orders o
+        ON o.invitation_id = i.id
+       AND o.user_id = i.user_id
+      INNER JOIN payments p
+        ON p.order_id = o.id
       WHERE i.slug = ?
-        AND i.status != 'archived'
+        AND i.status = 'published'
+        AND i.published_at IS NOT NULL
+        AND i.activation_date IS NOT NULL
+        AND i.expires_at IS NOT NULL
+        AND o.status = 'paid'
         AND p.status = 'paid'
-        AND o.status IN ('paid', 'processing', 'completed')
-      ORDER BY o.created_at DESC
+      ORDER BY p.created_at DESC
       LIMIT 1
     `).bind(slug).first();
 
     if (!invitation) {
-      return Response.json({
+      return jsonResponse({
         success: false,
-        message: "Undangan tidak ditemukan atau pembayaran belum lunas."
-      }, { status: 404, headers });
+        message: "Undangan tidak ditemukan, belum diterbitkan, atau pembayaran belum lunas."
+      }, 404);
     }
 
-    if (!invitation.activation_date) {
-      return Response.json({
-        success: false,
-        message: "Tanggal aktivasi belum ditentukan."
-      }, { status: 403, headers });
-    }
-
+    // Periksa tanggal aktivasi.
+    const today = getJakartaDateTime().slice(0, 10);
     const activationDate = invitation.activation_date.slice(0, 10);
-    const today = new Date().toLocaleDateString("en-CA", {
-      timeZone: "Asia/Jakarta"
-    });
 
     if (activationDate > today) {
-      return Response.json({
+      return jsonResponse({
         success: false,
         message: "Undangan belum memasuki tanggal aktivasi.",
         activation_date: activationDate
-      }, { status: 403, headers });
+      }, 403);
     }
 
-    const durations = {
-      basic: 3,
-      premium: 6,
-      exclusive: 12
-    };
+    // Gunakan tanggal kedaluwarsa yang sudah disimpan
+    // saat pelanggan menerbitkan undangan.
+    const now = getJakartaDateTime();
+    const expiresAt = String(invitation.expires_at).slice(0, 19);
 
-    const months = durations[
-      String(invitation.package_name || "").toLowerCase()
-    ];
-
-    if (!months) {
-      return Response.json({
-        success: false,
-        message: "Paket undangan tidak valid."
-      }, { status: 400, headers });
-    }
-
-    const [year, month, day] = activationDate.split("-").map(Number);
-    const expiryDate = new Date(Date.UTC(year, month - 1 + months, day));
-
-    // Sesuaikan akhir bulan agar tanggal tidak bergeser.
-    const lastDay = new Date(
-      Date.UTC(year, month + months, 0)
-    ).getUTCDate();
-
-    if (day > lastDay) {
-      expiryDate.setUTCDate(lastDay);
-    }
-
-    const expiresAt = expiryDate.toISOString().slice(0, 10);
-
-    if (today >= expiresAt) {
-      return Response.json({
+    if (now >= expiresAt) {
+      return jsonResponse({
         success: false,
         message: "Masa aktif undangan telah berakhir.",
-        expires_at: expiresAt
-      }, { status: 403, headers });
+        expires_at: invitation.expires_at
+      }, 403);
     }
 
-    let invitationData = {};
+    // Baca data undangan.
+    let invitationData;
 
     try {
       invitationData = JSON.parse(
         invitation.invitation_data || "{}"
       );
     } catch {
-      invitationData = {};
+      return jsonResponse({
+        success: false,
+        message: "Data undangan tidak dapat dibaca."
+      }, 500);
     }
 
-    return Response.json({
+    if (
+      !invitationData ||
+      typeof invitationData !== "object" ||
+      Array.isArray(invitationData)
+    ) {
+      return jsonResponse({
+        success: false,
+        message: "Format data undangan tidak valid."
+      }, 500);
+    }
+
+    return jsonResponse({
       success: true,
       invitation: {
         id: invitation.id,
@@ -126,17 +151,17 @@ export async function onRequestGet({ request, env }) {
         invitation_data: invitationData,
         activation_date: invitation.activation_date,
         published_at: invitation.published_at,
-        expires_at: expiresAt,
+        expires_at: invitation.expires_at,
         package_name: invitation.package_name
       }
-    }, { status: 200, headers });
+    });
 
   } catch (error) {
     console.error("PUBLIC INVITATION ERROR:", error);
 
-    return Response.json({
+    return jsonResponse({
       success: false,
       message: "Terjadi kesalahan saat memuat undangan."
-    }, { status: 500, headers });
+    }, 500);
   }
 }
