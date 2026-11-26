@@ -12,7 +12,7 @@ export async function onRequestGet({ request, env }) {
     if (!slug || slug.length > 200) {
       return Response.json({
         success: false,
-        message: "Slug undangan tidak valid."
+        message: "Slug tidak valid."
       }, { status: 400, headers });
     }
 
@@ -25,43 +25,85 @@ export async function onRequestGet({ request, env }) {
         i.invitation_data,
         i.activation_date,
         i.published_at,
-        i.status,
+        i.status AS invitation_status,
+        o.status AS order_status,
         o.package_name,
-        datetime(
-          i.activation_date,
-          CASE lower(o.package_name)
-            WHEN 'basic' THEN '+3 months'
-            WHEN 'premium' THEN '+6 months'
-            WHEN 'exclusive' THEN '+12 months'
-            ELSE '+0 months'
-          END
-        ) AS expires_at
+        p.status AS payment_status
       FROM invitations i
       INNER JOIN orders o ON o.invitation_id = i.id
       INNER JOIN payments p ON p.order_id = o.id
       WHERE i.slug = ?
         AND i.status != 'archived'
-        AND i.activation_date IS NOT NULL
-        AND date(i.activation_date) <= date('now')
-        AND datetime(
-          i.activation_date,
-          CASE lower(o.package_name)
-            WHEN 'basic' THEN '+3 months'
-            WHEN 'premium' THEN '+6 months'
-            WHEN 'exclusive' THEN '+12 months'
-            ELSE '+0 months'
-          END
-        ) > datetime('now')
         AND p.status = 'paid'
         AND o.status IN ('paid', 'processing', 'completed')
+      ORDER BY o.created_at DESC
       LIMIT 1
     `).bind(slug).first();
 
     if (!invitation) {
       return Response.json({
         success: false,
-        message: "Undangan belum aktif, pembayaran belum lunas, atau masa aktif telah berakhir."
+        message: "Undangan tidak ditemukan atau pembayaran belum lunas."
       }, { status: 404, headers });
+    }
+
+    if (!invitation.activation_date) {
+      return Response.json({
+        success: false,
+        message: "Tanggal aktivasi belum ditentukan."
+      }, { status: 403, headers });
+    }
+
+    const activationDate = invitation.activation_date.slice(0, 10);
+    const today = new Date().toLocaleDateString("en-CA", {
+      timeZone: "Asia/Jakarta"
+    });
+
+    if (activationDate > today) {
+      return Response.json({
+        success: false,
+        message: "Undangan belum memasuki tanggal aktivasi.",
+        activation_date: activationDate
+      }, { status: 403, headers });
+    }
+
+    const durations = {
+      basic: 3,
+      premium: 6,
+      exclusive: 12
+    };
+
+    const months = durations[
+      String(invitation.package_name || "").toLowerCase()
+    ];
+
+    if (!months) {
+      return Response.json({
+        success: false,
+        message: "Paket undangan tidak valid."
+      }, { status: 400, headers });
+    }
+
+    const [year, month, day] = activationDate.split("-").map(Number);
+    const expiryDate = new Date(Date.UTC(year, month - 1 + months, day));
+
+    // Sesuaikan akhir bulan agar tanggal tidak bergeser.
+    const lastDay = new Date(
+      Date.UTC(year, month + months, 0)
+    ).getUTCDate();
+
+    if (day > lastDay) {
+      expiryDate.setUTCDate(lastDay);
+    }
+
+    const expiresAt = expiryDate.toISOString().slice(0, 10);
+
+    if (today >= expiresAt) {
+      return Response.json({
+        success: false,
+        message: "Masa aktif undangan telah berakhir.",
+        expires_at: expiresAt
+      }, { status: 403, headers });
     }
 
     let invitationData = {};
@@ -84,7 +126,7 @@ export async function onRequestGet({ request, env }) {
         invitation_data: invitationData,
         activation_date: invitation.activation_date,
         published_at: invitation.published_at,
-        expires_at: invitation.expires_at,
+        expires_at: expiresAt,
         package_name: invitation.package_name
       }
     }, { status: 200, headers });
