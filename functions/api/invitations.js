@@ -101,7 +101,7 @@ async function authenticateCustomer(request, env) {
 }
 
 // ======================================
-// POST: MEMBUAT UNDANGAN DRAFT KOSONG
+// POST: MEMBUAT UNDANGAN DRAFT
 // ======================================
 
 export async function onRequestPost({ request, env }) {
@@ -140,7 +140,6 @@ export async function onRequestPost({ request, env }) {
 
     const invitationId = crypto.randomUUID();
     const baseSlug = createSlug(title);
-
     const slug = `${baseSlug}-${crypto.randomUUID().slice(0, 8)}`;
 
     await env.DB.prepare(`
@@ -216,6 +215,8 @@ export async function onRequestGet({ request, env }) {
           template_code,
           invitation_data,
           activation_date,
+          published_at,
+          expires_at,
           status,
           review_status,
           created_at,
@@ -259,6 +260,8 @@ export async function onRequestGet({ request, env }) {
         slug,
         template_code,
         activation_date,
+        published_at,
+        expires_at,
         status,
         review_status,
         created_at,
@@ -286,7 +289,7 @@ export async function onRequestGet({ request, env }) {
 }
 
 // ======================================
-// PUT: MENYIMPAN PERUBAHAN UNDANGAN
+// PUT: MENYIMPAN PERUBAHAN UNDANGAN DRAFT
 // ======================================
 
 export async function onRequestPut({ request, env }) {
@@ -306,11 +309,24 @@ export async function onRequestPut({ request, env }) {
       );
     }
 
+    // Periksa kepemilikan dan status undangan.
     const existing = await env.DB.prepare(`
-      SELECT id
-      FROM invitations
-      WHERE id = ?
-        AND user_id = ?
+      SELECT
+        i.id,
+        i.status,
+        i.review_status,
+        EXISTS (
+          SELECT 1
+          FROM orders o
+          INNER JOIN payments p ON p.order_id = o.id
+          WHERE o.invitation_id = i.id
+            AND o.user_id = i.user_id
+            AND o.status = 'paid'
+            AND p.status = 'paid'
+        ) AS payment_confirmed
+      FROM invitations i
+      WHERE i.id = ?
+        AND i.user_id = ?
       LIMIT 1
     `).bind(invitationId, user.id).first();
 
@@ -318,6 +334,31 @@ export async function onRequestPut({ request, env }) {
       return Response.json(
         { success: false, message: "Undangan tidak ditemukan." },
         { status: 404 }
+      );
+    }
+
+    // Undangan yang sudah terbit tidak boleh diedit langsung.
+    if (
+      existing.status !== "draft" ||
+      existing.review_status !== "draft"
+    ) {
+      return Response.json(
+        {
+          success: false,
+          message: "Undangan sudah diterbitkan atau sedang dalam proses revisi. Silakan gunakan pengajuan revisi."
+        },
+        { status: 403 }
+      );
+    }
+
+    // Pastikan pesanan dan pembayaran sudah lunas.
+    if (!existing.payment_confirmed) {
+      return Response.json(
+        {
+          success: false,
+          message: "Pembayaran belum lunas. Data undangan belum dapat disimpan."
+        },
+        { status: 403 }
       );
     }
 
@@ -351,7 +392,10 @@ export async function onRequestPut({ request, env }) {
       Array.isArray(invitationData)
     ) {
       return Response.json(
-        { success: false, message: "Data undangan harus berupa objek JSON." },
+        {
+          success: false,
+          message: "Data undangan harus berupa objek JSON."
+        },
         { status: 400 }
       );
     }
@@ -365,7 +409,9 @@ export async function onRequestPut({ request, env }) {
       );
     }
 
-    await env.DB.prepare(`
+    // Pengamanan ulang pada UPDATE untuk mencegah perubahan
+    // jika status berubah setelah pemeriksaan awal.
+    const result = await env.DB.prepare(`
       UPDATE invitations
       SET
         title = ?,
@@ -373,12 +419,33 @@ export async function onRequestPut({ request, env }) {
         updated_at = CURRENT_TIMESTAMP
       WHERE id = ?
         AND user_id = ?
+        AND status = 'draft'
+        AND review_status = 'draft'
+        AND EXISTS (
+          SELECT 1
+          FROM orders o
+          INNER JOIN payments p ON p.order_id = o.id
+          WHERE o.invitation_id = invitations.id
+            AND o.user_id = invitations.user_id
+            AND o.status = 'paid'
+            AND p.status = 'paid'
+        )
     `).bind(
       title,
       invitationJson,
       invitationId,
       user.id
     ).run();
+
+    if (!result.meta || result.meta.changes !== 1) {
+      return Response.json(
+        {
+          success: false,
+          message: "Data tidak dapat disimpan. Periksa status undangan dan pembayaran."
+        },
+        { status: 409 }
+      );
+    }
 
     return Response.json({
       success: true,
