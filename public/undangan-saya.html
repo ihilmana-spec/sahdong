@@ -24,407 +24,67 @@
   --red-bg:#fff0f0;
   --shadow:0 8px 30px rgba(40,35,20,.04);
 }
-
-* {
-  box-sizing:border-box;
-  margin:0;
-  padding:0;
-}
-
-body {
-  font-family:Arial,Helvetica,sans-serif;
-  background:var(--bg);
-  color:var(--text);
-  min-height:100vh;
-}
-
-a {
-  text-decoration:none;
-  color:inherit;
-}
-
-.topbar {
-  height:70px;
-  background:#fff;
-  border-bottom:1px solid var(--border);
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-  padding:0 6%;
-  position:sticky;
-  top:0;
-  z-index:10;
-}
-
-.brand {
-  font-family:Georgia,serif;
-  font-size:27px;
-  font-weight:bold;
-  letter-spacing:1px;
-  color:var(--gold);
-}
-
-.back-link {
-  font-size:13px;
-  color:#68665e;
-  padding:10px 15px;
-  border:1px solid var(--border);
-  border-radius:8px;
-}
-
-.back-link:hover {
-  background:var(--gold-light);
-}
-
-.container {
-  max-width:1100px;
-  width:90%;
-  margin:38px auto 70px;
-}
-
-.heading {
-  margin-bottom:27px;
-}
-
-.eyebrow {
-  color:var(--gold);
-  font-size:11px;
-  font-weight:bold;
-  letter-spacing:2px;
-  text-transform:uppercase;
-  margin-bottom:9px;
-}
-
-h1 {
-  font-family:Georgia,serif;
-  font-size:34px;
-  font-weight:normal;
-  margin-bottom:8px;
-}
-
-.subtitle {
-  color:var(--muted);
-  font-size:14px;
-  line-height:1.6;
-}
-
-.summary {
-  display:grid;
-  grid-template-columns:repeat(3,1fr);
-  gap:15px;
-  margin-bottom:24px;
-}
-
-.summary-card {
-  background:#fff;
-  border:1px solid var(--border);
-  border-radius:13px;
-  padding:20px;
-  box-shadow:var(--shadow);
-}
-
-.summary-label {
-  color:var(--muted);
-  font-size:12px;
-  margin-bottom:12px;
-}
-
-.summary-number {
-  font-family:Georgia,serif;
-  font-size:29px;
-  font-weight:bold;
-}
-
-.toolbar {
-  background:#fff;
-  border:1px solid var(--border);
-  border-radius:13px;
-  padding:16px;
-  display:flex;
-  gap:12px;
-  align-items:center;
-  justify-content:space-between;
-  flex-wrap:wrap;
-  margin-bottom:18px;
-}
-
-.search {
-  flex:1;
-  min-width:200px;
-}
-
-.search input {
-  width:100%;
-  border:1px solid var(--border);
-  border-radius:8px;
-  padding:12px 14px;
-  outline:none;
-  font-size:13px;
-}
-
-.search input:focus {
-  border-color:var(--gold);
-}
-
-.filters {
-  display:flex;
-  gap:7px;
-  flex-wrap:wrap;
-}
-
-.filter-btn {
-  border:1px solid var(--border);
-  background:#fff;
-  padding:10px 13px;
-  border-radius:8px;
-  font-size:12px;
-  color:#77756d;
-  cursor:pointer;
-}
-
-.filter-btn.active {
-  background:var(--gold-light);
-  color:#866b3d;
-  border-color:#d9c9a9;
-  font-weight:bold;
-}
-
-.invitation-list {
-  display:grid;
-  grid-template-columns:repeat(2,minmax(0,1fr));
-  gap:16px;
-}
-
-.invitation-card {
-  background:#fff;
-  border:1px solid var(--border);
-  border-radius:13px;
-  padding:21px;
-  box-shadow:var(--shadow);
-  min-width:0;
-}
-
-.card-top {
-  display:flex;
-  align-items:flex-start;
-  justify-content:space-between;
-  gap:10px;
-  margin-bottom:18px;
-}
-
-.card-icon {
-  width:43px;
-  height:43px;
-  border-radius:11px;
-  background:var(--gold-light);
-  color:var(--gold);
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  font-size:21px;
-  flex-shrink:0;
-}
-
-.status {
-  display:inline-flex;
-  padding:7px 10px;
-  border-radius:20px;
-  font-size:10px;
-  font-weight:bold;
-  white-space:nowrap;
-}
-
-.status.draft {
-  color:#777;
-  background:#f1f1ef;
-}
-
-.status.active,
-.status.published {
-  color:var(--green);
-  background:var(--green-bg);
-}
-
-.status.pending {
-  color:var(--orange);
-  background:var(--orange-bg);
-}
-
-.status.other {
-  color:var(--red);
-  background:var(--red-bg);
-}
-
-.invitation-title {
-  font-family:Georgia,serif;
-  font-size:21px;
-  font-weight:normal;
-  margin-bottom:7px;
-  overflow-wrap:anywhere;
-}
-
-.template-name {
-  color:var(--muted);
-  font-size:12px;
-  margin-bottom:19px;
-}
-
-.card-details {
-  border-top:1px solid var(--border);
-  padding-top:15px;
-  display:grid;
-  grid-template-columns:1fr 1fr;
-  gap:15px;
-}
-
-.detail-label {
-  font-size:11px;
-  color:var(--muted);
-  margin-bottom:6px;
-}
-
-.detail-value {
-  font-size:13px;
-  font-weight:bold;
-  overflow-wrap:anywhere;
-}
-
-.card-actions {
-  display:flex;
-  gap:9px;
-  margin-top:19px;
-}
-
-.action-btn {
-  display:inline-block;
-  text-align:center;
-  padding:11px 14px;
-  border-radius:8px;
-  font-size:12px;
-  font-weight:bold;
-  border:1px solid var(--border);
-  background:#fff;
-  color:#666;
-  flex:1;
-}
-
-.action-btn.primary {
-  background:var(--gold);
-  border-color:var(--gold);
-  color:#fff;
-}
-
-.action-btn:hover {
-  opacity:.85;
-}
-
-.empty-state,
-.loading-state,
-.error-state {
-  grid-column:1/-1;
-  text-align:center;
-  background:#fff;
-  border:1px solid var(--border);
-  border-radius:13px;
-  padding:55px 20px;
-  color:var(--muted);
-  line-height:1.7;
-}
-
-.empty-icon {
-  font-size:38px;
-  margin-bottom:15px;
-}
-
-.empty-state h3 {
-  color:var(--text);
-  font-size:17px;
-  margin-bottom:7px;
-}
-
-.primary-link,
-.retry-btn {
-  display:inline-block;
-  margin-top:17px;
-  background:var(--gold);
-  color:#fff;
-  padding:12px 18px;
-  border:0;
-  border-radius:8px;
-  font-size:12px;
-  font-weight:bold;
-  cursor:pointer;
-}
-
-.footer {
-  text-align:center;
-  padding:25px 15px;
-  border-top:1px solid var(--border);
-  color:var(--muted);
-  font-size:11px;
-  background:#fff;
-}
-
+* {box-sizing:border-box;margin:0;padding:0}
+body {font-family:Arial,Helvetica,sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
+a {text-decoration:none;color:inherit}
+.topbar {height:70px;background:#fff;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;padding:0 6%;position:sticky;top:0;z-index:10}
+.brand {font-family:Georgia,serif;font-size:27px;font-weight:bold;letter-spacing:1px;color:var(--gold)}
+.back-link {font-size:13px;color:#68665e;padding:10px 15px;border:1px solid var(--border);border-radius:8px}
+.back-link:hover {background:var(--gold-light)}
+.container {max-width:1100px;width:90%;margin:38px auto 70px}
+.heading {margin-bottom:27px}
+.eyebrow {color:var(--gold);font-size:11px;font-weight:bold;letter-spacing:2px;text-transform:uppercase;margin-bottom:9px}
+h1 {font-family:Georgia,serif;font-size:34px;font-weight:normal;margin-bottom:8px}
+.subtitle {color:var(--muted);font-size:14px;line-height:1.6}
+.summary {display:grid;grid-template-columns:repeat(3,1fr);gap:15px;margin-bottom:24px}
+.summary-card {background:#fff;border:1px solid var(--border);border-radius:13px;padding:20px;box-shadow:var(--shadow)}
+.summary-label {color:var(--muted);font-size:12px;margin-bottom:12px}
+.summary-number {font-family:Georgia,serif;font-size:29px;font-weight:bold}
+.toolbar {background:#fff;border:1px solid var(--border);border-radius:13px;padding:16px;display:flex;gap:12px;align-items:center;justify-content:space-between;flex-wrap:wrap;margin-bottom:18px}
+.search {flex:1;min-width:200px}
+.search input {width:100%;border:1px solid var(--border);border-radius:8px;padding:12px 14px;outline:none;font-size:13px}
+.search input:focus {border-color:var(--gold)}
+.filters {display:flex;gap:7px;flex-wrap:wrap}
+.filter-btn {border:1px solid var(--border);background:#fff;padding:10px 13px;border-radius:8px;font-size:12px;color:#77756d;cursor:pointer}
+.filter-btn.active {background:var(--gold-light);color:#866b3d;border-color:#d9c9a9;font-weight:bold}
+.invitation-list {display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
+.invitation-card {background:#fff;border:1px solid var(--border);border-radius:13px;padding:21px;box-shadow:var(--shadow);min-width:0}
+.card-top {display:flex;align-items:flex-start;justify-content:space-between;gap:10px;margin-bottom:18px}
+.card-icon {width:43px;height:43px;border-radius:11px;background:var(--gold-light);color:var(--gold);display:flex;align-items:center;justify-content:center;font-size:21px;flex-shrink:0}
+.status {display:inline-flex;padding:7px 10px;border-radius:20px;font-size:10px;font-weight:bold;white-space:nowrap}
+.status.draft {color:#777;background:#f1f1ef}
+.status.active,.status.published {color:var(--green);background:var(--green-bg)}
+.status.pending {color:var(--orange);background:var(--orange-bg)}
+.status.other {color:var(--red);background:var(--red-bg)}
+.invitation-title {font-family:Georgia,serif;font-size:21px;font-weight:normal;margin-bottom:7px;overflow-wrap:anywhere}
+.template-name {color:var(--muted);font-size:12px;margin-bottom:19px}
+.card-details {border-top:1px solid var(--border);padding-top:15px;display:grid;grid-template-columns:1fr 1fr;gap:15px}
+.detail-label {font-size:11px;color:var(--muted);margin-bottom:6px}
+.detail-value {font-size:13px;font-weight:bold;overflow-wrap:anywhere}
+.card-actions {display:flex;gap:9px;margin-top:19px}
+.action-btn {display:inline-block;text-align:center;padding:11px 14px;border-radius:8px;font-size:12px;font-weight:bold;border:1px solid var(--border);background:#fff;color:#666;flex:1;cursor:pointer}
+.action-btn.primary {background:var(--gold);border-color:var(--gold);color:#fff}
+.action-btn:hover {opacity:.85}
+.empty-state,.loading-state,.error-state {grid-column:1/-1;text-align:center;background:#fff;border:1px solid var(--border);border-radius:13px;padding:55px 20px;color:var(--muted);line-height:1.7}
+.empty-icon {font-size:38px;margin-bottom:15px}
+.empty-state h3 {color:var(--text);font-size:17px;margin-bottom:7px}
+.primary-link,.retry-btn {display:inline-block;margin-top:17px;background:var(--gold);color:#fff;padding:12px 18px;border:0;border-radius:8px;font-size:12px;font-weight:bold;cursor:pointer}
+.footer {text-align:center;padding:25px 15px;border-top:1px solid var(--border);color:var(--muted);font-size:11px;background:#fff}
 @media(max-width:700px) {
-  .topbar {
-    height:62px;
-    padding:0 5%;
-  }
-
-  .brand {
-    font-size:23px;
-  }
-
-  .container {
-    width:92%;
-    margin-top:27px;
-  }
-
-  h1 {
-    font-size:29px;
-  }
-
-  .summary {
-    gap:9px;
-  }
-
-  .summary-card {
-    padding:14px 11px;
-  }
-
-  .summary-label {
-    font-size:10px;
-    line-height:1.4;
-  }
-
-  .summary-number {
-    font-size:23px;
-  }
-
-  .toolbar {
-    padding:13px;
-  }
-
-  .search {
-    min-width:100%;
-  }
-
-  .filters {
-    width:100%;
-  }
-
-  .filter-btn {
-    flex:1;
-    padding:10px 7px;
-  }
-
-  .invitation-list {
-    grid-template-columns:1fr;
-  }
-
-  .invitation-card {
-    padding:17px;
-  }
+  .topbar {height:62px;padding:0 5%}
+  .brand {font-size:23px}
+  .container {width:92%;margin-top:27px}
+  h1 {font-size:29px}
+  .summary {gap:9px}
+  .summary-card {padding:14px 11px}
+  .summary-label {font-size:10px;line-height:1.4}
+  .summary-number {font-size:23px}
+  .toolbar {padding:13px}
+  .search {min-width:100%}
+  .filters {width:100%}
+  .filter-btn {flex:1;padding:10px 7px}
+  .invitation-list {grid-template-columns:1fr}
+  .invitation-card {padding:17px}
 }
 </style>
 </head>
@@ -437,13 +97,10 @@ h1 {
 </header>
 
 <main class="container">
-
   <section class="heading">
     <div class="eyebrow">Area Pelanggan</div>
     <h1>Undangan Saya</h1>
-    <p class="subtitle">
-      Kelola seluruh undangan digital Anda dalam satu tempat.
-    </p>
+    <p class="subtitle">Kelola seluruh undangan digital Anda dalam satu tempat.</p>
   </section>
 
   <section class="summary">
@@ -451,12 +108,10 @@ h1 {
       <div class="summary-label">Total Undangan</div>
       <div class="summary-number" id="totalInvitations">0</div>
     </div>
-
     <div class="summary-card">
       <div class="summary-label">Undangan Draft</div>
       <div class="summary-number" id="draftInvitations">0</div>
     </div>
-
     <div class="summary-card">
       <div class="summary-label">Undangan Aktif / Terbit</div>
       <div class="summary-number" id="activeInvitations">0</div>
@@ -465,14 +120,8 @@ h1 {
 
   <section class="toolbar">
     <div class="search">
-      <input
-        type="search"
-        id="searchInput"
-        placeholder="Cari nama undangan..."
-        autocomplete="off"
-      >
+      <input type="search" id="searchInput" placeholder="Cari nama undangan..." autocomplete="off">
     </div>
-
     <div class="filters">
       <button class="filter-btn active" data-filter="all">Semua</button>
       <button class="filter-btn" data-filter="draft">Draft</button>
@@ -482,11 +131,8 @@ h1 {
   </section>
 
   <section class="invitation-list" id="invitationContainer">
-    <div class="loading-state">
-      Memuat undangan Anda...
-    </div>
+    <div class="loading-state">Memuat undangan Anda...</div>
   </section>
-
 </main>
 
 <footer class="footer">
@@ -501,15 +147,13 @@ const container = document.getElementById("invitationContainer");
 const searchInput = document.getElementById("searchInput");
 
 function escapeHTML(value) {
-  return String(value ?? "").replace(/[&<>"']/g, function(char) {
-    return {
-      "&": "&amp;",
-      "<": "&lt;",
-      ">": "&gt;",
-      '"': "&quot;",
-      "'": "&#039;"
-    }[char];
-  });
+  return String(value ?? "").replace(/[&<>"']/g, char => ({
+    "&":"&amp;",
+    "<":"&lt;",
+    ">":"&gt;",
+    '"':"&quot;",
+    "'":"&#039;"
+  })[char]);
 }
 
 function formatDate(value) {
@@ -541,14 +185,12 @@ function getStatus(invitation) {
 }
 
 function getStatusLabel(status) {
-  const labels = {
+  return {
     draft:"Draft",
     active:"Aktif",
     published:"Terbit",
     other:"Status lainnya"
-  };
-
-  return labels[status] || labels.other;
+  }[status] || "Status lainnya";
 }
 
 function updateSummary() {
@@ -564,12 +206,21 @@ function updateSummary() {
     ).length;
 }
 
+function openEditor(invitationId) {
+  if (!invitationId) {
+    alert("ID undangan tidak ditemukan dari server.");
+    return;
+  }
+
+  window.location.href =
+    "/editor-undangan.html?id=" + encodeURIComponent(invitationId);
+}
+
 function renderInvitations() {
   const keyword = searchInput.value.trim().toLowerCase();
 
   const filtered = allInvitations.filter(item => {
     const status = getStatus(item);
-
     const matchesFilter =
       currentFilter === "all" || status === currentFilter;
 
@@ -584,26 +235,18 @@ function renderInvitations() {
       <div class="empty-state">
         <div class="empty-icon">♡</div>
         <h3>Belum Ada Undangan</h3>
-        <p>
-          Tidak ada undangan yang sesuai dengan pencarian
-          atau filter yang dipilih.
-        </p>
-        <a href="/dashboard.html" class="primary-link">
-          Kembali ke Dashboard
-        </a>
+        <p>Tidak ada undangan yang sesuai dengan pencarian atau filter yang dipilih.</p>
+        <a href="/dashboard.html" class="primary-link">Kembali ke Dashboard</a>
       </div>
     `;
     return;
   }
 
-  container.innerHTML = filtered.map(item => {
+  container.innerHTML = filtered.map((item, index) => {
     const status = getStatus(item);
 
-    // Tujuan editor akan disambungkan setelah nama file editor
-    // dan format ID undangannya dipastikan.
     return `
       <article class="invitation-card">
-
         <div class="card-top">
           <div class="card-icon">♡</div>
           <span class="status ${status}">
@@ -626,7 +269,6 @@ function renderInvitations() {
               ${escapeHTML(formatDate(item.activation_date))}
             </div>
           </div>
-
           <div>
             <div class="detail-label">Dibuat Pada</div>
             <div class="detail-value">
@@ -639,41 +281,33 @@ function renderInvitations() {
           <button
             class="action-btn primary"
             type="button"
-            onclick="showEditorNotice()"
+            data-editor-index="${index}"
           >
             Kelola Undangan
           </button>
         </div>
-
       </article>
     `;
   }).join("");
-}
 
-function showEditorNotice(invitationId) {
-  if (!invitationId) {
-    alert("ID undangan tidak ditemukan.");
-    return;
-  }
-
-  window.location.href =
-    "/editor-undangan.html?id=" + encodeURIComponent(invitationId);
+  container.querySelectorAll("[data-editor-index]").forEach(button => {
+    button.addEventListener("click", () => {
+      const item = filtered[Number(button.dataset.editorIndex)];
+      openEditor(item.id);
+    });
+  });
 }
 
 async function loadInvitations() {
   container.innerHTML = `
-    <div class="loading-state">
-      Memuat undangan Anda...
-    </div>
+    <div class="loading-state">Memuat undangan Anda...</div>
   `;
 
   try {
     const response = await fetch("/api/invitations", {
       method:"GET",
       credentials:"same-origin",
-      headers:{
-        "Accept":"application/json"
-      }
+      headers:{"Accept":"application/json"}
     });
 
     const payload = await response.json();
@@ -684,9 +318,7 @@ async function loadInvitations() {
     }
 
     if (!response.ok || !payload.success) {
-      throw new Error(
-        payload.message || "Gagal mengambil data undangan."
-      );
+      throw new Error(payload.message || "Gagal mengambil data undangan.");
     }
 
     allInvitations = Array.isArray(payload.invitations)
@@ -703,11 +335,11 @@ async function loadInvitations() {
       <div class="error-state">
         <h3>Undangan Belum Dapat Dimuat</h3>
         <p>${escapeHTML(error.message)}</p>
-        <button class="retry-btn" onclick="loadInvitations()">
-          Coba Lagi
-        </button>
+        <button class="retry-btn" id="retryButton">Coba Lagi</button>
       </div>
     `;
+
+    document.getElementById("retryButton").addEventListener("click", loadInvitations);
   }
 }
 
@@ -727,6 +359,5 @@ searchInput.addEventListener("input", renderInvitations);
 
 loadInvitations();
 </script>
-
 </body>
 </html>
