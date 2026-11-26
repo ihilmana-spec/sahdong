@@ -444,12 +444,24 @@
       justify-content: space-between;
       align-items: center;
       gap: 15px;
-      padding: 15px 0;
+      padding: 17px 12px;
+      margin: 0 -12px;
       border-bottom: 1px solid var(--line);
+      border-radius: 7px;
+      transition: background .2s, border-color .2s;
     }
 
     .order-item:last-child {
       border-bottom: 0;
+    }
+
+    .order-item-link:hover {
+      background: var(--paper);
+    }
+
+    .order-item-link:focus-visible {
+      outline: 2px solid var(--gold);
+      outline-offset: 3px;
     }
 
     .order-name {
@@ -463,6 +475,20 @@
       font-size: 10px;
       color: var(--muted);
       line-height: 1.7;
+    }
+
+    .order-detail-hint {
+      display: inline-block;
+      color: var(--gold);
+      font-size: 10px;
+      font-weight: 700;
+      margin-top: 7px;
+    }
+
+    .order-detail-arrow {
+      color: var(--gold);
+      font-size: 17px;
+      flex-shrink: 0;
     }
 
     .status {
@@ -1069,7 +1095,6 @@
           const orderNumber =
             order.order_number ||
             order.order_code ||
-            order.id ||
             "";
 
           const packageName =
@@ -1088,26 +1113,59 @@
 
           const date = formatDate(order.created_at);
 
-          return `
-            <div class="order-item">
-              <div style="min-width:0">
-                <div class="order-name">
-                  ${escapeHTML(title)}
-                </div>
+          // Gunakan ID internal pesanan, bukan nomor SHD.
+          const detailUrl = order.id
+            ? "/detail-pesanan.html?id=" +
+              encodeURIComponent(String(order.id))
+            : "";
 
-                <div class="order-meta">
-                  ${escapeHTML(orderNumber)}
-                  <br>
-                  ${escapeHTML(packageName)}
-                  ${date ? " · " + escapeHTML(date) : ""}
-                  <br>
-                  <strong>${escapeHTML(formatCurrency(amount))}</strong>
-                </div>
+          const itemContent = `
+            <div style="min-width:0">
+              <div class="order-name">
+                ${escapeHTML(title)}
               </div>
 
+              <div class="order-meta">
+                ${escapeHTML(orderNumber || "Nomor pesanan belum tersedia")}
+                <br>
+                ${escapeHTML(packageName)}
+                ${date ? " · " + escapeHTML(date) : ""}
+                <br>
+                <strong>${escapeHTML(formatCurrency(amount))}</strong>
+              </div>
+
+              ${detailUrl ? `
+                <span class="order-detail-hint">
+                  Lihat Detail Pesanan →
+                </span>
+              ` : ""}
+            </div>
+
+            <div style="display:flex;align-items:center;gap:10px;flex-shrink:0">
               <span class="status ${getStatusClass(status)}">
                 ${escapeHTML(getStatusLabel(status))}
               </span>
+              ${detailUrl ? `
+                <span class="order-detail-arrow">›</span>
+              ` : ""}
+            </div>
+          `;
+
+          if (detailUrl) {
+            return `
+              <a
+                href="${escapeHTML(detailUrl)}"
+                class="order-item order-item-link"
+                aria-label="Lihat detail ${escapeHTML(orderNumber)}"
+              >
+                ${itemContent}
+              </a>
+            `;
+          }
+
+          return `
+            <div class="order-item">
+              ${itemContent}
             </div>
           `;
         }).join("")}
