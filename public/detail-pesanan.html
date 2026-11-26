@@ -1,0 +1,640 @@
+
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Detail Pesanan - SAHDONG</title>
+  <meta name="theme-color" content="#173b32">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --green: #173b32;
+      --green-light: #244e42;
+      --gold: #c6a66a;
+      --cream: #f8f6f0;
+      --text: #26352f;
+      --muted: #7c8781;
+      --border: #e9e9e2;
+      --white: #fff;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background: var(--cream);
+      color: var(--text);
+      font-family: "DM Sans", sans-serif;
+    }
+
+    a {
+      color: inherit;
+      text-decoration: none;
+    }
+
+    .topbar {
+      background: var(--green);
+      color: white;
+      padding: 19px 24px;
+    }
+
+    .topbar-inner {
+      max-width: 1050px;
+      margin: auto;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 15px;
+    }
+
+    .brand {
+      font-family: "Playfair Display", serif;
+      font-size: 25px;
+      letter-spacing: 1px;
+      color: #fff;
+    }
+
+    .brand span {
+      color: var(--gold);
+    }
+
+    .back-link {
+      color: #eee9dc;
+      font-size: 13px;
+    }
+
+    .container {
+      max-width: 760px;
+      margin: 48px auto;
+      padding: 0 20px;
+    }
+
+    .eyebrow {
+      color: var(--gold);
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      margin-bottom: 9px;
+    }
+
+    h1 {
+      font-family: "Playfair Display", serif;
+      font-size: 34px;
+      font-weight: 600;
+      margin: 0 0 9px;
+      color: var(--green);
+    }
+
+    .subtitle {
+      color: var(--muted);
+      font-size: 14px;
+      margin: 0 0 27px;
+      line-height: 1.7;
+    }
+
+    .card {
+      background: var(--white);
+      border: 1px solid var(--border);
+      border-radius: 15px;
+      padding: 27px;
+      box-shadow: 0 8px 30px rgba(30, 50, 40, .04);
+      margin-bottom: 18px;
+    }
+
+    .card-title {
+      font-family: "Playfair Display", serif;
+      font-size: 20px;
+      color: var(--green);
+      margin: 0 0 22px;
+    }
+
+    .order-number {
+      background: #f7f5ee;
+      border: 1px dashed #d9c9a8;
+      border-radius: 10px;
+      padding: 15px;
+      margin-bottom: 22px;
+    }
+
+    .small-label {
+      color: var(--muted);
+      font-size: 11px;
+      margin-bottom: 7px;
+    }
+
+    .number-value {
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--green);
+      overflow-wrap: anywhere;
+    }
+
+    .detail-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 15px;
+      padding: 13px 0;
+      border-bottom: 1px solid #f0f0eb;
+      font-size: 13px;
+    }
+
+    .detail-row:last-child {
+      border-bottom: 0;
+    }
+
+    .detail-label {
+      color: var(--muted);
+    }
+
+    .detail-value {
+      text-align: right;
+      font-weight: 600;
+      overflow-wrap: anywhere;
+    }
+
+    .total-row {
+      margin-top: 8px;
+      padding-top: 20px;
+      border-top: 1px solid var(--border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .total-label {
+      font-size: 14px;
+      font-weight: 700;
+    }
+
+    .total-amount {
+      color: var(--green);
+      font-size: 25px;
+      font-weight: 700;
+    }
+
+    .status {
+      display: inline-block;
+      border-radius: 30px;
+      padding: 7px 12px;
+      font-size: 11px;
+      font-weight: 700;
+      background: #fff4d9;
+      color: #946b18;
+    }
+
+    .status.success {
+      background: #e5f5e9;
+      color: #287342;
+    }
+
+    .status.danger {
+      background: #fde9e7;
+      color: #b43b32;
+    }
+
+    .payment-info {
+      background: #f8f6f0;
+      border-radius: 10px;
+      padding: 16px;
+      color: #68746d;
+      font-size: 12px;
+      line-height: 1.8;
+      margin-bottom: 19px;
+    }
+
+    .btn {
+      border: 0;
+      border-radius: 9px;
+      width: 100%;
+      padding: 15px 20px;
+      font-family: inherit;
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: .2s;
+    }
+
+    .btn-primary {
+      background: var(--green);
+      color: white;
+    }
+
+    .btn-primary:hover {
+      background: var(--green-light);
+    }
+
+    .btn:disabled {
+      opacity: .6;
+      cursor: not-allowed;
+    }
+
+    .error-message {
+      display: none;
+      padding: 13px 15px;
+      border-radius: 9px;
+      background: #fde9e7;
+      color: #a6332b;
+      font-size: 13px;
+      line-height: 1.6;
+      margin-bottom: 16px;
+    }
+
+    .success-message {
+      display: none;
+      padding: 13px 15px;
+      border-radius: 9px;
+      background: #e5f5e9;
+      color: #287342;
+      font-size: 13px;
+      margin-bottom: 16px;
+    }
+
+    .loading,
+    .empty-state {
+      text-align: center;
+      padding: 35px 15px;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .footer {
+      text-align: center;
+      color: #929b95;
+      font-size: 11px;
+      padding: 25px 15px 35px;
+    }
+
+    @media (max-width: 600px) {
+      .container {
+        margin: 30px auto;
+      }
+
+      h1 {
+        font-size: 29px;
+      }
+
+      .card {
+        padding: 21px 17px;
+      }
+
+      .topbar {
+        padding: 16px 18px;
+      }
+
+      .brand {
+        font-size: 22px;
+      }
+
+      .total-amount {
+        font-size: 22px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <header class="topbar">
+    <div class="topbar-inner">
+      <a href="/dashboard.html" class="brand">SAH<span>DONG</span></a>
+      <a href="/dashboard.html" class="back-link">← Dashboard</a>
+    </div>
+  </header>
+
+  <main class="container">
+    <div class="eyebrow">Area Pelanggan</div>
+    <h1>Detail Pesanan</h1>
+    <p class="subtitle">
+      Periksa informasi pesanan dan selesaikan pembayaran undangan Anda.
+    </p>
+
+    <div id="errorMessage" class="error-message"></div>
+    <div id="successMessage" class="success-message"></div>
+
+    <div id="loading" class="card loading">
+      Memuat detail pesanan...
+    </div>
+
+    <div id="orderContent" style="display:none">
+
+      <section class="card">
+        <h2 class="card-title">Informasi Pesanan</h2>
+
+        <div class="order-number">
+          <div class="small-label">Nomor Pesanan</div>
+          <div class="number-value" id="orderNumber">-</div>
+        </div>
+
+        <div class="detail-row">
+          <span class="detail-label">Nama Undangan</span>
+          <span class="detail-value" id="invitationTitle">-</span>
+        </div>
+
+        <div class="detail-row">
+          <span class="detail-label">Paket</span>
+          <span class="detail-value" id="packageName">-</span>
+        </div>
+
+        <div class="detail-row">
+          <span class="detail-label">Tanggal Pesanan</span>
+          <span class="detail-value" id="createdAt">-</span>
+        </div>
+
+        <div class="detail-row">
+          <span class="detail-label">Tanggal Aktivasi</span>
+          <span class="detail-value" id="activationDate">-</span>
+        </div>
+
+        <div class="detail-row">
+          <span class="detail-label">Status Pembayaran</span>
+          <span class="detail-value">
+            <span id="paymentStatus" class="status">-</span>
+          </span>
+        </div>
+
+        <div class="total-row">
+          <span class="total-label">Total Pembayaran</span>
+          <span class="total-amount" id="totalAmount">Rp0</span>
+        </div>
+      </section>
+
+      <section class="card" id="paymentCard">
+        <h2 class="card-title">Pembayaran</h2>
+
+        <div class="payment-info" id="paymentInfo">
+          Silakan lanjutkan pembayaran melalui halaman pembayaran DOKU.
+          Pastikan nominal pembayaran sesuai dengan rincian pesanan.
+        </div>
+
+        <button id="payButton" class="btn btn-primary" type="button">
+          Bayar Sekarang
+        </button>
+      </section>
+
+    </div>
+  </main>
+
+  <footer class="footer">
+    © 2026 Hilmana Design
+  </footer>
+
+  <script>
+    const API = {
+      me: "/api/me",
+      order: "/api/orders",
+      createPayment: "/api/doku/create-payment"
+    };
+
+    const params = new URLSearchParams(window.location.search);
+    const orderId = params.get("id");
+
+    let currentOrder = null;
+
+    const $ = (id) => document.getElementById(id);
+
+    function escapeHTML(value) {
+      return String(value ?? "").replace(/[&<>"']/g, (char) => ({
+        "&": "&amp;",
+        "<": "&lt;",
+        ">": "&gt;",
+        '"': "&quot;",
+        "'": "&#039;"
+      })[char]);
+    }
+
+    function formatRupiah(value) {
+      return new Intl.NumberFormat("id-ID", {
+        style: "currency",
+        currency: "IDR",
+        maximumFractionDigits: 0
+      }).format(Number(value) || 0);
+    }
+
+    function formatDate(value) {
+      if (!value) return "-";
+
+      const date = new Date(value);
+
+      if (Number.isNaN(date.getTime())) {
+        return String(value);
+      }
+
+      return date.toLocaleDateString("id-ID", {
+        day: "numeric",
+        month: "long",
+        year: "numeric"
+      });
+    }
+
+    function showError(message) {
+      $("errorMessage").textContent = message;
+      $("errorMessage").style.display = "block";
+      $("successMessage").style.display = "none";
+    }
+
+    function showSuccess(message) {
+      $("successMessage").textContent = message;
+      $("successMessage").style.display = "block";
+      $("errorMessage").style.display = "none";
+    }
+
+    function getStatusLabel(status) {
+      const labels = {
+        pending: "Menunggu Pembayaran",
+        paid: "Lunas",
+        success: "Berhasil",
+        completed: "Selesai",
+        failed: "Gagal",
+        cancelled: "Dibatalkan",
+        canceled: "Dibatalkan",
+        expired: "Kedaluwarsa",
+        refunded: "Dikembalikan",
+        processing: "Diproses"
+      };
+
+      const key = String(status || "pending").toLowerCase();
+      return labels[key] || status || "Menunggu Pembayaran";
+    }
+
+    function renderOrder(order) {
+      currentOrder = order;
+
+      $("orderNumber").textContent = order.order_number || "-";
+      $("invitationTitle").textContent =
+        order.invitation_title || "Undangan SAHDONG";
+      $("packageName").textContent = order.package_name || "-";
+      $("createdAt").textContent = formatDate(order.created_at);
+      $("activationDate").textContent =
+        formatDate(order.activation_date);
+      $("totalAmount").textContent = formatRupiah(order.amount);
+
+      const status = String(
+        order.payment_status || order.status || "pending"
+      ).toLowerCase();
+
+      const statusElement = $("paymentStatus");
+      statusElement.textContent = getStatusLabel(status);
+      statusElement.className = "status";
+
+      if (["paid", "success", "completed"].includes(status)) {
+        statusElement.classList.add("success");
+      } else if (
+        ["failed", "cancelled", "canceled", "expired", "refunded"]
+          .includes(status)
+      ) {
+        statusElement.classList.add("danger");
+      }
+
+      const isPaid = ["paid", "success", "completed"].includes(status);
+
+      const payButton = $("payButton");
+      const paymentInfo = $("paymentInfo");
+
+      if (isPaid) {
+        payButton.style.display = "none";
+        paymentInfo.textContent =
+          "Pembayaran pesanan ini telah tercatat lunas. Terima kasih telah menggunakan SAHDONG.";
+      } else if (status !== "pending") {
+        payButton.style.display = "none";
+        paymentInfo.textContent =
+          "Pembayaran tidak berstatus menunggu pembayaran. Silakan hubungi admin SAHDONG jika membutuhkan bantuan.";
+      } else {
+        payButton.style.display = "block";
+        paymentInfo.textContent =
+          "Silakan klik tombol Bayar Sekarang untuk melanjutkan pembayaran melalui DOKU.";
+      }
+
+      $("loading").style.display = "none";
+      $("orderContent").style.display = "block";
+    }
+
+    async function readResponse(response) {
+      const text = await response.text();
+
+      try {
+        return JSON.parse(text);
+      } catch {
+        throw new Error("Respons server tidak dapat dibaca.");
+      }
+    }
+
+    async function loadOrder() {
+      if (!orderId) {
+        $("loading").style.display = "none";
+        showError("ID pesanan tidak ditemukan. Silakan buka detail dari Dashboard.");
+        return;
+      }
+
+      try {
+        const response = await fetch(
+          API.order + "?id=" + encodeURIComponent(orderId),
+          {
+            method: "GET",
+            credentials: "same-origin",
+            headers: {
+              "Accept": "application/json"
+            }
+          }
+        );
+
+        const data = await readResponse(response);
+
+        if (response.status === 401) {
+          window.location.href = "/login.html";
+          return;
+        }
+
+        if (!response.ok || data.success === false) {
+          throw new Error(data.message || "Gagal mengambil detail pesanan.");
+        }
+
+        if (!data.order) {
+          throw new Error("Data pesanan tidak ditemukan.");
+        }
+
+        renderOrder(data.order);
+
+      } catch (error) {
+        console.error("LOAD ORDER ERROR:", error);
+        $("loading").style.display = "none";
+        showError(error.message || "Terjadi kesalahan saat memuat pesanan.");
+      }
+    }
+
+    async function createPayment() {
+      if (!currentOrder || !currentOrder.id) {
+        showError("Data pesanan tidak tersedia.");
+        return;
+      }
+
+      const button = $("payButton");
+      button.disabled = true;
+      button.textContent = "Menghubungkan ke DOKU...";
+
+      $("errorMessage").style.display = "none";
+
+      try {
+        const response = await fetch(API.createPayment, {
+          method: "POST",
+          credentials: "same-origin",
+          headers: {
+            "Content-Type": "application/json",
+            "Accept": "application/json"
+          },
+          body: JSON.stringify({
+            order_id: currentOrder.id
+          })
+        });
+
+        const data = await readResponse(response);
+
+        if (response.status === 401) {
+          window.location.href = "/login.html";
+          return;
+        }
+
+        if (!response.ok || data.success !== true) {
+          throw new Error(
+            data.message || "Gagal membuat pembayaran DOKU."
+          );
+        }
+
+        if (!data.checkout_url) {
+          throw new Error("URL pembayaran dari DOKU tidak tersedia.");
+        }
+
+        const checkoutUrl = new URL(data.checkout_url);
+
+        if (checkoutUrl.protocol !== "https:") {
+          throw new Error("Alamat pembayaran tidak aman.");
+        }
+
+        window.location.assign(checkoutUrl.href);
+
+      } catch (error) {
+        console.error("CREATE PAYMENT ERROR:", error);
+        showError(error.message || "Terjadi kesalahan saat membuat pembayaran.");
+
+        button.disabled = false;
+        button.textContent = "Bayar Sekarang";
+      }
+    }
+
+    $("payButton").addEventListener("click", createPayment);
+
+    loadOrder();
+  </script>
+
+</body>
+</html>
