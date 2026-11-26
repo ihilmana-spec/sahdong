@@ -1,0 +1,1228 @@
+
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#1d2d27">
+  <title>Dashboard Pelanggan | SAHDONG</title>
+  <meta name="description" content="Dashboard pelanggan SAHDONG untuk mengelola pesanan dan undangan digital.">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:wght@500;600;700&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --ink: #26362f;
+      --ink-deep: #1d2d27;
+      --gold: #b89a68;
+      --gold-light: #d9c49c;
+      --paper: #f7f3eb;
+      --paper-deep: #eee8dc;
+      --white: #fffdf9;
+      --text: #4e554f;
+      --muted: #85877f;
+      --line: #e3dccf;
+      --success: #387b57;
+      --warning: #a77a35;
+      --danger: #b34e49;
+      --shadow: 0 10px 35px rgba(38,54,47,.06);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--paper);
+      color: var(--ink);
+      min-height: 100vh;
+    }
+
+    button, a {
+      font: inherit;
+    }
+
+    a {
+      color: inherit;
+      text-decoration: none;
+    }
+
+    button {
+      cursor: pointer;
+    }
+
+    .layout {
+      min-height: 100vh;
+    }
+
+    /* SIDEBAR */
+
+    .sidebar {
+      width: 255px;
+      background: var(--ink-deep);
+      color: white;
+      position: fixed;
+      inset: 0 auto 0 0;
+      z-index: 100;
+      padding: 28px 20px;
+      display: flex;
+      flex-direction: column;
+      transition: transform .3s ease;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 4px 8px 32px;
+    }
+
+    .brand-mark {
+      width: 40px;
+      height: 40px;
+      border: 1px solid var(--gold);
+      color: var(--gold-light);
+      display: grid;
+      place-items: center;
+      font-family: 'Playfair Display', serif;
+      font-size: 24px;
+    }
+
+    .brand-name {
+      font-family: 'Playfair Display', serif;
+      font-size: 25px;
+      letter-spacing: 2px;
+    }
+
+    .brand-caption {
+      color: var(--gold-light);
+      font-size: 9px;
+      letter-spacing: 2px;
+      margin-top: 3px;
+    }
+
+    .nav-label {
+      color: #9fa69f;
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 1.5px;
+      padding: 12px 12px;
+    }
+
+    .side-nav {
+      display: flex;
+      flex-direction: column;
+      gap: 7px;
+    }
+
+    .nav-link {
+      display: flex;
+      align-items: center;
+      gap: 13px;
+      padding: 13px 14px;
+      border-radius: 8px;
+      color: #d5d9d4;
+      font-size: 13px;
+      transition: .2s;
+    }
+
+    .nav-link:hover,
+    .nav-link.active {
+      background: rgba(217,196,156,.13);
+      color: var(--gold-light);
+    }
+
+    .nav-icon {
+      width: 20px;
+      text-align: center;
+      font-size: 17px;
+    }
+
+    .sidebar-bottom {
+      margin-top: auto;
+      border-top: 1px solid rgba(255,255,255,.12);
+      padding-top: 18px;
+    }
+
+    .sidebar-bottom .nav-link {
+      color: #d5d9d4;
+    }
+
+    /* MAIN */
+
+    .main {
+      margin-left: 255px;
+      min-height: 100vh;
+    }
+
+    .topbar {
+      height: 76px;
+      background: var(--white);
+      border-bottom: 1px solid var(--line);
+      padding: 0 38px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      z-index: 50;
+    }
+
+    .topbar-title {
+      font-size: 13px;
+      color: var(--muted);
+    }
+
+    .topbar-right {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .user-avatar {
+      width: 38px;
+      height: 38px;
+      border-radius: 50%;
+      background: var(--ink);
+      color: var(--gold-light);
+      display: grid;
+      place-items: center;
+      font-family: 'Playfair Display', serif;
+      font-size: 17px;
+    }
+
+    .user-name {
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    .user-caption {
+      color: var(--muted);
+      font-size: 11px;
+      margin-top: 3px;
+    }
+
+    .menu-button {
+      display: none;
+      background: none;
+      border: 0;
+      font-size: 24px;
+      color: var(--ink);
+    }
+
+    .content {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 38px;
+    }
+
+    /* WELCOME */
+
+    .welcome {
+      background: var(--ink-deep);
+      color: white;
+      border-radius: 13px;
+      padding: 35px 38px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 25px;
+      position: relative;
+      overflow: hidden;
+      margin-bottom: 30px;
+    }
+
+    .welcome::after {
+      content: "";
+      width: 280px;
+      height: 280px;
+      border: 1px solid rgba(217,196,156,.16);
+      border-radius: 50%;
+      position: absolute;
+      right: -75px;
+      top: -130px;
+      box-shadow: 0 0 0 30px rgba(217,196,156,.035),
+                  0 0 0 60px rgba(217,196,156,.025);
+    }
+
+    .welcome-caption {
+      color: var(--gold-light);
+      font-size: 10px;
+      letter-spacing: 2px;
+      font-weight: 700;
+      margin-bottom: 12px;
+    }
+
+    .welcome h1 {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(25px, 3vw, 36px);
+      font-weight: 500;
+      margin-bottom: 9px;
+    }
+
+    .welcome p {
+      color: #d4d9d3;
+      font-size: 13px;
+      line-height: 1.7;
+    }
+
+    .welcome-action {
+      position: relative;
+      z-index: 2;
+      flex-shrink: 0;
+    }
+
+    .btn-gold {
+      background: var(--gold);
+      color: #fff;
+      border: 1px solid var(--gold);
+      border-radius: 6px;
+      padding: 13px 19px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      font-size: 12px;
+      font-weight: 700;
+      transition: .2s;
+    }
+
+    .btn-gold:hover {
+      background: #a68a5d;
+      transform: translateY(-1px);
+    }
+
+    /* STATS */
+
+    .section-heading {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 17px;
+      gap: 12px;
+    }
+
+    .section-heading h2 {
+      font-family: 'Playfair Display', serif;
+      font-size: 21px;
+      font-weight: 600;
+    }
+
+    .section-heading p {
+      color: var(--muted);
+      font-size: 12px;
+      margin-top: 4px;
+    }
+
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0,1fr));
+      gap: 17px;
+      margin-bottom: 32px;
+    }
+
+    .stat-card {
+      background: var(--white);
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      padding: 21px;
+      box-shadow: var(--shadow);
+    }
+
+    .stat-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 19px;
+    }
+
+    .stat-icon {
+      width: 38px;
+      height: 38px;
+      border-radius: 8px;
+      display: grid;
+      place-items: center;
+      background: var(--paper);
+      color: var(--gold);
+      font-size: 18px;
+    }
+
+    .stat-number {
+      font-family: 'Playfair Display', serif;
+      font-size: 30px;
+      font-weight: 600;
+    }
+
+    .stat-label {
+      color: var(--muted);
+      font-size: 12px;
+      margin-top: 4px;
+    }
+
+    /* PANELS */
+
+    .dashboard-grid {
+      display: grid;
+      grid-template-columns: minmax(0,1.5fr) minmax(270px,1fr);
+      gap: 20px;
+      align-items: start;
+    }
+
+    .panel {
+      background: var(--white);
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      padding: 23px;
+      box-shadow: var(--shadow);
+      min-width: 0;
+    }
+
+    .panel-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+
+    .panel-header h3 {
+      font-family: 'Playfair Display', serif;
+      font-size: 18px;
+      font-weight: 600;
+    }
+
+    .text-link {
+      font-size: 11px;
+      color: var(--gold);
+      font-weight: 700;
+    }
+
+    .empty-state {
+      padding: 27px 12px;
+      text-align: center;
+      border: 1px dashed var(--line);
+      border-radius: 8px;
+    }
+
+    .empty-icon {
+      font-size: 28px;
+      margin-bottom: 12px;
+      color: var(--gold);
+    }
+
+    .empty-state h4 {
+      font-size: 13px;
+      margin-bottom: 7px;
+    }
+
+    .empty-state p {
+      color: var(--muted);
+      font-size: 11px;
+      line-height: 1.7;
+      margin-bottom: 15px;
+    }
+
+    .btn-outline {
+      display: inline-flex;
+      justify-content: center;
+      align-items: center;
+      border: 1px solid var(--gold);
+      color: var(--ink);
+      background: transparent;
+      padding: 10px 15px;
+      border-radius: 5px;
+      font-size: 11px;
+      font-weight: 700;
+    }
+
+    .btn-outline:hover {
+      background: var(--paper);
+    }
+
+    .order-list {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .order-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 15px;
+      padding: 15px 0;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .order-item:last-child {
+      border-bottom: 0;
+    }
+
+    .order-name {
+      font-size: 12px;
+      font-weight: 700;
+      margin-bottom: 5px;
+      overflow-wrap: anywhere;
+    }
+
+    .order-meta {
+      font-size: 10px;
+      color: var(--muted);
+      line-height: 1.6;
+    }
+
+    .status {
+      display: inline-block;
+      padding: 5px 9px;
+      border-radius: 30px;
+      background: var(--paper);
+      color: var(--warning);
+      font-size: 9px;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+
+    .status.success {
+      color: var(--success);
+      background: #eaf3ed;
+    }
+
+    .status.danger {
+      color: var(--danger);
+      background: #f8ecea;
+    }
+
+    .quick-links {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    .quick-link {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 15px 12px;
+      transition: .2s;
+    }
+
+    .quick-link:hover {
+      border-color: var(--gold);
+      background: var(--paper);
+    }
+
+    .quick-link-icon {
+      font-size: 19px;
+      margin-bottom: 9px;
+    }
+
+    .quick-link strong {
+      display: block;
+      font-size: 11px;
+      margin-bottom: 4px;
+    }
+
+    .quick-link span {
+      color: var(--muted);
+      font-size: 10px;
+      line-height: 1.5;
+    }
+
+    .notice {
+      margin-top: 20px;
+      background: #f5f0e5;
+      border: 1px solid #e8dcc4;
+      border-radius: 8px;
+      padding: 15px;
+      display: flex;
+      gap: 11px;
+      color: var(--text);
+      font-size: 11px;
+      line-height: 1.7;
+    }
+
+    .notice-icon {
+      color: var(--gold);
+      font-size: 17px;
+    }
+
+    .page-footer {
+      padding: 30px 0 10px;
+      text-align: center;
+      color: var(--muted);
+      font-size: 10px;
+    }
+
+    .loading {
+      color: var(--muted);
+      font-size: 12px;
+      text-align: center;
+      padding: 25px 10px;
+    }
+
+    .error-message {
+      color: var(--danger);
+      font-size: 12px;
+      padding: 12px;
+      background: #f8ecea;
+      border-radius: 7px;
+      margin-bottom: 15px;
+      display: none;
+    }
+
+    .overlay {
+      display: none;
+    }
+
+    /* RESPONSIVE */
+
+    @media (max-width: 1100px) {
+      .stats-grid {
+        grid-template-columns: repeat(2,1fr);
+      }
+
+      .dashboard-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 760px) {
+      .sidebar {
+        transform: translateX(-100%);
+        width: 275px;
+      }
+
+      .sidebar.open {
+        transform: translateX(0);
+      }
+
+      .overlay.show {
+        display: block;
+        position: fixed;
+        inset: 0;
+        background: rgba(0,0,0,.4);
+        z-index: 90;
+      }
+
+      .main {
+        margin-left: 0;
+      }
+
+      .topbar {
+        height: 65px;
+        padding: 0 18px;
+      }
+
+      .menu-button {
+        display: block;
+      }
+
+      .topbar-title {
+        display: none;
+      }
+
+      .content {
+        padding: 23px 17px;
+      }
+
+      .welcome {
+        padding: 26px 22px;
+        flex-direction: column;
+        align-items: flex-start;
+      }
+
+      .welcome-action {
+        width: 100%;
+      }
+
+      .welcome-action a {
+        width: 100%;
+      }
+
+      .stats-grid {
+        gap: 10px;
+      }
+
+      .stat-card {
+        padding: 15px;
+      }
+
+      .stat-number {
+        font-size: 25px;
+      }
+
+      .panel {
+        padding: 17px;
+      }
+
+      .user-caption {
+        display: none;
+      }
+    }
+
+    @media (max-width: 380px) {
+      .quick-links {
+        grid-template-columns: 1fr;
+      }
+
+      .user-name {
+        font-size: 11px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+<div class="layout">
+
+  <div class="overlay" id="overlay"></div>
+
+  <aside class="sidebar" id="sidebar">
+    <a href="/" class="brand">
+      <div class="brand-mark">S</div>
+      <div>
+        <div class="brand-name">SAHDONG</div>
+        <div class="brand-caption">UNDANGAN DIGITAL</div>
+      </div>
+    </a>
+
+    <div class="nav-label">MENU UTAMA</div>
+
+    <nav class="side-nav">
+      <a href="/dashboard.html" class="nav-link active">
+        <span class="nav-icon">⌂</span>
+        Dashboard
+      </a>
+
+      <a href="#pesanan" class="nav-link">
+        <span class="nav-icon">▤</span>
+        Pesanan Saya
+      </a>
+
+      <a href="#undangan" class="nav-link">
+        <span class="nav-icon">♡</span>
+        Undangan Saya
+      </a>
+
+      <a href="/template/index.html" class="nav-link">
+        <span class="nav-icon">▧</span>
+        Katalog Template
+      </a>
+    </nav>
+
+    <div class="nav-label" style="margin-top:25px">AKUN</div>
+
+    <nav class="side-nav">
+      <a href="/" class="nav-link">
+        <span class="nav-icon">⌂</span>
+        Kembali ke Website
+      </a>
+    </nav>
+
+    <div class="sidebar-bottom">
+      <button type="button" class="nav-link" id="logoutButton" style="width:100%;background:none;border:0;text-align:left">
+        <span class="nav-icon">↪</span>
+        Keluar Akun
+      </button>
+    </div>
+  </aside>
+
+  <main class="main">
+
+    <header class="topbar">
+      <div style="display:flex;align-items:center;gap:15px">
+        <button class="menu-button" id="menuButton" aria-label="Buka menu">☰</button>
+        <div class="topbar-title">Ruang pengelolaan undangan Anda</div>
+      </div>
+
+      <div class="topbar-right">
+        <div>
+          <div class="user-name" id="topUserName">Memuat akun...</div>
+          <div class="user-caption">Pelanggan SAHDONG</div>
+        </div>
+        <div class="user-avatar" id="userAvatar">S</div>
+      </div>
+    </header>
+
+    <div class="content">
+
+      <div id="errorMessage" class="error-message"></div>
+
+      <section class="welcome">
+        <div>
+          <div class="welcome-caption">CUSTOMER DASHBOARD</div>
+          <h1>Selamat datang, <span id="welcomeName">Pelanggan</span>.</h1>
+          <p>
+            Kelola pesanan dan persiapkan undangan digital istimewa Anda
+            melalui satu tempat.
+          </p>
+        </div>
+
+        <div class="welcome-action">
+          <a href="/template/index.html" class="btn-gold">
+            + Pilih Template
+          </a>
+        </div>
+      </section>
+
+      <section>
+        <div class="section-heading">
+          <div>
+            <h2>Ringkasan Akun</h2>
+            <p>Informasi aktivitas akun SAHDONG Anda.</p>
+          </div>
+        </div>
+
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div class="stat-top">
+              <span class="stat-icon">▤</span>
+            </div>
+            <div class="stat-number" id="totalOrders">—</div>
+            <div class="stat-label">Total Pesanan</div>
+          </div>
+
+          <div class="stat-card">
+            <div class="stat-top">
+              <span class="stat-icon">♡</span>
+            </div>
+            <div class="stat-number" id="totalInvitations">—</div>
+            <div class="stat-label">Undangan Saya</div>
+          </div>
+
+          <div class="stat-card">
+            <div class="stat-top">
+              <span class="stat-icon">◷</span>
+            </div>
+            <div class="stat-number" id="pendingOrders">—</div>
+            <div class="stat-label">Menunggu Pembayaran</div>
+          </div>
+
+          <div class="stat-card">
+            <div class="stat-top">
+              <span class="stat-icon">✓</span>
+            </div>
+            <div class="stat-number" id="activeInvitations">—</div>
+            <div class="stat-label">Undangan Aktif</div>
+          </div>
+        </div>
+      </section>
+
+      <div class="dashboard-grid">
+
+        <section class="panel" id="pesanan">
+          <div class="panel-header">
+            <div>
+              <h3>Pesanan Terbaru</h3>
+            </div>
+            <a href="#pesanan" class="text-link">Lihat semua</a>
+          </div>
+
+          <div id="ordersContainer">
+            <div class="loading">Memuat data pesanan...</div>
+          </div>
+        </section>
+
+        <div>
+          <section class="panel" id="undangan">
+            <div class="panel-header">
+              <h3>Akses Cepat</h3>
+            </div>
+
+            <div class="quick-links">
+              <a href="/template/index.html" class="quick-link">
+                <div class="quick-link-icon">▧</div>
+                <strong>Katalog Template</strong>
+                <span>Pilih desain undangan.</span>
+              </a>
+
+              <a href="#pesanan" class="quick-link">
+                <div class="quick-link-icon">▤</div>
+                <strong>Pesanan Saya</strong>
+                <span>Lihat status pesanan.</span>
+              </a>
+
+              <a href="#undangan" class="quick-link">
+                <div class="quick-link-icon">♡</div>
+                <strong>Undangan Saya</strong>
+                <span>Kelola undangan Anda.</span>
+              </a>
+
+              <a href="/" class="quick-link">
+                <div class="quick-link-icon">⌂</div>
+                <strong>Website Utama</strong>
+                <span>Kembali ke SAHDONG.</span>
+              </a>
+            </div>
+          </section>
+
+          <div class="notice">
+            <span class="notice-icon">ⓘ</span>
+            <div>
+              <strong>Informasi SAHDONG</strong><br>
+              Pastikan informasi acara dan materi undangan Anda sudah benar
+              sebelum tanggal aktivasi.
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <footer class="page-footer">
+        © 2026 Hilmana Design. All Rights Reserved.
+      </footer>
+
+    </div>
+  </main>
+</div>
+
+<script>
+  const API = {
+    me: "/api/me",
+    dashboard: "/api/dashboard",
+    logout: "/api/logout"
+  };
+
+  const $ = (id) => document.getElementById(id);
+
+  async function apiRequest(url, options = {}) {
+    const response = await fetch(url, {
+      credentials: "same-origin",
+      ...options,
+      headers: {
+        "Accept": "application/json",
+        ...(options.headers || {})
+      }
+    });
+
+    let data = {};
+
+    try {
+      data = await response.json();
+    } catch {
+      data = {};
+    }
+
+    return { response, data };
+  }
+
+  function getPayload(data) {
+    return data?.data ?? data?.result ?? data ?? {};
+  }
+
+  function getUser(data) {
+    const payload = getPayload(data);
+    return payload?.user ?? payload?.profile ?? payload ?? {};
+  }
+
+  function showError(message) {
+    const el = $("errorMessage");
+    el.textContent = message;
+    el.style.display = "block";
+  }
+
+  function setUser(user) {
+    const name =
+      user.full_name ||
+      user.name ||
+      user.fullName ||
+      user.email ||
+      "Pelanggan";
+
+    $("welcomeName").textContent = name.split(" ")[0];
+    $("topUserName").textContent = name;
+    $("userAvatar").textContent = name.charAt(0).toUpperCase();
+  }
+
+  function formatNumber(value) {
+    const number = Number(value);
+    return Number.isFinite(number) ? number.toLocaleString("id-ID") : "0";
+  }
+
+  function formatCurrency(value) {
+    const number = Number(value);
+    if (!Number.isFinite(number)) return "Nominal tidak tersedia";
+
+    return new Intl.NumberFormat("id-ID", {
+      style: "currency",
+      currency: "IDR",
+      maximumFractionDigits: 0
+    }).format(number);
+  }
+
+  function getStatusLabel(status) {
+    const value = String(status || "").toLowerCase();
+
+    const labels = {
+      pending: "Menunggu",
+      paid: "Lunas",
+      success: "Berhasil",
+      completed: "Selesai",
+      failed: "Gagal",
+      cancelled: "Dibatalkan",
+      canceled: "Dibatalkan",
+      expired: "Kedaluwarsa",
+      draft: "Draft",
+      active: "Aktif",
+      published: "Terpublikasi",
+      processing: "Diproses"
+    };
+
+    return labels[value] || status || "Belum tersedia";
+  }
+
+  function getStatusClass(status) {
+    const value = String(status || "").toLowerCase();
+
+    if (["paid", "success", "completed", "active", "published"].includes(value)) {
+      return "success";
+    }
+
+    if (["failed", "cancelled", "canceled", "expired"].includes(value)) {
+      return "danger";
+    }
+
+    return "";
+  }
+
+  function findArray(source, keys) {
+    for (const key of keys) {
+      if (Array.isArray(source?.[key])) return source[key];
+    }
+
+    return [];
+  }
+
+  function renderOrders(orders) {
+    const container = $("ordersContainer");
+
+    if (!orders.length) {
+      container.innerHTML = `
+        <div class="empty-state">
+          <div class="empty-icon">♡</div>
+          <h4>Belum Ada Pesanan</h4>
+          <p>Anda belum memiliki pesanan. Mulailah memilih desain undangan yang Anda sukai.</p>
+          <a href="/template/index.html" class="btn-outline">Lihat Katalog</a>
+        </div>
+      `;
+      return;
+    }
+
+    container.innerHTML = `
+      <div class="order-list">
+        ${orders.slice(0, 5).map(order => {
+          const name =
+            order.invitation_title ||
+            order.title ||
+            order.invitation_name ||
+            order.order_number ||
+            order.order_code ||
+            "Pesanan SAHDONG";
+
+          const code =
+            order.order_number ||
+            order.order_code ||
+            order.id ||
+            "";
+
+          const status =
+            order.payment_status ||
+            order.status ||
+            "pending";
+
+          const price =
+            order.total_amount ??
+            order.amount ??
+            order.price ??
+            order.total ??
+            null;
+
+          return `
+            <div class="order-item">
+              <div style="min-width:0">
+                <div class="order-name">${escapeHTML(name)}</div>
+                <div class="order-meta">
+                  ${escapeHTML(String(code))}
+                  ${price !== null ? " · " + formatCurrency(price) : ""}
+                </div>
+              </div>
+              <span class="status ${getStatusClass(status)}">
+                ${escapeHTML(getStatusLabel(status))}
+              </span>
+            </div>
+          `;
+        }).join("")}
+      </div>
+    `;
+  }
+
+  function escapeHTML(value) {
+    return String(value).replace(/[&<>"']/g, char => ({
+      "&": "&amp;",
+      "<": "&lt;",
+      ">": "&gt;",
+      '"': "&quot;",
+      "'": "&#039;"
+    })[char]);
+  }
+
+  function renderDashboard(data) {
+    const payload = getPayload(data);
+
+    const orders = findArray(payload, [
+      "orders",
+      "recent_orders",
+      "latest_orders"
+    ]);
+
+    const invitations = findArray(payload, [
+      "invitations",
+      "my_invitations"
+    ]);
+
+    const stats = payload.stats || payload.summary || {};
+
+    const totalOrders =
+      stats.total_orders ??
+      stats.totalOrders ??
+      payload.total_orders ??
+      orders.length;
+
+    const totalInvitations =
+      stats.total_invitations ??
+      stats.totalInvitations ??
+      payload.total_invitations ??
+      invitations.length;
+
+    const pendingOrders =
+      stats.pending_orders ??
+      stats.pendingOrders ??
+      payload.pending_orders ??
+      orders.filter(item =>
+        String(item.payment_status || item.status || "").toLowerCase() === "pending"
+      ).length;
+
+    const activeInvitations =
+      stats.active_invitations ??
+      stats.activeInvitations ??
+      payload.active_invitations ??
+      invitations.filter(item =>
+        ["active", "published"].includes(
+          String(item.status || "").toLowerCase()
+        )
+      ).length;
+
+    $("totalOrders").textContent = formatNumber(totalOrders);
+    $("totalInvitations").textContent = formatNumber(totalInvitations);
+    $("pendingOrders").textContent = formatNumber(pendingOrders);
+    $("activeInvitations").textContent = formatNumber(activeInvitations);
+
+    renderOrders(orders);
+  }
+
+  async function loadDashboard() {
+    try {
+      const meResult = await apiRequest(API.me);
+
+      if (
+        meResult.response.status === 401 ||
+        meResult.response.status === 403 ||
+        meResult.data?.success === false
+      ) {
+        window.location.replace("/login.html");
+        return;
+      }
+
+      if (!meResult.response.ok) {
+        throw new Error("Tidak dapat memeriksa sesi akun.");
+      }
+
+      const user = getUser(meResult.data);
+
+      if (!user || (!user.email && !user.full_name && !user.name && !user.id)) {
+        window.location.replace("/login.html");
+        return;
+      }
+
+      setUser(user);
+
+      const dashboardResult = await apiRequest(API.dashboard);
+
+      if (!dashboardResult.response.ok) {
+        throw new Error("Data dashboard belum dapat dimuat.");
+      }
+
+      if (dashboardResult.data?.success === false) {
+        throw new Error(
+          dashboardResult.data.message || "Gagal mengambil data dashboard."
+        );
+      }
+
+      renderDashboard(dashboardResult.data);
+
+    } catch (error) {
+      console.error("SAHDONG dashboard:", error);
+
+      $("ordersContainer").innerHTML = `
+        <div class="empty-state">
+          <h4>Data Belum Dapat Ditampilkan</h4>
+          <p>Silakan muat ulang halaman. Jika masalah berlanjut, hubungi admin.</p>
+          <button type="button" class="btn-outline" onclick="loadDashboard()">
+            Muat Ulang
+          </button>
+        </div>
+      `;
+
+      showError(error.message || "Terjadi kesalahan saat memuat dashboard.");
+    }
+  }
+
+  async function logout() {
+    const button = $("logoutButton");
+    button.disabled = true;
+
+    try {
+      const result = await apiRequest(API.logout, {
+        method: "POST"
+      });
+
+      if (!result.response.ok) {
+        throw new Error("Logout belum berhasil. Silakan coba kembali.");
+      }
+
+      window.location.replace("/login.html");
+
+    } catch (error) {
+      button.disabled = false;
+      showError(error.message);
+    }
+  }
+
+  $("logoutButton").addEventListener("click", logout);
+
+  const sidebar = $("sidebar");
+  const overlay = $("overlay");
+
+  function closeMenu() {
+    sidebar.classList.remove("open");
+    overlay.classList.remove("show");
+  }
+
+  $("menuButton").addEventListener("click", () => {
+    sidebar.classList.toggle("open");
+    overlay.classList.toggle("show");
+  });
+
+  overlay.addEventListener("click", closeMenu);
+
+  document.querySelectorAll(".sidebar .nav-link").forEach(link => {
+    link.addEventListener("click", closeMenu);
+  });
+
+  loadDashboard();
+</script>
+</body>
+</html>
