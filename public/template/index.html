@@ -1,458 +1,803 @@
+
 <!DOCTYPE html>
 <html lang="id">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="description" content="Temukan 30 desain undangan digital pernikahan elegan di SAHDONG. Pilih paket Basic, Premium, atau Exclusive.">
-  <meta name="theme-color" content="#172b40">
+  <meta name="theme-color" content="#f7f3eb">
+
   <title>Katalog Undangan Digital | SAHDONG</title>
-  <link rel="stylesheet" href="/assets/css/style.css?v=20261125">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="/assets/css/style.css?v=20261126-luxury">
 
   <style>
     :root {
-      --navy: #172b40;
-      --gold: #c5a36a;
-      --ivory: #f8f6f1;
-      --white: #fff;
-      --muted: #777;
+      --catalog-ink: #26362f;
+      --catalog-deep: #1d2d27;
+      --catalog-gold: #b89a68;
+      --catalog-gold-light: #d9c49c;
+      --catalog-paper: #f7f3eb;
+      --catalog-paper-deep: #eee8dc;
+      --catalog-white: #fffdf9;
+      --catalog-text: #4e554f;
+      --catalog-muted: #85877f;
+      --catalog-line: #e3dccf;
+      --catalog-shadow: 0 12px 32px rgba(38,54,47,.075);
     }
 
-    * { box-sizing: border-box; }
+    * {
+      box-sizing: border-box;
+    }
 
-    body {
+    html {
+      scroll-behavior: smooth;
+      scroll-padding-top: 95px;
+    }
+
+    body.catalog-page {
       margin: 0;
-      background: var(--ivory);
-      color: var(--navy);
-      font-family: Arial, sans-serif;
+      min-width: 320px;
+      overflow-x: hidden;
+      background: var(--catalog-paper);
+      color: var(--catalog-text);
+      font-family: "DM Sans", sans-serif;
+      -webkit-font-smoothing: antialiased;
     }
 
-    a { color: inherit; text-decoration: none; }
+    .catalog-page a {
+      color: inherit;
+      text-decoration: none;
+    }
+
+    .catalog-page button,
+    .catalog-page input {
+      font: inherit;
+    }
+
+    /* NAVIGATION */
 
     .catalog-nav {
-      background: var(--navy);
-      color: white;
-      padding: 20px 7%;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      width: 100%;
+      min-height: 72px;
+      padding: 12px max(5%, calc((100% - 1180px) / 2));
       display: flex;
       align-items: center;
       justify-content: space-between;
-    }
-
-    .brand {
-      font-family: Georgia, serif;
-      font-size: 26px;
-      letter-spacing: 3px;
-      color: var(--gold);
-      font-weight: bold;
-    }
-
-    .catalog-nav a { font-size: 14px; }
-
-    .hero {
-      text-align: center;
-      padding: 75px 20px 55px;
-      background: linear-gradient(135deg, #172b40, #30475b);
-      color: white;
-    }
-
-    .hero-label {
-      color: var(--gold);
-      letter-spacing: 4px;
-      font-size: 11px;
-      text-transform: uppercase;
-    }
-
-    .hero h1 {
-      font-family: Georgia, serif;
-      font-size: clamp(34px, 5vw, 54px);
-      font-weight: normal;
-      margin: 20px 0 12px;
-    }
-
-    .hero p {
-      color: #e0e0e0;
-      font-size: 15px;
-      line-height: 1.8;
-    }
-
-    .catalog-container {
-      max-width: 1200px;
-      margin: auto;
-      padding: 55px 22px 80px;
-    }
-
-    .package {
-      margin-bottom: 70px;
-      scroll-margin-top: 25px;
-    }
-
-    .package-heading {
-      display: flex;
-      align-items: end;
-      justify-content: space-between;
       gap: 20px;
-      border-bottom: 1px solid #ded7ca;
-      padding-bottom: 18px;
-      margin-bottom: 25px;
+      background: rgba(255,253,249,.96);
+      border-bottom: 1px solid var(--catalog-line);
+      box-shadow: 0 4px 20px rgba(38,54,47,.045);
+      backdrop-filter: blur(12px);
     }
 
-    .package-heading h2 {
-      font-family: Georgia, serif;
-      font-size: 30px;
-      font-weight: normal;
-      margin: 0 0 8px;
-    }
-
-    .package-heading p {
-      color: var(--muted);
-      margin: 0;
-      font-size: 13px;
-    }
-
-    .price {
-      color: #a17d43;
-      font-size: 23px;
-      font-weight: bold;
+    .catalog-brand {
+      display: inline-flex;
+      align-items: center;
+      gap: 11px;
+      color: var(--catalog-ink);
+      font-family: "Playfair Display", serif;
+      font-size: 25px;
+      font-weight: 700;
+      letter-spacing: 3px;
       white-space: nowrap;
     }
 
-    .template-grid {
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 22px;
+    .catalog-brand-mark {
+      width: 36px;
+      height: 36px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: 1px solid var(--catalog-gold);
+      border-radius: 50%;
+      color: var(--catalog-gold);
+      font-size: 19px;
+      letter-spacing: 0;
     }
 
-    .template-card {
-      background: white;
-      border-radius: 9px;
+    .catalog-back {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      min-height: 40px;
+      padding: 9px 17px;
+      border: 1px solid var(--catalog-line);
+      border-radius: 30px;
+      color: var(--catalog-ink);
+      font-size: 12px;
+      font-weight: 600;
+      transition: .25s ease;
+      white-space: nowrap;
+    }
+
+    .catalog-back:hover {
+      border-color: var(--catalog-gold);
+      background: var(--catalog-paper);
+      color: var(--catalog-ink);
+    }
+
+    /* HERO */
+
+    .catalog-hero {
+      position: relative;
       overflow: hidden;
-      box-shadow: 0 5px 22px rgba(0,0,0,.06);
-      transition: transform .25s;
+      padding: 83px 20px 78px;
+      text-align: center;
+      background:
+        radial-gradient(ellipse at 50% 0%, rgba(217,196,156,.13), transparent 55%),
+        linear-gradient(135deg, #1d2d27, #30473b);
+      color: var(--catalog-white);
     }
 
-    .template-card:hover { transform: translateY(-5px); }
-
-    .template-image {
-      width: 100%;
-      aspect-ratio: 3 / 4;
-      object-fit: cover;
-      display: block;
-      background: #e8e2d8;
+    .catalog-hero::before,
+    .catalog-hero::after {
+      content: "";
+      position: absolute;
+      width: 240px;
+      height: 240px;
+      border: 1px solid rgba(217,196,156,.13);
+      border-radius: 50%;
+      pointer-events: none;
     }
 
-    .template-info { padding: 17px; }
+    .catalog-hero::before {
+      top: -145px;
+      left: -90px;
+    }
 
-    .template-code {
-      color: #aa8955;
+    .catalog-hero::after {
+      right: -100px;
+      bottom: -165px;
+    }
+
+    .catalog-hero-inner {
+      position: relative;
+      z-index: 1;
+      max-width: 760px;
+      margin: auto;
+    }
+
+    .catalog-eyebrow {
+      display: inline-block;
+      margin-bottom: 18px;
+      color: var(--catalog-gold-light);
       font-size: 10px;
-      letter-spacing: 2px;
+      font-weight: 600;
+      letter-spacing: 4px;
+      line-height: 1.7;
       text-transform: uppercase;
     }
 
-    .template-info h3 {
-      font-family: Georgia, serif;
-      font-size: 19px;
-      font-weight: normal;
-      margin: 8px 0;
+    .catalog-hero h1 {
+      margin: 0;
+      color: var(--catalog-white);
+      font-family: "Playfair Display", serif;
+      font-size: clamp(34px, 5vw, 53px);
+      font-weight: 500;
+      line-height: 1.2;
+      letter-spacing: -.5px;
     }
 
-    .template-info p {
-      font-size: 12px;
-      color: var(--muted);
-      margin: 0 0 16px;
+    .catalog-hero p {
+      max-width: 550px;
+      margin: 18px auto 0;
+      color: rgba(255,253,249,.78);
+      font-size: 14px;
+      line-height: 1.9;
     }
 
-    .demo-button {
+    .catalog-hero-line {
+      width: 55px;
+      height: 1px;
+      margin: 27px auto 0;
+      background: var(--catalog-gold);
+    }
+
+    /* CATALOG CONTAINER */
+
+    .catalog-container {
+      width: 100%;
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 64px 24px 85px;
+    }
+
+    .catalog-intro {
+      max-width: 650px;
+      margin: 0 auto 55px;
+      text-align: center;
+    }
+
+    .catalog-intro h2 {
+      margin: 0 0 10px;
+      color: var(--catalog-ink);
+      font-family: "Playfair Display", serif;
+      font-size: 29px;
+      font-weight: 500;
+      line-height: 1.35;
+    }
+
+    .catalog-intro p {
+      margin: 0;
+      color: var(--catalog-muted);
+      font-size: 13px;
+      line-height: 1.8;
+    }
+
+    /* PACKAGE SECTION */
+
+    .catalog-package {
+      margin-bottom: 72px;
+      scroll-margin-top: 95px;
+    }
+
+    .catalog-package:last-child {
+      margin-bottom: 0;
+    }
+
+    .catalog-package-heading {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 20px;
+      padding-bottom: 19px;
+      margin-bottom: 25px;
+      border-bottom: 1px solid var(--catalog-line);
+    }
+
+    .catalog-package-title {
+      min-width: 0;
+    }
+
+    .catalog-package-label {
       display: block;
-      text-align: center;
-      border: 1px solid var(--gold);
-      padding: 11px;
-      border-radius: 4px;
-      color: var(--navy);
+      margin-bottom: 7px;
+      color: var(--catalog-gold);
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 2.5px;
+      text-transform: uppercase;
+    }
+
+    .catalog-package-heading h2 {
+      margin: 0;
+      color: var(--catalog-ink);
+      font-family: "Playfair Display", serif;
+      font-size: 30px;
+      font-weight: 500;
+      line-height: 1.3;
+    }
+
+    .catalog-package-heading p {
+      margin: 7px 0 0;
+      color: var(--catalog-muted);
       font-size: 12px;
-      font-weight: bold;
+      line-height: 1.7;
     }
 
-    .demo-button:hover {
-      background: var(--navy);
-      border-color: var(--navy);
-      color: white;
+    .catalog-price {
+      flex-shrink: 0;
+      color: var(--catalog-ink);
+      font-family: "Playfair Display", serif;
+      font-size: 25px;
+      font-weight: 600;
+      white-space: nowrap;
     }
 
-    .catalog-footer {
-      text-align: center;
-      background: var(--navy);
-      color: white;
-      padding: 35px 20px;
-      font-size: 12px;
-      line-height: 2;
+    /* TEMPLATE GRID */
+
+    .catalog-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 22px;
     }
 
-    .catalog-footer span { color: var(--gold); }
+    .catalog-card {
+      min-width: 0;
+      overflow: hidden;
+      background: var(--catalog-white);
+      border: 1px solid rgba(227,220,207,.8);
+      border-radius: 12px;
+      box-shadow: 0 5px 18px rgba(38,54,47,.045);
+      transition:
+        transform .25s ease,
+        box-shadow .25s ease,
+        border-color .25s ease;
+    }
 
-    .image-fallback {
+    .catalog-card:hover {
+      transform: translateY(-5px);
+      border-color: rgba(184,154,104,.5);
+      box-shadow: var(--catalog-shadow);
+    }
+
+    .catalog-image-wrap {
+      position: relative;
+      overflow: hidden;
+      width: 100%;
+      aspect-ratio: 3 / 4;
+      background: var(--catalog-paper-deep);
+    }
+
+    .catalog-image {
+      display: block;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: transform .45s ease;
+    }
+
+    .catalog-card:hover .catalog-image {
+      transform: scale(1.035);
+    }
+
+    .catalog-image-fallback {
       display: flex;
       align-items: center;
       justify-content: center;
       width: 100%;
-      aspect-ratio: 3 / 4;
+      height: 100%;
       padding: 20px;
+      background:
+        radial-gradient(circle at 50% 30%, #fffdf9, transparent 70%),
+        linear-gradient(145deg, #f4eee4, #e5d8c4);
+      color: #806d4f;
+      font-family: "Playfair Display", serif;
+      font-size: 21px;
+      line-height: 1.4;
       text-align: center;
-      color: #6f604a;
-      background: linear-gradient(145deg, #f4eee4, #e5d8c4);
-      font-family: Georgia, serif;
-      font-size: 22px;
     }
 
-    @media(max-width: 900px) {
-      .template-grid { grid-template-columns: repeat(3, 1fr); }
+    .catalog-info {
+      display: flex;
+      flex-direction: column;
+      align-items: stretch;
+      min-height: 174px;
+      padding: 16px;
     }
 
-    @media(max-width: 600px) {
-      .catalog-nav { padding: 17px 20px; }
-      .brand { font-size: 21px; }
-      .hero { padding: 55px 18px 45px; }
-      .catalog-container { padding: 38px 15px 60px; }
-      .package-heading { align-items: start; }
-      .package-heading h2 { font-size: 25px; }
-      .price { font-size: 18px; }
-      .template-grid { grid-template-columns: repeat(2, 1fr); gap: 12px; }
-      .template-info { padding: 12px; }
-      .template-info h3 { font-size: 16px; }
+    .catalog-code {
+      margin-bottom: 8px;
+      color: var(--catalog-gold);
+      font-size: 9px;
+      font-weight: 700;
+      letter-spacing: 2px;
+      line-height: 1.5;
+      text-transform: uppercase;
     }
-    
-/* ==================================
-   SAHDONG MOBILE FRIENDLY CATALOG
-================================== */
 
-html {
-  scroll-behavior: smooth;
-  scroll-padding-top: 120px;
-}
+    .catalog-info h3 {
+      min-height: 25px;
+      margin: 0 0 7px;
+      color: var(--catalog-ink);
+      font-family: "Playfair Display", serif;
+      font-size: 18px;
+      font-weight: 500;
+      line-height: 1.35;
+      overflow-wrap: anywhere;
+    }
 
-body {
-  overflow-x: hidden;
-}
+    .catalog-info p {
+      margin: 0 0 15px;
+      color: var(--catalog-muted);
+      font-size: 11px;
+      line-height: 1.6;
+    }
 
-.catalog-nav {
-  position: sticky;
-  top: 0;
-  z-index: 100;
-  min-height: 60px;
-  padding: 12px 5%;
-  box-shadow: 0 3px 15px rgba(0,0,0,.12);
-}
+    .catalog-demo {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 100%;
+      min-height: 41px;
+      margin-top: auto;
+      padding: 9px 10px;
+      border: 1px solid var(--catalog-gold);
+      border-radius: 6px;
+      background: transparent;
+      color: var(--catalog-ink);
+      font-size: 11px;
+      font-weight: 700;
+      line-height: 1.4;
+      text-align: center;
+      transition: .25s ease;
+    }
 
-.catalog-nav a:last-child {
-  padding: 10px 14px;
-  border: 1px solid rgba(255,255,255,.3);
-  border-radius: 25px;
-}
+    .catalog-demo:hover {
+      border-color: var(--catalog-deep);
+      background: var(--catalog-deep);
+      color: white;
+    }
 
-.template-card {
-  min-width: 0;
-  border-radius: 12px;
-  transition: transform .3s ease, box-shadow .3s ease;
-}
+    .catalog-demo.coming-soon {
+      border-color: var(--catalog-line);
+      background: #f7f5f0;
+      color: var(--catalog-muted);
+      cursor: default;
+    }
 
-.template-card:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 12px 28px rgba(0,0,0,.12);
-}
+    .catalog-demo.coming-soon:hover {
+      border-color: var(--catalog-line);
+      background: #f7f5f0;
+      color: var(--catalog-muted);
+    }
 
-.template-image {
-  aspect-ratio: 3 / 4;
-  object-fit: cover;
-}
+    /* FOOTER */
 
-.demo-button {
-  min-height: 42px;
-  border-radius: 6px;
-  cursor: pointer;
-  transition: .25s ease;
-}
+    .catalog-footer {
+      padding: 43px 20px 27px;
+      background: var(--catalog-deep);
+      color: rgba(255,253,249,.78);
+      text-align: center;
+    }
 
-.package-heading {
-  flex-wrap: wrap;
-}
+    .catalog-footer-brand {
+      margin-bottom: 12px;
+      color: var(--catalog-gold-light);
+      font-family: "Playfair Display", serif;
+      font-size: 27px;
+      font-weight: 600;
+      letter-spacing: 3px;
+    }
 
-@media (max-width: 650px) {
-  .catalog-nav {
-    padding: 11px 15px;
-  }
+    .catalog-footer p {
+      max-width: 440px;
+      margin: 0 auto;
+      font-size: 12px;
+      line-height: 1.9;
+    }
 
-  .brand {
-    font-size: 21px;
-    letter-spacing: 2px;
-  }
+    .catalog-footer-divider {
+      width: 42px;
+      height: 1px;
+      margin: 23px auto;
+      background: var(--catalog-gold);
+    }
 
-  .catalog-nav a:last-child {
-    font-size: 11px;
-    padding: 9px 12px;
-  }
+    .catalog-copyright {
+      color: var(--catalog-gold-light);
+      font-size: 11px;
+      letter-spacing: .5px;
+    }
 
-  .hero {
-    padding: 45px 18px 38px;
-  }
+    /* TABLET */
 
-  .hero h1 {
-    font-size: 32px;
-    line-height: 1.2;
-  }
+    @media (max-width: 950px) {
+      .catalog-grid {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 17px;
+      }
 
-  .hero p {
-    font-size: 13px;
-    line-height: 1.7;
-  }
+      .catalog-container {
+        padding-right: 22px;
+        padding-left: 22px;
+      }
+    }
 
-  .catalog-container {
-    padding: 30px 12px 50px;
-  }
+    /* MOBILE */
 
-  .package {
-    margin-bottom: 45px;
-    scroll-margin-top: 80px;
-  }
+    @media (max-width: 650px) {
+      html {
+        scroll-padding-top: 76px;
+      }
 
-  .package-heading {
-    align-items: flex-start;
-    gap: 8px;
-    padding-bottom: 14px;
-    margin-bottom: 17px;
-  }
+      .catalog-nav {
+        min-height: 61px;
+        padding: 10px 16px;
+        gap: 10px;
+      }
 
-  .package-heading h2 {
-    font-size: 22px;
-    line-height: 1.25;
-  }
+      .catalog-brand {
+        gap: 8px;
+        font-size: 21px;
+        letter-spacing: 2px;
+      }
 
-  .package-heading p {
-    font-size: 11px;
-    line-height: 1.5;
-  }
+      .catalog-brand-mark {
+        width: 31px;
+        height: 31px;
+        font-size: 16px;
+      }
 
-  .price {
-    font-size: 16px;
-    padding-top: 3px;
-  }
+      .catalog-back {
+        min-height: 36px;
+        padding: 8px 12px;
+        font-size: 10px;
+      }
 
-  .template-grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 11px;
-  }
+      .catalog-hero {
+        padding: 57px 20px 54px;
+      }
 
-  .template-info {
-    padding: 10px;
-  }
+      .catalog-eyebrow {
+        margin-bottom: 14px;
+        font-size: 9px;
+        letter-spacing: 3px;
+      }
 
-  .template-code {
-    font-size: 9px;
-    letter-spacing: 1px;
-  }
+      .catalog-hero h1 {
+        max-width: 450px;
+        margin: 0 auto;
+        font-size: clamp(30px, 8vw, 39px);
+        line-height: 1.23;
+      }
 
-  .template-info h3 {
-    font-size: 15px;
-    line-height: 1.3;
-    overflow-wrap: anywhere;
-  }
+      .catalog-hero p {
+        max-width: 390px;
+        margin-top: 13px;
+        font-size: 12px;
+        line-height: 1.8;
+      }
 
-  .template-info p {
-    font-size: 10px;
-    line-height: 1.4;
-  }
+      .catalog-hero-line {
+        margin-top: 22px;
+      }
 
-  .demo-button {
-    font-size: 11px;
-    padding: 10px 5px;
-  }
+      .catalog-container {
+        padding: 42px 15px 58px;
+      }
 
-  .catalog-footer {
-    padding: 28px 15px;
-  }
-}
+      .catalog-intro {
+        margin-bottom: 38px;
+      }
 
-@media (max-width: 360px) {
-  .template-grid {
-    gap: 8px;
-  }
+      .catalog-intro h2 {
+        font-size: 24px;
+      }
 
-  .template-info {
-    padding: 8px;
-  }
+      .catalog-intro p {
+        font-size: 11px;
+        line-height: 1.8;
+      }
 
-  .template-info h3 {
-    font-size: 14px;
-  }
+      .catalog-package {
+        margin-bottom: 48px;
+        scroll-margin-top: 76px;
+      }
 
-  .price {
-    font-size: 14px;
-  }
-}
+      .catalog-package-heading {
+        align-items: center;
+        gap: 10px;
+        padding-bottom: 14px;
+        margin-bottom: 17px;
+      }
 
+      .catalog-package-label {
+        margin-bottom: 5px;
+        font-size: 8px;
+        letter-spacing: 1.8px;
+      }
+
+      .catalog-package-heading h2 {
+        font-size: 22px;
+        line-height: 1.3;
+      }
+
+      .catalog-package-heading p {
+        margin-top: 5px;
+        font-size: 10px;
+        line-height: 1.5;
+      }
+
+      .catalog-price {
+        font-size: 17px;
+      }
+
+      .catalog-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 12px;
+      }
+
+      .catalog-card {
+        border-radius: 9px;
+      }
+
+      .catalog-info {
+        min-height: 158px;
+        padding: 11px;
+      }
+
+      .catalog-code {
+        margin-bottom: 6px;
+        font-size: 8px;
+        letter-spacing: 1.3px;
+      }
+
+      .catalog-info h3 {
+        min-height: 36px;
+        margin-bottom: 5px;
+        font-size: 15px;
+        line-height: 1.35;
+      }
+
+      .catalog-info p {
+        margin-bottom: 11px;
+        font-size: 10px;
+        line-height: 1.5;
+      }
+
+      .catalog-demo {
+        min-height: 38px;
+        padding: 8px 5px;
+        font-size: 10px;
+      }
+
+      .catalog-image-fallback {
+        font-size: 17px;
+      }
+
+      .catalog-footer {
+        padding: 35px 18px 23px;
+      }
+
+      .catalog-footer-brand {
+        font-size: 24px;
+      }
+
+      .catalog-footer p {
+        font-size: 11px;
+      }
+    }
+
+    /* SMALL MOBILE */
+
+    @media (max-width: 370px) {
+      .catalog-nav {
+        padding-right: 11px;
+        padding-left: 11px;
+      }
+
+      .catalog-brand {
+        font-size: 19px;
+        letter-spacing: 1.5px;
+      }
+
+      .catalog-back {
+        padding: 7px 9px;
+        font-size: 9px;
+      }
+
+      .catalog-container {
+        padding-right: 11px;
+        padding-left: 11px;
+      }
+
+      .catalog-grid {
+        gap: 9px;
+      }
+
+      .catalog-info {
+        min-height: 153px;
+        padding: 9px;
+      }
+
+      .catalog-info h3 {
+        font-size: 14px;
+      }
+
+      .catalog-price {
+        font-size: 15px;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .catalog-page *,
+      .catalog-page *::before,
+      .catalog-page *::after {
+        scroll-behavior: auto !important;
+        transition-duration: .01ms !important;
+        animation-duration: .01ms !important;
+      }
+    }
   </style>
 </head>
 
-<body>
+<body class="catalog-page">
+
   <nav class="catalog-nav">
-    <a class="brand" href="/">SAHDONG</a>
-    <a href="/">Kembali ke Beranda</a>
+    <a class="catalog-brand" href="/" aria-label="SAHDONG Beranda">
+      <span class="catalog-brand-mark">S</span>
+      <span>SAHDONG</span>
+    </a>
+
+    <a class="catalog-back" href="/">
+      <span aria-hidden="true">←</span>
+      <span>Kembali ke Beranda</span>
+    </a>
   </nav>
 
-  <header class="hero">
-    <div class="hero-label">Our Wedding Collection</div>
-    <h1>Pilihan Desain Undangan</h1>
-    <p>Temukan desain yang menggambarkan kisah cinta dan hari istimewa Anda.</p>
+  <header class="catalog-hero">
+    <div class="catalog-hero-inner">
+      <div class="catalog-eyebrow">Our Wedding Collection</div>
+
+      <h1>Pilihan Desain Undangan</h1>
+
+      <p>
+        Setiap kisah cinta memiliki keindahannya sendiri.
+        Temukan desain undangan yang mencerminkan cerita dan
+        momen istimewa Anda.
+      </p>
+
+      <div class="catalog-hero-line"></div>
+    </div>
   </header>
 
   <main class="catalog-container">
-    <section class="package" id="basic">
-      <div class="package-heading">
-        <div>
+
+    <div class="catalog-intro">
+      <h2>Temukan Desain Favorit Anda</h2>
+      <p>
+        Jelajahi koleksi desain SAHDONG dan pilih tampilan
+        undangan digital yang paling sesuai dengan hari istimewa Anda.
+      </p>
+    </div>
+
+    <section class="catalog-package" id="basic">
+      <div class="catalog-package-heading">
+        <div class="catalog-package-title">
+          <span class="catalog-package-label">Essential Collection</span>
           <h2>Basic Collection</h2>
-          <p>Simple, minimalis dan elegan · 10 desain</p>
+          <p>Simple, minimalis, dan elegan · 10 desain</p>
         </div>
-        <div class="price">Rp25.000</div>
+        <div class="catalog-price">Rp25.000</div>
       </div>
-      <div class="template-grid" id="basic-grid"></div>
+
+      <div class="catalog-grid" id="basic-grid"></div>
     </section>
 
-    <section class="package" id="premium">
-      <div class="package-heading">
-        <div>
+    <section class="catalog-package" id="premium">
+      <div class="catalog-package-heading">
+        <div class="catalog-package-title">
+          <span class="catalog-package-label">Signature Collection</span>
           <h2>Premium Collection</h2>
-          <p>Romantis, modern dan personal · 10 desain</p>
+          <p>Romantis, modern, dan personal · 10 desain</p>
         </div>
-        <div class="price">Rp45.000</div>
+        <div class="catalog-price">Rp45.000</div>
       </div>
-      <div class="template-grid" id="premium-grid"></div>
+
+      <div class="catalog-grid" id="premium-grid"></div>
     </section>
 
-    <section class="package" id="exclusive">
-      <div class="package-heading">
-        <div>
+    <section class="catalog-package" id="exclusive">
+      <div class="catalog-package-heading">
+        <div class="catalog-package-title">
+          <span class="catalog-package-label">Prestige Collection</span>
           <h2>Exclusive Collection</h2>
-          <p>Luxury, istimewa dan eksklusif · 10 desain</p>
+          <p>Luxury, istimewa, dan eksklusif · 10 desain</p>
         </div>
-        <div class="price">Rp92.000</div>
+        <div class="catalog-price">Rp92.000</div>
       </div>
-      <div class="template-grid" id="exclusive-grid"></div>
+
+      <div class="catalog-grid" id="exclusive-grid"></div>
     </section>
+
   </main>
 
   <footer class="catalog-footer">
-    <div class="brand">SAHDONG</div>
-    Undangan Digital Elegan untuk Hari Istimewa Anda.
-    <br>
-    <span>© 2026 Hilmana Design</span>
+    <div class="catalog-footer-brand">SAHDONG</div>
+
+    <p>
+      Undangan Digital Elegan untuk Mengabadikan
+      Momen Istimewa dalam Hidup Anda.
+    </p>
+
+    <div class="catalog-footer-divider"></div>
+
+    <div class="catalog-copyright">
+      © 2026 Hilmana Design
+    </div>
   </footer>
 
   <script>
-    /*
-      Dua foto pertama di bawah ini adalah sumber foto yang sebelumnya
-      sudah terlihat berhasil dimuat pada beranda SAHDONG.
-      Jika foto utama katalog gagal, browser mencoba sumber cadangan.
-      Jika semua sumber eksternal gagal, kartu tetap menampilkan placeholder
-      yang rapi, bukan ikon gambar rusak.
-    */
     const fallbackPhotoIds = [
       "photo-1519741497674-611481863552",
       "photo-1511285560929-80b456fea0bc"
@@ -463,9 +808,15 @@ body {
         id: "basic",
         prefix: "BSC",
         names: [
-          "Ivory Love", "Classic Bloom", "Pure Elegance",
-          "Soft Romance", "Garden White", "Simple Grace",
-          "Floral Dream", "Golden Day", "Timeless Love",
+          "Ivory Love",
+          "Classic Bloom",
+          "Pure Elegance",
+          "Soft Romance",
+          "Garden White",
+          "Simple Grace",
+          "Floral Dream",
+          "Golden Day",
+          "Timeless Love",
           "Sweet Minimal"
         ],
         images: [
@@ -485,9 +836,15 @@ body {
         id: "premium",
         prefix: "PRM",
         names: [
-          "Royal Romance", "Champagne Love", "Eternal Story",
-          "Botanical Bliss", "Golden Memories", "Romantic Garden",
-          "Velvet Rose", "The Love Chapter", "Elegant Moment",
+          "Royal Romance",
+          "Champagne Love",
+          "Eternal Story",
+          "Botanical Bliss",
+          "Golden Memories",
+          "Romantic Garden",
+          "Velvet Rose",
+          "The Love Chapter",
+          "Elegant Moment",
           "Forever Yours"
         ],
         images: [
@@ -507,9 +864,15 @@ body {
         id: "exclusive",
         prefix: "EXC",
         names: [
-          "The Grand Royal", "Black Elegance", "Majestic Love",
-          "Royal Heritage", "Golden Dynasty", "Luxury Bloom",
-          "Imperial Romance", "The Prestige", "Diamond Story",
+          "The Grand Royal",
+          "Black Elegance",
+          "Majestic Love",
+          "Royal Heritage",
+          "Golden Dynasty",
+          "Luxury Bloom",
+          "Imperial Romance",
+          "The Prestige",
+          "Diamond Story",
           "Eternal Majesty"
         ],
         images: [
@@ -534,10 +897,12 @@ body {
 
     function makeFallbackPlaceholder(name) {
       const placeholder = document.createElement("div");
-      placeholder.className = "image-fallback";
+
+      placeholder.className = "catalog-image-fallback";
       placeholder.textContent = name;
       placeholder.setAttribute("role", "img");
       placeholder.setAttribute("aria-label", "Pratinjau " + name);
+
       return placeholder;
     }
 
@@ -546,15 +911,19 @@ body {
         String(index + 1).padStart(2, "0");
 
       const card = document.createElement("article");
-      card.className = "template-card";
+      card.className = "catalog-card";
+
+      const imageWrap = document.createElement("div");
+      imageWrap.className = "catalog-image-wrap";
 
       const image = document.createElement("img");
-      image.className = "template-image";
-      image.alt = "Inspirasi desain " + name;
+      image.className = "catalog-image";
+      image.alt = "Inspirasi desain undangan " + name;
       image.loading = "lazy";
       image.decoding = "async";
 
       let fallbackIndex = 0;
+
       image.src = makeUnsplashUrl(collection.images[index]);
 
       image.addEventListener("error", function handleImageError() {
@@ -565,14 +934,16 @@ body {
         }
 
         image.removeEventListener("error", handleImageError);
-        image.replaceWith(makeFallbackPlaceholder(name));
+        imageWrap.replaceChildren(makeFallbackPlaceholder(name));
       });
 
+      imageWrap.appendChild(image);
+
       const info = document.createElement("div");
-      info.className = "template-info";
+      info.className = "catalog-info";
 
       const templateCode = document.createElement("div");
-      templateCode.className = "template-code";
+      templateCode.className = "catalog-code";
       templateCode.textContent = code;
 
       const title = document.createElement("h3");
@@ -581,71 +952,54 @@ body {
       const description = document.createElement("p");
       description.textContent = "Wedding Invitation Digital";
 
-      
-const demo = document.createElement("a");
-demo.className = "demo-button";
-demo.setAttribute("aria-label", "Demo " + name);
+      const demo = document.createElement("a");
+      demo.className = "catalog-demo";
+      demo.setAttribute("aria-label", "Demo " + name);
 
-if (code === "BSC-01") {
-  demo.href = "/demo/BSC-01/";
-  demo.textContent = "Lihat Demo";
-} else {
-  demo.href = "#";
-  demo.textContent = "Segera Hadir";
+      if (code === "BSC-01") {
+        demo.href = "/demo/BSC-01/";
+        demo.textContent = "Lihat Demo";
+      } else {
+        demo.href = "#";
+        demo.classList.add("coming-soon");
+        demo.textContent = "Segera Hadir";
 
-  demo.addEventListener("click", function(event) {
-    event.preventDefault();
-    alert(
-      "Demo " + code + " - " + name +
-      " sedang dalam proses pembuatan. Nantikan segera di SAHDONG!"
-    );
-  });
-}
+        demo.addEventListener("click", function(event) {
+          event.preventDefault();
 
+          alert(
+            "Demo " + code + " - " + name +
+            " sedang dalam proses pembuatan. Nantikan segera di SAHDONG!"
+          );
+        });
+      }
 
-      info.append(templateCode, title, description, demo);
-      card.append(image, info);
+      info.append(
+        templateCode,
+        title,
+        description,
+        demo
+      );
+
+      card.append(imageWrap, info);
 
       return card;
     }
 
     collections.forEach(collection => {
-      const grid = document.getElementById(collection.id + "-grid");
+      const grid = document.getElementById(
+        collection.id + "-grid"
+      );
 
       if (!grid) return;
 
       collection.names.forEach((name, index) => {
-        grid.appendChild(createTemplateCard(collection, name, index));
+        grid.appendChild(
+          createTemplateCard(collection, name, index)
+        );
       });
     });
-
-    
-const catalogCards = document.querySelectorAll(".template-card");
-
-if ("IntersectionObserver" in window) {
-  const catalogObserver = new IntersectionObserver((entries, observer) => {
-    entries.forEach(entry => {
-      if (entry.isIntersecting) {
-        entry.target.style.opacity = "1";
-        entry.target.style.transform = "translateY(0)";
-        observer.unobserve(entry.target);
-      }
-    });
-  }, { threshold: 0.1 });
-
-  catalogCards.forEach(card => {
-    card.style.opacity = "0";
-    card.style.transform = "translateY(20px)";
-    card.style.transition = "opacity .6s ease, transform .6s ease";
-    catalogObserver.observe(card);
-  });
-} else {
-  catalogCards.forEach(card => {
-    card.style.opacity = "1";
-    card.style.transform = "none";
-  });
-}
-
   </script>
+
 </body>
 </html>
