@@ -127,7 +127,7 @@
 <section class="closing"><div class="inner reveal"><div class="flourish">❧</div><div class="section-label">Thank You</div><h2>Merupakan kehormatan bagi kami apabila Anda berkenan hadir.</h2><p class="lead">Kami yang berbahagia,<br><strong id="closingNames"></strong></p></div></section>
 </main>
 <footer id="pageFooter" hidden><span>SAHDONG — © 2026 Hilmana Design</span></footer><div class="toast" id="toast" role="status" aria-live="polite"></div>
-<audio id="audioPlayer" src="https://pub-593611e9a2414097b25a7771e7c804ef.r2.dev/akustik-lembut.mp3" loop preload="none"></audio>
+<audio id="audioPlayer" loop preload="none"></audio>
 <script>
 (() => {
  const $ = id => document.getElementById(id);
@@ -155,25 +155,46 @@
   if(!slug){const demoData={groom:"Rizky Pratama",bride:"Aulia Putri",groomFather:"Bapak Ahmad",groomMother:"Ibu Siti",brideFather:"Bapak Hendra",brideMother:"Ibu Rina",akadDate:"2027-06-20",akadTime:"08:00",akadLocation:"Masjid Agung Al-Ikhlas",akadAddress:"Jl. Melati Raya No. 12, Kelurahan Sukamaju, Kecamatan Cendana, Kabupaten Majalengka, Jawa Barat 45411",akadMapsUrl:"https://www.google.com/maps/search/?api=1&query=Masjid+Agung+Al-Ikhlas+Jl.+Melati+Raya+No.+12+Majalengka",receptionDate:"2027-06-20",receptionTime:"11:00",receptionLocation:"Gedung Serbaguna Puspa Bangsa",receptionAddress:"Jl. Anggrek No. 25, Kelurahan Sukamaju, Kecamatan Cendana, Kabupaten Majalengka, Jawa Barat 45411",receptionMapsUrl:"https://www.google.com/maps/search/?api=1&query=Gedung+Serbaguna+Puspa+Bangsa+Jl.+Anggrek+No.+25+Majalengka",mapsUrl:"",loveStory:"Dua hati yang dipertemukan dalam cerita indah, kini siap melangkah bersama menuju masa depan.",bankName:"",accountNumber:"",accountOwner:"",closing:""};invitationData=demoData;renderDemoPhotos();renderInvitation(null,demoData,demoData.groom,demoData.bride);return}
   try{const response=await fetch("/api/public-invitation?slug="+encodeURIComponent(slug),{cache:"no-store"});const result=await response.json();if(!response.ok||!result.success||!result.invitation)throw new Error(result.message||"Undangan tidak tersedia.");const invitation=result.invitation;const data=invitation.invitation_data||{};const groom=String(data.groom||"").trim();const bride=String(data.bride||"").trim();if(!groom||!bride)throw new Error("Data nama mempelai belum lengkap.");invitationData=data;renderInvitation(invitation,data,groom,bride)}catch(error){console.error("LOAD INVITATION ERROR:",error);showUnavailable(error.message||"Undangan tidak dapat dimuat.")}
  }
+ function configureMusic(data){
+  const audio=$("audioPlayer");
+  const toggle=$("musicToggle");
+  audio.pause();
+  audio.removeAttribute("src");
+  audio.load();
+  toggle.hidden=true;
+  updateMusicButton();
+  const music=data&&data.music;
+  if(!music||music.mode==="none")return;
+  const key=String(music.key||"");
+  const validCatalog=music.mode==="catalog"&&key.startsWith("catalog/");
+  const validUpload=music.mode==="upload"&&/^customer-music\/[a-zA-Z0-9_-]+\/[a-fA-F0-9-]+\.mp3$/.test(key);
+  if(!validCatalog&&!validUpload)return;
+  audio.src="/api/music-file?key="+encodeURIComponent(key);
+  audio.load();
+  toggle.hidden=false;
+  updateMusicButton();
+ }
  function renderInvitation(invitation,data,groom,bride){
+  configureMusic(data);
   document.title=`${groom} & ${bride} — Undangan Pernikahan | SAHDONG`;document.querySelector('meta[name="description"]').content=`Undangan pernikahan ${groom} dan ${bride}.`;
   if(guest){$("guestRecipient").textContent=guest.replace(/[<>]/g,"").slice(0,80)}
   text("envelopeNames",`${groom} & ${bride}`);text("envelopeDate",formatDate(data.akadDate||data.receptionDate));addNames($("heroNames"),groom,bride);text("heroDate",formatDate(data.akadDate||data.receptionDate));text("introNames",`With love, ${groom} & ${bride}`);
   text("groomName",groom);text("brideName",bride);text("groomParents",`Putra dari\n${data.groomFather||""} & ${data.groomMother||""}`);text("brideParents",`Putri dari\n${data.brideFather||""} & ${data.brideMother||""}`);
   text("akadInfo",[formatDate(data.akadDate),formatTime(data.akadTime),data.akadLocation||""].filter(Boolean).join("\n"));text("receptionInfo",[formatDate(data.receptionDate),formatTime(data.receptionTime),data.receptionLocation||""].filter(Boolean).join("\n"));
   text("akadAddress",data.akadAddress||"");text("receptionAddress",data.receptionAddress||"");
-  const akadMap=data.akadMapsUrl||data.mapsUrl||"";const receptionMap=data.receptionMapsUrl||data.mapsUrl||"";if(validMapUrl(akadMap)){$("akadMapsButton").href=akadMap;$("akadMapsButton").hidden=false}if(validMapUrl(receptionMap)){$("receptionMapsButton").href=receptionMap;$("receptionMapsButton").hidden=false}
-  if(data.mapsUrl&&validMapUrl(data.mapsUrl)){$("mapsButton").href=data.mapsUrl;$("mapsButton").hidden=false}
+  const akadMap=data.akadMapsUrl||"";const receptionMap=data.receptionMapsUrl||data.mapsUrl||"";if(validMapUrl(akadMap)){$("akadMapsButton").href=akadMap;$("akadMapsButton").hidden=false}if(validMapUrl(receptionMap)){$("receptionMapsButton").href=receptionMap;$("receptionMapsButton").hidden=false}
   text("bankName",data.bankName||"Informasi Rekening");text("accountNumber",data.accountNumber||"Informasi rekening belum tersedia");text("accountOwner",data.accountOwner?`a.n. ${data.accountOwner}`:"");if(!data.accountNumber){$("copyAccount").hidden=true}
-  // Love Story: gunakan tulisan pelanggan; jika kosong, tampilkan naskah bawaan template.
-  // Jika pelanggan memilih showLoveStory:false, seluruh bagian disembunyikan.
+  // Love Story mengikuti pilihan editor: template, custom, atau hidden.
+  // Tetap mendukung data lama yang memakai showLoveStory/loveStory.
   const loveStorySection=$("loveStorySection");
   const loveStoryText=String(data.loveStory||"").trim();
   const defaultLoveStory="Setiap kisah memiliki awal yang sederhana. Dari perkenalan, tumbuh rasa saling mengenal dan memahami. Dalam perjalanan, kami belajar untuk saling menguatkan, menjaga, dan menerima. Kini, dengan penuh syukur dan doa keluarga, kami siap melangkah bersama menuju babak baru kehidupan.";
-  if(data.showLoveStory===false){loveStorySection.hidden=true}else{
-   loveStorySection.hidden=false;
+  const loveStoryMode=data.loveStoryMode||"";
+  const hideLoveStory=loveStoryMode==="hidden"||data.showLoveStory===false;
+  loveStorySection.hidden=hideLoveStory;
+  if(!hideLoveStory){
    text("loveStoryHeading",data.loveStoryTitle||"Perjalanan Cinta");
-   text("loveStoryText",loveStoryText||defaultLoveStory);
+   text("loveStoryText",loveStoryMode==="custom"?(loveStoryText||""):loveStoryText||defaultLoveStory);
    text("loveStorySign",`${groom} & ${bride}`);
   }
   text("closingNames",`${groom} & ${bride}`);startCountdown(data.akadDate,data.akadTime);
@@ -181,8 +202,23 @@
  }
  function startCountdown(dateValue,timeValue){if(!dateValue){["days","hours","minutes","seconds"].forEach(id=>text(id,"00"));return}const time=timeValue||"08:00";const target=new Date(`${dateValue}T${time}:00+07:00`).getTime();if(!Number.isFinite(target))return;function update(){const diff=Math.max(0,target-Date.now());const values={days:Math.floor(diff/86400000),hours:Math.floor(diff%86400000/3600000),minutes:Math.floor(diff%3600000/60000),seconds:Math.floor(diff%60000/1000)};Object.entries(values).forEach(([id,value])=>text(id,String(value).padStart(2,"0")))}update();setInterval(update,1000)}
  function showUnavailable(message){$("envelopeScreen").innerHTML="";const content=document.createElement("div");content.className="envelope-content";const heading=document.createElement("h2");heading.textContent="Undangan Belum Tersedia";heading.style.cssText="font:40px var(--serif);color:#786252";const paragraph=document.createElement("p");paragraph.textContent=message;paragraph.style.cssText="font:16px/1.7 var(--serif);color:#8c7867;margin:20px 0";content.append(heading,paragraph);$("envelopeScreen").append(content);$("invitationContent").hidden=true;$("pageFooter").hidden=true}
- $("openInvitation").addEventListener("click",()=>{$("envelope").classList.add("open");$("openInvitation").disabled=true;$("openInvitation").textContent="Membuka undangan…";const audio=$("audioPlayer");audio.play().catch(()=>toast("Tekan tombol musik untuk memutar lagu."));setTimeout(()=>{$("envelopeScreen").classList.add("dismiss");document.body.classList.remove("lock");$("topbar").classList.add("visible")},850)});
- const audio=$("audioPlayer");function updateMusicButton(){$("musicToggle").textContent=audio.paused?"♫":"Ⅱ"}$("musicToggle").addEventListener("click",()=>{if(audio.paused){audio.play().then(()=>{updateMusicButton();toast("Musik diputar.")}).catch(()=>toast("Musik tidak dapat diputar."))}else{audio.pause();updateMusicButton();toast("Musik dijeda.")}});audio.addEventListener("play",updateMusicButton);audio.addEventListener("pause",updateMusicButton);audio.addEventListener("error",updateMusicButton);
+ const audio=$("audioPlayer");
+ function updateMusicButton(){$("musicToggle").textContent=audio.paused?"♫":"Ⅱ"}
+ $("openInvitation").addEventListener("click",()=>{
+  $("envelope").classList.add("open");
+  $("openInvitation").disabled=true;
+  $("openInvitation").textContent="Membuka undangan…";
+  if(audio.getAttribute("src"))audio.play().catch(()=>toast("Musik belum dapat diputar. Gunakan tombol musik untuk mencoba lagi."));
+  setTimeout(()=>{$("envelopeScreen").classList.add("dismiss");document.body.classList.remove("lock");$("topbar").classList.add("visible")},850)
+ });
+ $("musicToggle").addEventListener("click",()=>{
+  if(!audio.getAttribute("src"))return;
+  if(audio.paused){audio.play().then(()=>{updateMusicButton();toast("Musik diputar.")}).catch(()=>toast("Musik tidak dapat diputar."))}
+  else{audio.pause();updateMusicButton();toast("Musik dijeda.")}
+ });
+ audio.addEventListener("play",updateMusicButton);
+ audio.addEventListener("pause",updateMusicButton);
+ audio.addEventListener("error",()=>{updateMusicButton();toast("File musik tidak dapat dimuat.")});
  $("copyAccount").addEventListener("click",async()=>{const number=invitationData?.accountNumber;if(!number){toast("Informasi rekening belum tersedia.");return}try{await navigator.clipboard.writeText(number);toast("Nomor rekening berhasil disalin.")}catch{toast("Tidak dapat menyalin nomor rekening.")}});
  window.addEventListener("scroll",()=>$("topbar").classList.toggle("visible",window.scrollY>280),{passive:true});
  if("IntersectionObserver" in window){const observer=new IntersectionObserver(entries=>{entries.forEach(entry=>{if(entry.isIntersecting)entry.target.classList.add("in");else entry.target.classList.remove("in")})},{threshold:.12});document.querySelectorAll(".reveal").forEach(el=>observer.observe(el))}else{document.querySelectorAll(".reveal").forEach(el=>el.classList.add("in"))}
