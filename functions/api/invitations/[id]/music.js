@@ -64,11 +64,14 @@ async function getOwnedInvitation(env, invitationId, userId) {
       i.status,
       i.review_status,
       i.invitation_data,
-      o.status AS order_status
+      o.status AS order_status,
+      p.status AS payment_status
     FROM invitations i
     JOIN orders o
       ON o.invitation_id = i.id
      AND o.user_id = i.user_id
+    LEFT JOIN payments p
+      ON p.order_id = o.id
     WHERE i.id = ?
       AND i.user_id = ?
     ORDER BY o.created_at DESC
@@ -81,8 +84,11 @@ function validateEditable(invitation) {
     return "Undangan sudah diterbitkan atau sedang diproses. Musik tidak dapat diubah.";
   }
 
-  if (invitation.order_status !== "paid") {
-    return "Pembayaran belum lunas.";
+  if (
+    invitation.order_status !== "paid" ||
+    invitation.payment_status !== "paid"
+  ) {
+    return "Pembayaran belum terkonfirmasi lunas.";
   }
 
   return null;
@@ -379,6 +385,11 @@ export async function onRequestDelete({ request, env, params }) {
     const data = readInvitationData(invitation);
     const currentMusic = data.music || { mode: "none" };
 
+    data.music = { mode: "none" };
+    await saveInvitationData(env, invitation, data);
+
+    // Hapus objek setelah metadata berhasil diubah agar tidak ada
+    // referensi database yang menunjuk ke file yang sudah terhapus.
     if (
       currentMusic.mode === "upload" &&
       currentMusic.key &&
@@ -386,9 +397,6 @@ export async function onRequestDelete({ request, env, params }) {
     ) {
       await env.MUSIC.delete(currentMusic.key);
     }
-
-    data.music = { mode: "none" };
-    await saveInvitationData(env, invitation, data);
 
     return json({
       success: true,
