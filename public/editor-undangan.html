@@ -78,15 +78,22 @@
       padding: 14px 20px;
     }
 
+    .btn-delete {
+      background: #fff0ee;
+      color: #a33225;
+      padding: 8px 11px;
+      font-size: 12px;
+      width: 100%;
+      margin-top: 7px;
+    }
+
     .container {
       max-width: 1200px;
       margin: 28px auto;
       padding: 0 18px;
     }
 
-    .heading {
-      margin-bottom: 22px;
-    }
+    .heading { margin-bottom: 22px; }
 
     .heading h1 {
       margin: 0 0 8px;
@@ -119,18 +126,14 @@
       margin-bottom: 22px;
     }
 
-    .section:last-child {
-      border-bottom: 0;
-    }
+    .section:last-child { border-bottom: 0; }
 
     .section h2 {
       font-size: 17px;
       margin: 0 0 18px;
     }
 
-    .field {
-      margin-bottom: 15px;
-    }
+    .field { margin-bottom: 15px; }
 
     label {
       display: block;
@@ -299,45 +302,106 @@
       line-height: 1.6;
     }
 
-    @media(max-width: 850px) {
-      .layout {
-        grid-template-columns: 1fr;
-      }
+    /* Galeri */
+    .gallery-intro {
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.6;
+      margin: -7px 0 16px;
+    }
 
-      .preview-card {
-        position: static;
-      }
+    .gallery-quota {
+      background: #f8f5ef;
+      border: 1px solid var(--line);
+      border-radius: 9px;
+      padding: 13px;
+      margin-bottom: 15px;
+      font-size: 13px;
+      line-height: 1.6;
+    }
+
+    .gallery-quota strong {
+      color: var(--gold);
+      font-size: 17px;
+    }
+
+    .gallery-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 12px;
+      margin-top: 16px;
+    }
+
+    .gallery-item {
+      min-width: 0;
+      border: 1px solid var(--line);
+      border-radius: 9px;
+      padding: 7px;
+      background: white;
+    }
+
+    .gallery-item img {
+      width: 100%;
+      aspect-ratio: 1;
+      object-fit: cover;
+      border-radius: 6px;
+      display: block;
+      background: var(--cream);
+    }
+
+    .gallery-name {
+      font-size: 11px;
+      color: var(--muted);
+      overflow-wrap: anywhere;
+      margin-top: 6px;
+    }
+
+    .gallery-empty {
+      color: var(--muted);
+      background: #faf9f6;
+      border: 1px dashed var(--line);
+      border-radius: 9px;
+      padding: 22px 12px;
+      text-align: center;
+      font-size: 13px;
+      grid-column: 1 / -1;
+    }
+
+    .gallery-upload {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .gallery-upload input {
+      padding: 10px;
+    }
+
+    .gallery-help {
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.6;
+    }
+
+    @media(max-width: 850px) {
+      .layout { grid-template-columns: 1fr; }
+      .preview-card { position: static; }
     }
 
     @media(max-width: 500px) {
-      header {
-        padding: 13px;
-      }
-
-      .brand {
-        font-size: 18px;
-      }
+      header { padding: 13px; }
+      .brand { font-size: 18px; }
 
       button {
         padding: 10px;
         font-size: 12px;
       }
 
-      .editor, .preview-card {
-        padding: 16px;
-      }
-
-      .heading h1 {
-        font-size: 22px;
-      }
-
-      .publish-actions {
-        justify-content: stretch;
-      }
-
-      .publish-actions button {
-        width: 100%;
-      }
+      .editor, .preview-card { padding: 16px; }
+      .heading h1 { font-size: 22px; }
+      .publish-actions { justify-content: stretch; }
+      .publish-actions button { width: 100%; }
+      .gallery-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
     }
   </style>
 </head>
@@ -480,7 +544,43 @@
       </div>
 
       <div class="section">
-        <h2>07. Penutup</h2>
+        <h2>07. Galeri Foto</h2>
+        <p class="gallery-intro">
+          Tambahkan foto prewedding atau foto pasangan untuk melengkapi undangan.
+        </p>
+
+        <div class="gallery-quota" id="galleryQuota">
+          Memuat informasi kuota foto...
+        </div>
+
+        <div class="gallery-upload" id="galleryUploadArea">
+          <label for="galleryFile">Pilih Foto</label>
+          <input
+            type="file"
+            id="galleryFile"
+            accept="image/jpeg,image/png,image/webp"
+          >
+          <div class="gallery-help">
+            Format JPG, PNG, atau WebP. Maksimal 5 MB per foto.
+            Jumlah foto mengikuti paket undangan.
+          </div>
+          <button
+            type="button"
+            class="btn-primary"
+            id="uploadPhotoButton"
+            onclick="uploadPhoto()"
+          >
+            Unggah Foto
+          </button>
+        </div>
+
+        <div class="gallery-grid" id="galleryGrid">
+          <div class="gallery-empty">Memuat galeri foto...</div>
+        </div>
+      </div>
+
+      <div class="section">
+        <h2>08. Penutup</h2>
 
         <div class="field">
           <label>Ucapan Penutup</label>
@@ -587,6 +687,9 @@
 
   let invitationPublished = false;
   let invitationLoaded = false;
+  let galleryItems = [];
+  let galleryLimit = 0;
+  let galleryLoading = false;
 
   function showStatus(message, type = "info") {
     const element = $("statusMessage");
@@ -598,7 +701,9 @@
     const data = {};
 
     fields.forEach((field) => {
-      data[field] = $(field).value.trim();
+      if (field !== "title") {
+        data[field] = $(field).value.trim();
+      }
     });
 
     return data;
@@ -654,6 +759,11 @@
     $("saveBottom").style.display = locked ? "none" : "flex";
     $("publishPanel").style.display = locked ? "none" : "block";
     $("readonlyNote").style.display = locked ? "block" : "none";
+
+    $("galleryFile").disabled = locked;
+    $("uploadPhotoButton").disabled = locked;
+
+    renderGallery();
   }
 
   function showPublished(invitation) {
@@ -669,9 +779,251 @@
       ". Masa aktif sampai: " + expiry + ".";
 
     const link = invitation.public_url || "";
-    const publicUrl = new URL(link, window.location.origin);
 
-    $("publicInvitationLink").href = publicUrl.href;
+    if (link) {
+      const publicUrl = new URL(link, window.location.origin);
+      $("publicInvitationLink").href = publicUrl.href;
+    } else {
+      $("publicInvitationLink").style.display = "none";
+    }
+  }
+
+  async function apiJson(url, options = {}) {
+    const response = await fetch(url, {
+      credentials: "same-origin",
+      ...options
+    });
+
+    let result;
+
+    try {
+      result = await response.json();
+    } catch {
+      throw new Error("Server memberikan respons yang tidak valid.");
+    }
+
+    if (response.status === 401) {
+      window.location.href = "/login.html";
+      throw new Error("Sesi login berakhir.");
+    }
+
+    if (!response.ok || !result.success) {
+      throw new Error(result.message || "Permintaan gagal.");
+    }
+
+    return result;
+  }
+
+  function galleryApiUrl() {
+    return "/api/invitations/" +
+      encodeURIComponent(invitationId) +
+      "/gallery";
+  }
+
+  async function loadGallery() {
+    if (!invitationId) return;
+
+    try {
+      const result = await apiJson(galleryApiUrl());
+
+      galleryItems = Array.isArray(result.gallery)
+        ? result.gallery
+        : [];
+
+      galleryLimit = Number(result.limit) || 0;
+
+      renderGallery(result.package_name || "");
+
+    } catch (error) {
+      $("galleryQuota").textContent = "Kuota galeri belum dapat dimuat.";
+      $("galleryGrid").innerHTML = "";
+
+      const empty = document.createElement("div");
+      empty.className = "gallery-empty";
+      empty.textContent = error.message;
+      $("galleryGrid").appendChild(empty);
+    }
+  }
+
+  function renderGallery(packageName = "") {
+    const remaining = Math.max(0, galleryLimit - galleryItems.length);
+
+    $("galleryQuota").innerHTML = "";
+
+    const quotaText = document.createElement("div");
+    quotaText.textContent = packageName
+      ? "Paket " + packageName
+      : "Kuota galeri";
+
+    const quotaCount = document.createElement("strong");
+    quotaCount.textContent =
+      galleryItems.length + " / " + galleryLimit;
+
+    const quotaRemaining = document.createElement("div");
+    quotaRemaining.textContent =
+      "Sisa kuota: " + remaining + " foto";
+
+    $("galleryQuota").append(quotaText, quotaCount, quotaRemaining);
+
+    $("galleryGrid").innerHTML = "";
+
+    if (!galleryItems.length) {
+      const empty = document.createElement("div");
+      empty.className = "gallery-empty";
+      empty.textContent = "Belum ada foto. Silakan unggah foto pertama.";
+      $("galleryGrid").appendChild(empty);
+    }
+
+    galleryItems.forEach((photo) => {
+      const item = document.createElement("div");
+      item.className = "gallery-item";
+
+      const image = document.createElement("img");
+      image.src = photo.url;
+      image.alt = photo.name || "Foto galeri";
+      image.loading = "lazy";
+
+      const name = document.createElement("div");
+      name.className = "gallery-name";
+      name.textContent = photo.name || "Foto";
+
+      item.append(image, name);
+
+      if (!invitationPublished) {
+        const deleteButton = document.createElement("button");
+        deleteButton.type = "button";
+        deleteButton.className = "btn-delete";
+        deleteButton.textContent = "Hapus";
+        deleteButton.disabled = galleryLoading;
+
+        deleteButton.addEventListener("click", () => {
+          deletePhoto(photo.key);
+        });
+
+        item.appendChild(deleteButton);
+      }
+
+      $("galleryGrid").appendChild(item);
+    });
+
+    const canUpload =
+      !invitationPublished &&
+      !galleryLoading &&
+      galleryLimit > 0 &&
+      remaining > 0;
+
+    $("galleryFile").disabled = !canUpload;
+    $("uploadPhotoButton").disabled = !canUpload;
+  }
+
+  async function uploadPhoto() {
+    if (!invitationId || !invitationLoaded || invitationPublished) {
+      showStatus("Undangan belum siap atau sudah diterbitkan.", "error");
+      return;
+    }
+
+    const file = $("galleryFile").files[0];
+
+    if (!file) {
+      showStatus("Pilih foto terlebih dahulu.", "error");
+      return;
+    }
+
+    const allowed = [
+      "image/jpeg",
+      "image/png",
+      "image/webp"
+    ];
+
+    if (!allowed.includes(file.type)) {
+      showStatus("Format foto harus JPG, PNG, atau WebP.", "error");
+      return;
+    }
+
+    if (file.size > 5 * 1024 * 1024) {
+      showStatus("Ukuran foto maksimal 5 MB.", "error");
+      return;
+    }
+
+    if (file.size <= 0) {
+      showStatus("File foto kosong atau tidak valid.", "error");
+      return;
+    }
+
+    const formData = new FormData();
+    formData.append("photo", file);
+
+    galleryLoading = true;
+    renderGallery();
+
+    $("uploadPhotoButton").textContent = "Mengunggah...";
+
+    try {
+      const result = await apiJson(galleryApiUrl(), {
+        method: "POST",
+        body: formData
+      });
+
+      galleryItems = Array.isArray(result.gallery)
+        ? result.gallery
+        : galleryItems;
+
+      galleryLimit = Number(result.limit) || galleryLimit;
+
+      $("galleryFile").value = "";
+
+      renderGallery(result.package_name || "");
+
+      showStatus(result.message || "Foto berhasil diunggah.", "success");
+
+    } catch (error) {
+      showStatus(error.message, "error");
+
+    } finally {
+      galleryLoading = false;
+      $("uploadPhotoButton").textContent = "Unggah Foto";
+      renderGallery();
+    }
+  }
+
+  async function deletePhoto(key) {
+    if (!key || invitationPublished || galleryLoading) return;
+
+    const confirmed = window.confirm(
+      "Apakah kamu yakin ingin menghapus foto ini?"
+    );
+
+    if (!confirmed) return;
+
+    galleryLoading = true;
+    renderGallery();
+
+    try {
+      const result = await apiJson(galleryApiUrl(), {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ key })
+      });
+
+      galleryItems = Array.isArray(result.gallery)
+        ? result.gallery
+        : [];
+
+      galleryLimit = Number(result.limit) || galleryLimit;
+
+      renderGallery();
+
+      showStatus(result.message || "Foto berhasil dihapus.", "success");
+
+    } catch (error) {
+      showStatus(error.message, "error");
+
+    } finally {
+      galleryLoading = false;
+      renderGallery();
+    }
   }
 
   async function loadInvitation() {
@@ -684,21 +1036,9 @@
     }
 
     try {
-      const response = await fetch(
-        "/api/invitations?id=" + encodeURIComponent(invitationId),
-        { credentials: "same-origin" }
+      const result = await apiJson(
+        "/api/invitations?id=" + encodeURIComponent(invitationId)
       );
-
-      const result = await response.json();
-
-      if (response.status === 401) {
-        window.location.href = "/login.html";
-        return;
-      }
-
-      if (!response.ok || !result.success) {
-        throw new Error(result.message || "Gagal mengambil data undangan.");
-      }
 
       const invitation = result.invitation;
 
@@ -708,6 +1048,8 @@
       fillForm(data);
 
       invitationLoaded = true;
+
+      await loadGallery();
 
       if (
         invitation.status === "published" ||
@@ -749,11 +1091,10 @@
       $("headerSaveButton").disabled = true;
       $("bottomSaveButton").disabled = true;
 
-      const response = await fetch(
+      await apiJson(
         "/api/invitations?id=" + encodeURIComponent(invitationId),
         {
           method: "PUT",
-          credentials: "same-origin",
           headers: {
             "Content-Type": "application/json"
           },
@@ -763,17 +1104,6 @@
           })
         }
       );
-
-      const result = await response.json();
-
-      if (response.status === 401) {
-        window.location.href = "/login.html";
-        return false;
-      }
-
-      if (!response.ok || !result.success) {
-        throw new Error(result.message || "Gagal menyimpan undangan.");
-      }
 
       showStatus("Perubahan undangan berhasil disimpan.", "success");
       return true;
@@ -819,15 +1149,12 @@
       "Apakah kamu yakin ingin menerbitkan undangan sekarang?"
     );
 
-    if (!confirmed) {
-      return;
-    }
+    if (!confirmed) return;
 
     $("publishButton").disabled = true;
     $("publishButton").textContent = "Menyimpan dan menerbitkan...";
 
     try {
-      // Simpan perubahan terakhir sebelum publikasi.
       const saved = await saveInvitation();
 
       if (!saved) {
@@ -836,29 +1163,17 @@
         );
       }
 
-      const response = await fetch(
-        "/api/invitations/" + encodeURIComponent(invitationId) + "/publish",
+      const result = await apiJson(
+        "/api/invitations/" +
+        encodeURIComponent(invitationId) +
+        "/publish",
         {
           method: "POST",
-          credentials: "same-origin",
           headers: {
             "Content-Type": "application/json"
           }
         }
       );
-
-      const result = await response.json();
-
-      if (response.status === 401) {
-        window.location.href = "/login.html";
-        return;
-      }
-
-      if (!response.ok || !result.success) {
-        throw new Error(
-          result.message || "Undangan gagal diterbitkan."
-        );
-      }
 
       showPublished(result.invitation);
 
