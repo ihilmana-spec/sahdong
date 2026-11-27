@@ -341,42 +341,87 @@ footer span{color:#e6cda7}
   }
  }
 
- async function loadInvitation() {
+ 
+async function loadInvitation() {
+  // Jika tidak ada slug, tampilkan demo bawaan.
   if (!slug) {
-   showUnavailable("Tautan undangan tidak lengkap. Silakan buka tautan undangan yang diberikan pemilik acara.");
-   return;
+    const demoData = {
+      groom: "Rizky Pratama",
+      bride: "Aulia Putri",
+
+      groomFather: "Bapak Ahmad",
+      groomMother: "Ibu Siti",
+
+      brideFather: "Bapak Hendra",
+      brideMother: "Ibu Rina",
+
+      akadDate: "2027-06-20",
+      akadTime: "08:00",
+      akadLocation: "Masjid Agung",
+
+      receptionDate: "2027-06-20",
+      receptionTime: "11:00",
+      receptionLocation: "Gedung Serbaguna",
+
+      mapsUrl: "",
+      loveStory: "Dua hati yang dipertemukan dalam cerita indah, kini siap melangkah bersama menuju masa depan.",
+
+      bankName: "",
+      accountNumber: "",
+      accountOwner: "",
+
+      closing: ""
+    };
+
+    invitationData = demoData;
+
+    renderInvitation(
+      null,
+      demoData,
+      demoData.groom,
+      demoData.bride
+    );
+
+    return;
   }
 
+  // Jika ada slug, tetap muat undangan pelanggan.
   try {
-   const response = await fetch(
-    "/api/public-invitation?slug=" + encodeURIComponent(slug),
-    { cache: "no-store" }
-   );
+    const response = await fetch(
+      "/api/public-invitation?slug=" + encodeURIComponent(slug),
+      { cache: "no-store" }
+    );
 
-   const result = await response.json();
+    const result = await response.json();
 
-   if (!response.ok || !result.success || !result.invitation) {
-    throw new Error(result.message || "Undangan tidak tersedia.");
-   }
+    if (!response.ok || !result.success || !result.invitation) {
+      throw new Error(
+        result.message || "Undangan tidak tersedia."
+      );
+    }
 
-   const invitation = result.invitation;
-   const data = invitation.invitation_data || {};
+    const invitation = result.invitation;
+    const data = invitation.invitation_data || {};
 
-   const groom = String(data.groom || "").trim();
-   const bride = String(data.bride || "").trim();
+    const groom = String(data.groom || "").trim();
+    const bride = String(data.bride || "").trim();
 
-   if (!groom || !bride) {
-    throw new Error("Data nama mempelai belum lengkap.");
-   }
+    if (!groom || !bride) {
+      throw new Error("Data nama mempelai belum lengkap.");
+    }
 
-   invitationData = data;
-   renderInvitation(invitation, data, groom, bride);
+    invitationData = data;
+
+    renderInvitation(invitation, data, groom, bride);
 
   } catch (error) {
-   console.error("LOAD INVITATION ERROR:", error);
-   showUnavailable(error.message || "Undangan tidak dapat dimuat.");
+    console.error("LOAD INVITATION ERROR:", error);
+
+    showUnavailable(
+      error.message || "Undangan tidak dapat dimuat."
+    );
   }
- }
+}
 
  function renderInvitation(invitation, data, groom, bride) {
   document.title = `${groom} & ${bride} — Undangan Pernikahan | SAHDONG`;
