@@ -192,8 +192,9 @@ export async function onRequestGet({ request, env, params }) {
       music: data.music || { mode: "none" },
       catalog,
       editable: invitation.status === "draft" &&
-        invitation.review_status === "draft" &&
-        invitation.order_status === "paid"
+  invitation.review_status === "draft" &&
+  invitation.order_status === "paid" &&
+  invitation.payment_status === "paid"
     });
   } catch (error) {
     console.error("MUSIC GET ERROR:", error);
