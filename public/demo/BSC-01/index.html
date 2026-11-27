@@ -92,6 +92,25 @@
  .demo-gallery-grid img{aspect-ratio:4/5;padding:7px 7px 25px}
 }
 @media(max-width:380px){.count{width:61px}.count b{font-size:25px}}@media(prefers-reduced-motion:reduce){*,*:before,*:after{scroll-behavior:auto!important;animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}}
+.floating-order{
+ position:fixed;
+ right:18px;
+ bottom:22px;
+ z-index:90;
+ display:none;
+ align-items:center;
+ justify-content:center;
+ padding:15px 22px;
+ border-radius:50px;
+ background:#a98b65;
+ color:#fff;
+ font-size:11px;
+ font-weight:500;
+ letter-spacing:1px;
+ box-shadow:0 5px 20px #55483f35;
+}
+.floating-order.visible{display:flex}
+.floating-order:hover{background:#8f7453}
 </style>
 </head>
 <body class="lock">
@@ -127,7 +146,12 @@
 <section class="closing"><div class="inner reveal"><div class="flourish">❧</div><div class="section-label">Thank You</div><h2>Merupakan kehormatan bagi kami apabila Anda berkenan hadir.</h2><p class="lead">Kami yang berbahagia,<br><strong id="closingNames"></strong></p></div></section>
 </main>
 <footer id="pageFooter" hidden><span>SAHDONG — © 2026 Hilmana Design</span></footer><div class="toast" id="toast" role="status" aria-live="polite"></div>
-<audio id="audioPlayer" loop preload="none"></audio>
+<a href="/pesan.html?template=BSC-01"
+   class="floating-order"
+   id="floatingOrder">
+   ✦ Pesan Undangan Ini
+</a>
+ <audio id="audioPlayer" loop preload="none"></audio>
 <script>
 (() => {
  const $ = id => document.getElementById(id);
@@ -211,7 +235,12 @@
   $("openInvitation").disabled=true;
   $("openInvitation").textContent="Membuka undangan…";
   if(audio.getAttribute("src"))audio.play().catch(()=>toast("Musik belum dapat diputar. Gunakan tombol musik untuk mencoba lagi."));
-  setTimeout(()=>{$("envelopeScreen").classList.add("dismiss");document.body.classList.remove("lock");$("topbar").classList.add("visible")},850)
+  setTimeout(()=>{
+  $("envelopeScreen").classList.add("dismiss");
+  document.body.classList.remove("lock");
+  $("topbar").classList.add("visible");
+  if(!slug)$("floatingOrder").classList.add("visible");
+},850)
  });
  $("musicToggle").addEventListener("click",()=>{
   if(!audio.getAttribute("src"))return;
