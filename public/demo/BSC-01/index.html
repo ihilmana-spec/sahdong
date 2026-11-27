@@ -380,7 +380,7 @@ function renderDemoPhotos() {
    for (let number = 1; number <= 6; number++) {
     const img = document.createElement("img");
     const fileNumber = String(number).padStart(2, "0");
-    img.src = photoBase + "/galerry/foto-" + fileNumber + ".jpg";
+    img.src = photoBase + "/gallery/foto-" + fileNumber + ".jpg";
     img.alt = "Foto galeri " + number;
     img.loading = "lazy";
     img.onerror = () => img.remove();
