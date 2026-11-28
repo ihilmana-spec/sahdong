@@ -973,7 +973,20 @@ formData.append(
   compressedFile,
   compressedFile.name || "portrait.webp"
 );
+const testPhoto = formData.get("photo");
 
+if (!(testPhoto instanceof Blob)) {
+  throw new Error(
+    "Diagnostik browser: foto di FormData bukan Blob. Tipe: " +
+    typeof testPhoto
+  );
+}
+
+console.log("DIAGNOSTIK FOTO:", {
+  type: testPhoto.type,
+  size: testPhoto.size,
+  constructor: testPhoto.constructor.name
+});
     button.textContent = "Mengunggah foto...";
 
     const result = await apiJson(galleryApiUrl(),{
