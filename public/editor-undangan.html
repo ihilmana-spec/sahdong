@@ -982,11 +982,13 @@ if (!(testPhoto instanceof Blob)) {
   );
 }
 
-console.log("DIAGNOSTIK FOTO:", {
-  type: testPhoto.type,
-  size: testPhoto.size,
-  constructor: testPhoto.constructor.name
-});
+showStatus(
+  "Browser: foto terbaca sebagai " +
+  testPhoto.constructor.name +
+  ", format " + testPhoto.type +
+  ", ukuran " + testPhoto.size + " byte.",
+  "info"
+);
     button.textContent = "Mengunggah foto...";
 
     const result = await apiJson(galleryApiUrl(),{
