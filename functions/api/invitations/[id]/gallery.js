@@ -54,6 +54,7 @@ const PACKAGE_LIMITS = {
 };
 
 const MAX_FILE_SIZE = 5 * 1024 * 1024;
+const MAX_BATCH_FILES = 20;
 
 const ALLOWED_TYPES = {
   "image/jpeg": "jpg",
@@ -99,6 +100,10 @@ function readGallery(invitation) {
     data.gallery = [];
   }
 
+  if (!data.portraits || typeof data.portraits !== "object" || Array.isArray(data.portraits)) {
+    data.portraits = {};
+  }
+
   return data;
 }
 
@@ -118,13 +123,13 @@ async function saveGallery(env, invitation, data) {
   ).run();
 
   if (!result.meta || result.meta.changes !== 1) {
-    throw new Error("Gagal menyimpan galeri. Muat ulang halaman.");
+    throw new Error("Gagal menyimpan foto. Muat ulang halaman.");
   }
 }
 
 function validateEditable(invitation) {
   if (invitation.status !== "draft" || invitation.review_status !== "draft") {
-    return "Undangan sudah diterbitkan atau sedang diproses. Galeri tidak dapat diubah.";
+    return "Undangan sudah diterbitkan atau sedang diproses. Foto tidak dapat diubah.";
   }
 
   if (invitation.order_status !== "paid") {
@@ -138,16 +143,100 @@ function validateEditable(invitation) {
   return null;
 }
 
-// GET: Mengambil daftar foto.
+function validateFile(file) {
+  if (!file || typeof file.arrayBuffer !== "function") {
+    return "File foto tidak valid.";
+  }
+
+  if (!ALLOWED_TYPES[file.type]) {
+    return "Format foto harus JPG, PNG, atau WebP.";
+  }
+
+  if (file.size <= 0 || file.size > MAX_FILE_SIZE) {
+    return "Ukuran setiap foto harus lebih dari 0 dan maksimal 5 MB.";
+  }
+
+  return null;
+}
+
+async function readAndValidateFile(file) {
+  const error = validateFile(file);
+  if (error) throw new Error(error);
+
+  const bytes = await file.arrayBuffer();
+  const signature = new Uint8Array(bytes.slice(0, 12));
+
+  const isJpeg =
+    signature[0] === 0xff &&
+    signature[1] === 0xd8 &&
+    signature[2] === 0xff;
+
+  const isPng =
+    signature[0] === 0x89 &&
+    signature[1] === 0x50 &&
+    signature[2] === 0x4e &&
+    signature[3] === 0x47;
+
+  const isWebp =
+    String.fromCharCode(...signature.slice(0, 4)) === "RIFF" &&
+    String.fromCharCode(...signature.slice(8, 12)) === "WEBP";
+
+  if (
+    (file.type === "image/jpeg" && !isJpeg) ||
+    (file.type === "image/png" && !isPng) ||
+    (file.type === "image/webp" && !isWebp)
+  ) {
+    throw new Error("Isi file tidak sesuai dengan format foto.");
+  }
+
+  return bytes;
+}
+
+function createPhoto(invitationId, file, bytes, folder = "gallery") {
+  const extension = ALLOWED_TYPES[file.type];
+  const key = `invitations/${invitationId}/${folder}/${crypto.randomUUID()}.${extension}`;
+
+  return {
+    key,
+    url: `/api/gallery-image?key=${encodeURIComponent(key)}`,
+    name: String(file.name || "foto").slice(0, 120),
+    type: file.type,
+    size: bytes.byteLength
+  };
+}
+
+async function putPhoto(env, photo, bytes) {
+  await env.GALLERY.put(photo.key, bytes, {
+    httpMetadata: {
+      contentType: photo.type,
+      cacheControl: "public, max-age=31536000, immutable"
+    }
+  });
+}
+
+// GET: Mengambil galeri dan foto mempelai.
 export async function onRequestGet({ request, env, params }) {
   try {
-    if (!env.DB) return json({ success: false, message: "Database tidak tersedia." }, 500);
+    if (!env.DB) {
+      return json({
+        success: false,
+        message: "Database tidak tersedia."
+      }, 500);
+    }
 
     const auth = await authenticate(request, env);
-    if (auth.error) return json({ success: false, message: auth.error }, auth.status);
+    if (auth.error) {
+      return json({ success: false, message: auth.error }, auth.status);
+    }
 
     const invitation = await getOwnedInvitation(env, params.id, auth.user.id);
-    if (!invitation) return json({ success: false, message: "Undangan tidak ditemukan." }, 404);
+
+    if (!invitation) {
+      return json({
+        success: false,
+        message: "Undangan tidak ditemukan."
+      }, 404);
+    }
 
     const data = readGallery(invitation);
     const limit = PACKAGE_LIMITS[invitation.package_name] || 0;
@@ -155,158 +244,365 @@ export async function onRequestGet({ request, env, params }) {
     return json({
       success: true,
       gallery: data.gallery,
+      portraits: {
+        groom: data.portraits.groom || null,
+        bride: data.portraits.bride || null
+      },
       package_name: invitation.package_name,
       limit,
       remaining: Math.max(0, limit - data.gallery.length),
-      editable: invitation.status === "draft" && invitation.review_status === "draft"
+      editable:
+        invitation.status === "draft" &&
+        invitation.review_status === "draft"
     });
   } catch (error) {
     console.error("GALLERY GET ERROR:", error);
-    return json({ success: false, message: "Gagal mengambil galeri." }, 500);
+
+    return json({
+      success: false,
+      message: error.message || "Gagal mengambil galeri."
+    }, 500);
   }
 }
 
-// POST: Mengunggah foto.
+// POST:
+// role=gallery: unggah beberapa foto galeri sekaligus.
+// role=portrait: unggah foto mempelai dengan portrait=groom atau bride.
 export async function onRequestPost({ request, env, params }) {
+  const uploadedKeys = [];
+
   try {
     if (!env.DB || !env.GALLERY) {
-      return json({ success: false, message: "Database atau penyimpanan foto tidak tersedia." }, 500);
+      return json({
+        success: false,
+        message: "Database atau penyimpanan foto tidak tersedia."
+      }, 500);
     }
 
     const auth = await authenticate(request, env);
-    if (auth.error) return json({ success: false, message: auth.error }, auth.status);
+    if (auth.error) {
+      return json({ success: false, message: auth.error }, auth.status);
+    }
 
     const invitation = await getOwnedInvitation(env, params.id, auth.user.id);
-    if (!invitation) return json({ success: false, message: "Undangan tidak ditemukan." }, 404);
+
+    if (!invitation) {
+      return json({
+        success: false,
+        message: "Undangan tidak ditemukan."
+      }, 404);
+    }
 
     const restriction = validateEditable(invitation);
-    if (restriction) return json({ success: false, message: restriction }, 403);
 
-    const data = readGallery(invitation);
-    const limit = PACKAGE_LIMITS[invitation.package_name];
-
-    if (data.gallery.length >= limit) {
-      return json({ success: false, message: `Kuota galeri ${invitation.package_name} sudah penuh (${limit} foto).` }, 400);
+    if (restriction) {
+      return json({ success: false, message: restriction }, 403);
     }
 
     const form = await request.formData();
-    const file = form.get("photo");
+    const role = String(form.get("role") || "gallery");
+    const data = readGallery(invitation);
+    const limit = PACKAGE_LIMITS[invitation.package_name];
 
-    if (!file || typeof file.arrayBuffer !== "function") {
-      return json({ success: false, message: "Pilih foto terlebih dahulu." }, 400);
-    }
+    // =========================================
+    // UNGGAH FOTO MEMPELAI
+    // =========================================
+    if (role === "portrait") {
+      const portrait = String(form.get("portrait") || "");
 
-    if (!ALLOWED_TYPES[file.type]) {
-      return json({ success: false, message: "Format foto harus JPG, PNG, atau WebP." }, 400);
-    }
-
-    if (file.size <= 0 || file.size > MAX_FILE_SIZE) {
-      return json({ success: false, message: "Ukuran foto maksimal 5 MB." }, 400);
-    }
-
-    const bytes = await file.arrayBuffer();
-
-    // Periksa signature file, bukan hanya MIME dari browser.
-    const signature = new Uint8Array(bytes.slice(0, 12));
-    const isJpeg = signature[0] === 0xff && signature[1] === 0xd8 && signature[2] === 0xff;
-    const isPng = signature[0] === 0x89 && signature[1] === 0x50 && signature[2] === 0x4e && signature[3] === 0x47;
-    const isWebp = String.fromCharCode(...signature.slice(0, 4)) === "RIFF" &&
-      String.fromCharCode(...signature.slice(8, 12)) === "WEBP";
-
-    if (
-      (file.type === "image/jpeg" && !isJpeg) ||
-      (file.type === "image/png" && !isPng) ||
-      (file.type === "image/webp" && !isWebp)
-    ) {
-      return json({ success: false, message: "Isi file tidak sesuai dengan format foto." }, 400);
-    }
-
-    const key = `invitations/${invitation.id}/${crypto.randomUUID()}.${ALLOWED_TYPES[file.type]}`;
-
-    await env.GALLERY.put(key, bytes, {
-      httpMetadata: {
-        contentType: file.type,
-        cacheControl: "public, max-age=31536000, immutable"
+      if (!["groom", "bride"].includes(portrait)) {
+        return json({
+          success: false,
+          message: "Jenis foto mempelai tidak valid."
+        }, 400);
       }
-    });
 
-    const photo = {
-      key,
-      url: `/api/gallery-image?key=${encodeURIComponent(key)}`,
-      name: String(file.name || "foto").slice(0, 120),
-      type: file.type,
-      size: file.size
-    };
+      const file = form.get("photo");
+      const validationError = validateFile(file);
 
-    data.gallery.push(photo);
+      if (validationError) {
+        return json({
+          success: false,
+          message: validationError
+        }, 400);
+      }
+
+      const bytes = await readAndValidateFile(file);
+      const photo = createPhoto(
+        invitation.id,
+        file,
+        bytes,
+        `portraits/${portrait}`
+      );
+
+      await putPhoto(env, photo, bytes);
+      uploadedKeys.push(photo.key);
+
+      const oldPhoto = data.portraits[portrait];
+
+      data.portraits[portrait] = photo;
+
+      try {
+        await saveGallery(env, invitation, data);
+      } catch (error) {
+        await Promise.all(
+          uploadedKeys.map(key => env.GALLERY.delete(key))
+        );
+        throw error;
+      }
+
+      // Hapus foto lama setelah data baru berhasil disimpan.
+      if (
+        oldPhoto &&
+        oldPhoto.key &&
+        oldPhoto.key.startsWith(`invitations/${invitation.id}/portraits/`)
+      ) {
+        await env.GALLERY.delete(oldPhoto.key);
+      }
+
+      return json({
+        success: true,
+        message: portrait === "groom"
+          ? "Foto mempelai pria berhasil disimpan."
+          : "Foto mempelai wanita berhasil disimpan.",
+        portraits: data.portraits
+      });
+    }
+
+    // =========================================
+    // UNGGAH FOTO GALERI
+    // =========================================
+    if (role !== "gallery") {
+      return json({
+        success: false,
+        message: "Jenis unggahan tidak dikenal."
+      }, 400);
+    }
+
+    const files = form.getAll("photos").filter(
+      file => file && typeof file.arrayBuffer === "function"
+    );
+
+    // Kompatibilitas dengan editor versi lama.
+    if (files.length === 0) {
+      const oldFile = form.get("photo");
+
+      if (oldFile && typeof oldFile.arrayBuffer === "function") {
+        files.push(oldFile);
+      }
+    }
+
+    if (files.length === 0) {
+      return json({
+        success: false,
+        message: "Pilih minimal satu foto."
+      }, 400);
+    }
+
+    if (files.length > MAX_BATCH_FILES) {
+      return json({
+        success: false,
+        message: `Maksimal ${MAX_BATCH_FILES} file dalam satu kali unggah.`
+      }, 400);
+    }
+
+    const remaining = Math.max(0, limit - data.gallery.length);
+
+    if (files.length > remaining) {
+      return json({
+        success: false,
+        message: `Sisa kuota hanya ${remaining} foto. Kamu memilih ${files.length} foto.`,
+        remaining,
+        limit
+      }, 400);
+    }
+
+    // Validasi seluruh file terlebih dahulu sebelum mengunggah.
+    const preparedFiles = [];
+
+    for (const file of files) {
+      const bytes = await readAndValidateFile(file);
+      preparedFiles.push({ file, bytes });
+    }
+
+    const newPhotos = preparedFiles.map(({ file, bytes }) =>
+      createPhoto(invitation.id, file, bytes, "gallery")
+    );
+
+    // Unggah seluruh foto.
+    try {
+      for (let index = 0; index < preparedFiles.length; index++) {
+        await putPhoto(
+          env,
+          newPhotos[index],
+          preparedFiles[index].bytes
+        );
+
+        uploadedKeys.push(newPhotos[index].key);
+      }
+    } catch (error) {
+      await Promise.all(
+        uploadedKeys.map(key => env.GALLERY.delete(key))
+      );
+
+      throw error;
+    }
+
+    data.gallery.push(...newPhotos);
 
     try {
       await saveGallery(env, invitation, data);
     } catch (error) {
-      await env.GALLERY.delete(key);
+      await Promise.all(
+        uploadedKeys.map(key => env.GALLERY.delete(key))
+      );
+
       throw error;
     }
 
     return json({
       success: true,
-      message: "Foto berhasil diunggah.",
-      photo,
+      message: `${newPhotos.length} foto berhasil diunggah.`,
+      photos: newPhotos,
       gallery: data.gallery,
+      package_name: invitation.package_name,
       limit,
       remaining: Math.max(0, limit - data.gallery.length)
     });
+
   } catch (error) {
     console.error("GALLERY UPLOAD ERROR:", error);
-    return json({ success: false, message: error.message || "Gagal mengunggah foto." }, 500);
+
+    return json({
+      success: false,
+      message: error.message || "Gagal mengunggah foto."
+    }, 500);
   }
 }
 
-// DELETE: Menghapus foto berdasarkan key.
+// DELETE:
+// { key: "...", role: "gallery" }
+// { key: "...", role: "groom" }
+// { key: "...", role: "bride" }
 export async function onRequestDelete({ request, env, params }) {
   try {
     if (!env.DB || !env.GALLERY) {
-      return json({ success: false, message: "Database atau penyimpanan foto tidak tersedia." }, 500);
+      return json({
+        success: false,
+        message: "Database atau penyimpanan foto tidak tersedia."
+      }, 500);
     }
 
     const auth = await authenticate(request, env);
-    if (auth.error) return json({ success: false, message: auth.error }, auth.status);
+    if (auth.error) {
+      return json({ success: false, message: auth.error }, auth.status);
+    }
 
     const invitation = await getOwnedInvitation(env, params.id, auth.user.id);
-    if (!invitation) return json({ success: false, message: "Undangan tidak ditemukan." }, 404);
+
+    if (!invitation) {
+      return json({
+        success: false,
+        message: "Undangan tidak ditemukan."
+      }, 404);
+    }
 
     const restriction = validateEditable(invitation);
-    if (restriction) return json({ success: false, message: restriction }, 403);
 
-    const body = await request.json();
+    if (restriction) {
+      return json({ success: false, message: restriction }, 403);
+    }
+
+    let body;
+
+    try {
+      body = await request.json();
+    } catch {
+      return json({
+        success: false,
+        message: "Permintaan penghapusan tidak valid."
+      }, 400);
+    }
+
     const key = String(body.key || "");
-
+    const role = String(body.role || "gallery");
     const prefix = `invitations/${invitation.id}/`;
 
-    if (!key.startsWith(prefix) || key.includes("..")) {
-      return json({ success: false, message: "Foto tidak valid." }, 400);
+    if (
+      !key.startsWith(prefix) ||
+      key.includes("..") ||
+      key.includes("\\")
+    ) {
+      return json({
+        success: false,
+        message: "Foto tidak valid."
+      }, 400);
     }
 
     const data = readGallery(invitation);
-    const index = data.gallery.findIndex(photo => photo.key === key);
+    let removedPhoto = null;
 
-    if (index === -1) {
-      return json({ success: false, message: "Foto tidak ditemukan." }, 404);
+    if (role === "gallery") {
+      const index = data.gallery.findIndex(photo => photo.key === key);
+
+      if (index === -1) {
+        return json({
+          success: false,
+          message: "Foto galeri tidak ditemukan."
+        }, 404);
+      }
+
+      removedPhoto = data.gallery[index];
+      data.gallery.splice(index, 1);
+
+    } else if (role === "groom" || role === "bride") {
+      const photo = data.portraits[role];
+
+      if (!photo || photo.key !== key) {
+        return json({
+          success: false,
+          message: "Foto mempelai tidak ditemukan."
+        }, 404);
+      }
+
+      removedPhoto = photo;
+      data.portraits[role] = null;
+
+    } else {
+      return json({
+        success: false,
+        message: "Jenis foto tidak valid."
+      }, 400);
     }
 
-    await env.GALLERY.delete(key);
-    data.gallery.splice(index, 1);
-
+    // Simpan perubahan database terlebih dahulu.
     await saveGallery(env, invitation, data);
+
+    // Setelah database berhasil, hapus objek R2.
+    if (removedPhoto && removedPhoto.key) {
+      await env.GALLERY.delete(removedPhoto.key);
+    }
+
+    const limit = PACKAGE_LIMITS[invitation.package_name];
 
     return json({
       success: true,
       message: "Foto berhasil dihapus.",
       gallery: data.gallery,
-      limit: PACKAGE_LIMITS[invitation.package_name],
-      remaining: Math.max(0, PACKAGE_LIMITS[invitation.package_name] - data.gallery.length)
+      portraits: {
+        groom: data.portraits.groom || null,
+        bride: data.portraits.bride || null
+      },
+      limit,
+      remaining: Math.max(0, limit - data.gallery.length)
     });
+
   } catch (error) {
     console.error("GALLERY DELETE ERROR:", error);
-    return json({ success: false, message: "Gagal menghapus foto." }, 500);
+
+    return json({
+      success: false,
+      message: error.message || "Gagal menghapus foto."
+    }, 500);
   }
 }
