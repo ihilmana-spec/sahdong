@@ -416,7 +416,7 @@
     $("backToEditor").href = "/editor-undangan.html?id=" + encodeURIComponent(previewId);
     $("floatingOrder").hidden = true;
     $("shareButton").hidden = true;
-    $("rsvp").hidden = true;
+    $("rsvp").hidden = false;
     await loadPreviewPhotos(previewId, data);
     renderInvitation(invitation, data, groom, bride);
     return;
@@ -490,11 +490,7 @@
   if (!music || music.mode === "none") return;
   const key = String(music.key || "");
   const validCatalog = music.mode === "catalog" && key.startsWith("catalog/");
-  // Terima 2 pola key MP3 unggahan: pola lama (customer-music/...)
-  // dan pola music.js sekarang (invitations/<id>/music/<uuid>.mp3).
-  // Kalau pola baru ditolak di sini, tombol musik disembunyikan
-  // dan audio tidak pernah dikasih src — makanya musik tidak muncul di preview.
-  const validUpload = music.mode === "upload" && /^(customer-music\/[a-zA-Z0-9_-]+\/[a-fA-F0-9-]+\.mp3|invitations\/[a-zA-Z0-9_-]+\/music\/[a-fA-F0-9-]+\.mp3)$/.test(key);
+  const validUpload = music.mode === "upload" && /^customer-music\/[a-zA-Z0-9_-]+\/[a-fA-F0-9-]+\.mp3$/.test(key);
   if (!validCatalog && !validUpload) return;
   audio.src = "/api/music-file?key=" + encodeURIComponent(key);
   audio.load();
@@ -759,7 +755,7 @@
 
  rsvpForm.addEventListener("submit", event => {
   event.preventDefault();
-  if (previewMode) return;
+  if (previewMode) { toast("Mode pratinjau: RSVP tidak dikirim."); return; }
   const name = $("rsvpName").value.trim();
   const attendance = attendanceSelect.value;
   const message = $("rsvpMessage").value.trim();
@@ -777,9 +773,7 @@
   } catch { toast("Browser tidak dapat menyimpan data demo ini."); }
  });
 
- if (!previewMode) {
-  renderGuestbook();
- }
+renderGuestbook();
 
  loadInvitation();
 
