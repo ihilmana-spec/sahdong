@@ -167,7 +167,12 @@ function uploadDiagnostics(request, form, rawPhotoHeader) {
       valueType: typeof value,
       isFile: !!value && typeof value.arrayBuffer === "function",
       mime: typeof value === "string" ? null : (value?.type || null),
-      size: typeof value === "string" ? null : (value?.size ?? null)
+      size: typeof value === "string" ? null : (value?.size ?? null),
+      // PENTING: selama ini isi string-nya disembunyikan.
+      // Dari sini ketahuan apakah string itu nama file,
+      // "[object File]", atau data biner yang salah dibaca.
+      valueLength: typeof value === "string" ? value.length : null,
+      valuePreview: typeof value === "string" ? String(value).slice(0, 300) : null
     }))
   };
 }
@@ -312,12 +317,22 @@ export async function onRequestPost({ request, env, params }) {
       return json({ success: false, message: restriction }, 403);
     }
 
-    // PERBAIKAN: body request jangan dibaca duluan lewat
-    // pembacaan body lewat clone. Pembacaan body duluan itu yang
-    // membuat formData kehilangan info filename, sehingga part
-    // "photo" kebaca sebagai string, bukan File.
-    // Sekarang formData() dibaca langsung sebagai pembacaan pertama.
-    const rawPhotoHeader = "Pemeriksaan raw body dinonaktifkan";
+    // Diagnostik raw body: baca lewat clone supaya body asli
+    // tetap bisa dibaca formData() setelah ini.
+    // Sudah terbukti clone BUKAN penyebab photo jadi string,
+    // jadi aman dipakai untuk melihat header asli part "photo".
+    let rawPhotoHeader = "Pemeriksaan raw body gagal";
+    try {
+      const rawText = await request.clone().text();
+      const idx = rawText.indexOf('name="photo"');
+      if (idx === -1) {
+        rawPhotoHeader = "name=photo tidak ketemu di raw body. Awal raw body: " + rawText.slice(0, 300);
+      } else {
+        rawPhotoHeader = rawText.slice(Math.max(0, idx - 250), idx + 400);
+      }
+    } catch (e) {
+      rawPhotoHeader = "Gagal baca clone: " + (e.message || String(e));
+    }
 
     const form = await request.formData();
     const role = String(form.get("role") || "gallery");
