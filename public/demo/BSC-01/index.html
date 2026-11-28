@@ -490,7 +490,11 @@
   if (!music || music.mode === "none") return;
   const key = String(music.key || "");
   const validCatalog = music.mode === "catalog" && key.startsWith("catalog/");
-  const validUpload = music.mode === "upload" && /^customer-music\/[a-zA-Z0-9_-]+\/[a-fA-F0-9-]+\.mp3$/.test(key);
+  // Terima 2 pola key MP3 unggahan: pola lama (customer-music/...)
+  // dan pola music.js sekarang (invitations/<id>/music/<uuid>.mp3).
+  // Kalau pola baru ditolak di sini, tombol musik disembunyikan
+  // dan audio tidak pernah dikasih src — makanya musik tidak muncul di preview.
+  const validUpload = music.mode === "upload" && /^(customer-music\/[a-zA-Z0-9_-]+\/[a-fA-F0-9-]+\.mp3|invitations\/[a-zA-Z0-9_-]+\/music\/[a-fA-F0-9-]+\.mp3)$/.test(key);
   if (!validCatalog && !validUpload) return;
   audio.src = "/api/music-file?key=" + encodeURIComponent(key);
   audio.load();
