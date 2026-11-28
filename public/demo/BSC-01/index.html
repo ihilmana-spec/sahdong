@@ -16,7 +16,7 @@
 .btn{display:inline-flex;align-items:center;justify-content:center;gap:9px;padding:14px 22px;border:1px solid var(--gold);background:transparent;color:#826c50;font-size:10px;letter-spacing:1.5px;text-transform:uppercase;transition:.25s}.btn:hover{background:var(--gold);color:white;transform:translateY(-2px)}.btn.filled{background:#a98b65;color:white;border-color:#a98b65}.btn.filled:hover{background:#8f7453}
 .hero{min-height:100svh;display:grid;place-items:center;position:relative;overflow:hidden;text-align:center;padding:80px 20px 50px;background:radial-gradient(ellipse at 8% 18%,#e9d9cd 0,transparent 28%),radial-gradient(ellipse at 91% 80%,#e6d5c5 0,transparent 31%),linear-gradient(145deg,#f2e9df,#fffdf9 52%,#f1e7dc)}.hero:before,.hero:after{content:"";position:absolute;width:min(46vw,440px);aspect-ratio:1;border:1px solid #b394674d;border-radius:49% 51% 44% 56%;transform:rotate(38deg);pointer-events:none}.hero:before{top:-56%;left:-17%}.hero:after{bottom:-59%;right:-15%}.hero-inner{position:relative;z-index:1;max-width:740px}.kicker,.section-label{font-size:9px;letter-spacing:4px;text-transform:uppercase;color:var(--gold)}.flourish{font:42px var(--serif);color:var(--gold);margin:15px 0 0}.hero h1{font:clamp(64px,12vw,116px)/.82 var(--script);font-weight:400;color:#806b59;margin:25px 0 22px}.hero h1 span{display:block;font-size:.7em;color:#b99385;margin:18px 0}.hero-date{font:17px var(--serif);letter-spacing:4px;color:#927c68}.hero-rule{height:1px;width:58px;background:var(--gold);margin:25px auto}.hero-copy{font:italic 18px/1.6 var(--serif);color:#8a786b}.scroll-cue{display:inline-flex;align-items:center;gap:10px;margin-top:26px;color:#9b866d;font-size:9px;letter-spacing:2px;text-transform:uppercase}.scroll-cue:after{content:"↓";font-size:16px}
 .section{position:relative;padding:100px 22px}.inner{width:min(100%,900px);margin:auto;text-align:center}.section-label{margin-bottom:15px;letter-spacing:3.5px}.section h2{font:500 clamp(37px,6vw,59px)/1.05 var(--serif);color:#786252;margin:0 0 20px}.lead{max-width:650px;margin:0 auto;color:var(--muted);font:18px/1.75 var(--serif)}.ornament-line{display:flex;align-items:center;justify-content:center;gap:12px;margin:25px auto;color:var(--gold)}.ornament-line:before,.ornament-line:after{content:"";width:45px;height:1px;background:var(--gold2)}.intro{background:var(--paper)}.intro-quote{font:58px/.7 var(--serif);color:var(--rose);margin-bottom:22px}.script-note{font:32px var(--script);color:#a88b78;margin-top:20px}
-.couple{background:linear-gradient(145deg,#f0e6dc,#f8f2ea)}.couple-grid{display:grid;grid-template-columns:1fr auto 1fr;gap:35px;align-items:start;max-width:760px;margin:48px auto 0}.person{min-width:0}.portrait{position:relative;width:min(100%,260px);aspect-ratio:4/5;margin:0 auto 22px;padding:8px;border:1px solid #cdb895;background:#fffaf4;box-shadow:0 12px 35px #927b5b16}.portrait img{width:100%;height:100%;object-fit:cover;display:block;filter:saturate(.78)}.fallback{width:100%;height:100%;display:grid;place-items:center;background:linear-gradient(145deg,#d9c5b5,#f5ece2,#cbb3a2);font:italic 19px var(--serif);color:#fff;text-align:center}.person h3{font:500 clamp(26px,7vw,35px)/1.15 var(--serif);color:#786252;margin:0 0 8px;min-height:2.3em;display:flex;align-items:center;justify-content:center;text-wrap:balance}.person p{font:15px/1.7 var(--serif);color:var(--muted);margin:0;white-space:pre-line}.amp{font:italic 54px var(--script);color:#b99385;align-self:center}
+.couple{background:linear-gradient(145deg,#f0e6dc,#f8f2ea)}.couple-grid{display:grid;grid-template-columns:1fr auto 1fr;gap:35px;align-items:center;max-width:760px;margin:48px auto 0}.person{min-width:0}.portrait{position:relative;width:min(100%,260px);aspect-ratio:4/5;margin:0 auto 22px;padding:8px;border:1px solid #cdb895;background:#fffaf4;box-shadow:0 12px 35px #927b5b16}.portrait img{width:100%;height:100%;object-fit:cover;display:block;filter:saturate(.78)}.fallback{width:100%;height:100%;display:grid;place-items:center;background:linear-gradient(145deg,#d9c5b5,#f5ece2,#cbb3a2);font:italic 19px var(--serif);color:#fff;text-align:center}.person h3{font:500 35px var(--serif);color:#786252;margin:0 0 8px}.person p{font:15px/1.7 var(--serif);color:var(--muted);margin:0;white-space:pre-line}.amp{font:italic 54px var(--script);color:#b99385}
 .demo-gallery{background:var(--paper);overflow:hidden}
 .demo-gallery-grid{
  display:grid;
@@ -187,7 +187,7 @@
     <div class="rsvp-field"><label for="rsvpMessage">Ucapan dan doa</label><textarea id="rsvpMessage" name="message" maxlength="500" placeholder="Tuliskan ucapan dan doa untuk kedua mempelai..."></textarea></div>
     <button class="btn filled rsvp-submit" type="submit">Kirim Konfirmasi</button>
    </form>
-   <p class="rsvp-note" id="rsvpNote">Demo RSVP: data hanya tersimpan di browser/perangkat ini sebagai simulasi, belum dikirim ke database pemilik undangan.</p>
+   <p class="rsvp-note">Demo RSVP: data hanya tersimpan di browser/perangkat ini sebagai simulasi, belum dikirim ke database pemilik undangan.</p>
    <h3 class="guestbook-title">Ucapan & Doa</h3>
    <div class="guestbook-list" id="guestbookList"><div class="guestbook-empty">Belum ada ucapan. Jadilah yang pertama memberikan doa.</div></div>
   </div>
@@ -211,8 +211,7 @@
  const $ = id => document.getElementById(id);
  const params = new URLSearchParams(location.search);
  const previewId = (params.get("preview") || "").trim();
- const pathSlugMatch = location.pathname.match(/^\/u\/([^\/\?#]+)/);
- const slug = ((params.get("slug") || "") || (pathSlugMatch ? decodeURIComponent(pathSlugMatch[1]) : "")).trim();
+ const slug = (params.get("slug") || "").trim();
  const guest = params.get("to");
 
  let previewMode = false;
@@ -417,8 +416,7 @@
     $("backToEditor").href = "/editor-undangan.html?id=" + encodeURIComponent(previewId);
     $("floatingOrder").hidden = true;
     $("shareButton").hidden = true;
-    $("rsvp").hidden = false;
-    $("rsvpNote").textContent = "Mode pratinjau: RSVP tidak dikirim.";
+    $("rsvp").hidden = true;
     await loadPreviewPhotos(previewId, data);
     renderInvitation(invitation, data, groom, bride);
     return;
@@ -473,7 +471,6 @@
     throw new Error("Data nama mempelai belum lengkap.");
    }
    invitationData = data;
-   $("rsvpNote").hidden = true;
    renderInvitation(invitation, data, groom, bride);
   } catch (error) {
    console.error("LOAD INVITATION ERROR:", error);
@@ -493,7 +490,7 @@
   if (!music || music.mode === "none") return;
   const key = String(music.key || "");
   const validCatalog = music.mode === "catalog" && key.startsWith("catalog/");
-  const validUpload = music.mode === "upload" && (/^customer-music\/[a-zA-Z0-9_-]+\/[a-fA-F0-9-]+\.mp3$/.test(key) || /^invitations\/[a-zA-Z0-9_-]+\/music\/[a-fA-F0-9-]+\.mp3$/.test(key));
+  const validUpload = music.mode === "upload" && /^customer-music\/[a-zA-Z0-9_-]+\/[a-fA-F0-9-]+\.mp3$/.test(key);
   if (!validCatalog && !validUpload) return;
   audio.src = "/api/music-file?key=" + encodeURIComponent(key);
   audio.load();
@@ -716,14 +713,14 @@
  const attendanceSelect = $("rsvpAttendance");
  const countField = $("rsvpCountField");
  const guestbookList = $("guestbookList");
+ let guestbookCache = [];
 
  function readGuestbook() {
   try { const saved = JSON.parse(localStorage.getItem(rsvpStorageKey) || "[]"); return Array.isArray(saved) ? saved : []; }
   catch { return []; }
  }
 
- function renderGuestbook() {
-  const entries = readGuestbook().slice().reverse();
+ function renderGuestbookEntries(entries) {
   guestbookList.replaceChildren();
   if (!entries.length) {
    const empty = document.createElement("div");
@@ -732,18 +729,53 @@
    guestbookList.append(empty);
    return;
   }
-  entries.slice(0, 10).forEach(entry => {
+  entries.slice(0, 50).forEach(entry => {
    const item = document.createElement("article");
    item.className = "guestbook-item";
    const name = document.createElement("strong");
-   name.textContent = entry.name || "Tamu";
+   name.textContent = entry.guest_name || entry.name || "Tamu";
    const message = document.createElement("p");
    message.textContent = entry.message || (entry.attendance === "Hadir" ? "InsyaAllah hadir." : "Terima kasih atas undangannya.");
    const meta = document.createElement("small");
-   meta.textContent = (entry.attendance || "") + (entry.attendance === "Hadir" ? " · " + (entry.count || 1) + " orang" : "");
+   const att = entry.attendance || "";
+   const cnt = entry.guest_count ?? entry.count ?? 1;
+   meta.textContent = att + (att === "Hadir" ? " · " + cnt + " orang" : "");
    item.append(name, message, meta);
    guestbookList.append(item);
   });
+ }
+
+ async function renderGuestbook() {
+  // Mode pratinjau: jangan ambil data asli, jangan kirim ke DB
+  if (previewMode) {
+   guestbookList.replaceChildren();
+   const info = document.createElement("div");
+   info.className = "guestbook-empty";
+   info.textContent = "Mode pratinjau: RSVP tidak dikirim.";
+   guestbookList.append(info);
+   return;
+  }
+  // Demo tanpa slug (katalog): tetap pakai localStorage biar demo jalan
+  if (!slug) {
+   guestbookCache = readGuestbook().slice().reverse();
+   renderGuestbookEntries(guestbookCache);
+   return;
+  }
+  // Link publik: ambil dari database lewat API
+  try {
+   const res = await fetch("/api/public-guestbook?slug=" + encodeURIComponent(slug), { cache: "no-store" });
+   const data = await res.json().catch(() => ({}));
+   if (!res.ok || !data.success) {
+    guestbookCache = [];
+    renderGuestbookEntries([]);
+    return;
+   }
+   guestbookCache = Array.isArray(data.guestbook) ? data.guestbook : [];
+   renderGuestbookEntries(guestbookCache);
+  } catch {
+   guestbookCache = [];
+   renderGuestbookEntries([]);
+  }
  }
 
  attendanceSelect.addEventListener("change", () => {
@@ -756,7 +788,7 @@
   $("rsvpName").value = guest.replace(/[<>]/g, "").slice(0, 80);
  }
 
- rsvpForm.addEventListener("submit", event => {
+ rsvpForm.addEventListener("submit", async event => {
   event.preventDefault();
   if (previewMode) { toast("Mode pratinjau: RSVP tidak dikirim."); return; }
   const name = $("rsvpName").value.trim();
@@ -764,21 +796,51 @@
   const message = $("rsvpMessage").value.trim();
   const count = attendance === "Hadir" ? Number($("rsvpCount").value || 1) : 0;
   if (!name || !attendance) { toast("Lengkapi nama dan konfirmasi kehadiran."); return; }
-  const entries = readGuestbook();
-  entries.push({ name, attendance, count, message, createdAt: new Date().toISOString() });
+  // Demo tanpa slug: tetap simpan lokal
+  if (!slug) {
+   const entries = readGuestbook();
+   entries.push({ name, attendance, count, message, createdAt: new Date().toISOString() });
+   try {
+    localStorage.setItem(rsvpStorageKey, JSON.stringify(entries.slice(-50)));
+    rsvpForm.reset();
+    countField.hidden = false;
+    $("rsvpCount").required = false;
+    renderGuestbook();
+    toast("Terima kasih, konfirmasi dan ucapan tersimpan di demo.");
+   } catch { toast("Browser tidak dapat menyimpan data demo ini."); }
+   return;
+  }
+  // Link publik: kirim ke database
+  const btn = rsvpForm.querySelector('button[type="submit"]');
+  if (btn) btn.disabled = true;
   try {
-   localStorage.setItem(rsvpStorageKey, JSON.stringify(entries.slice(-50)));
+   const res = await fetch("/api/public-guestbook?slug=" + encodeURIComponent(slug), {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ guest_name: name, attendance, guest_count: count, message })
+   });
+   const data = await res.json().catch(() => ({}));
+   if (!res.ok || !data.success) {
+    toast(data.message || "Gagal mengirim RSVP. Coba lagi ya.");
+    return;
+   }
    rsvpForm.reset();
    countField.hidden = false;
    $("rsvpCount").required = false;
-   renderGuestbook();
-   toast("Terima kasih, konfirmasi dan ucapan tersimpan di demo.");
-  } catch { toast("Browser tidak dapat menyimpan data demo ini."); }
+   await renderGuestbook();
+   toast("Terima kasih, konfirmasi dan ucapan berhasil dikirim.");
+  } catch {
+   toast("Gagal mengirim RSVP. Periksa koneksi internet.");
+  } finally {
+   if (btn) btn.disabled = false;
+  }
  });
 
-renderGuestbook();
+ if (!previewMode) {
+  renderGuestbook();
+ }
 
- loadInvitation();
+  loadInvitation();
 
 })();
 </script>
