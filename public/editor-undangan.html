@@ -335,6 +335,13 @@ input:focus,textarea:focus,select:focus {
           <label for="bride">Nama Mempelai Wanita</label>
           <input id="bride" placeholder="Nama lengkap mempelai wanita">
         </div>
+        <div class="field">
+          <label for="coupleOrder">Tampilkan Mempelai Lebih Dulu</label>
+          <select id="coupleOrder">
+            <option value="groom_first">Pria dulu</option>
+            <option value="bride_first">Wanita dulu</option>
+          </select>
+        </div>
       </div>
 
       <div class="section">
@@ -604,7 +611,7 @@ input:focus,textarea:focus,select:focus {
         </p>
         <div class="publish-actions">
           <button class="btn-publish" id="publishButton" onclick="publishInvitation()">
-            Tinjau & Terbitkan Undangan
+            Terbitkan Undangan
           </button>
         </div>
       </div>
@@ -630,7 +637,7 @@ const params = new URLSearchParams(window.location.search);
 const invitationId = params.get("id");
 
 const fields = [
-  "title","groom","bride","groomFather","groomMother",
+  "title","groom","bride","coupleOrder","groomFather","groomMother",
   "brideFather","brideMother","akadDate","akadTime",
   "akadLocation","akadMapsUrl","receptionDate","receptionTime",
   "receptionLocation","receptionMapsUrl","loveStoryMode",
