@@ -335,17 +335,6 @@ input:focus,textarea:focus,select:focus {
           <label for="bride">Nama Mempelai Wanita</label>
           <input id="bride" placeholder="Nama lengkap mempelai wanita">
         </div>
-
-        <div class="field">
-          <label for="coupleOrder">Urutan Tampilan Mempelai</label>
-          <select id="coupleOrder">
-            <option value="groom_first">Pria Terlebih Dahulu</option>
-            <option value="bride_first">Wanita Terlebih Dahulu</option>
-          </select>
-          <div class="gallery-help">
-            Pilihan ini mengatur urutan tampilan nama, foto, dan profil kedua mempelai pada undangan.
-          </div>
-        </div>
       </div>
 
       <div class="section">
@@ -624,6 +613,13 @@ input:focus,textarea:focus,select:focus {
         <h3>Undangan Sudah Terbit!</h3>
         <p id="publishedInfo"></p>
         <a id="publicInvitationLink" href="#" target="_blank" rel="noopener">Buka Undangan</a>
+        <div id="guestLinkBox" style="margin-top:18px;border-top:1px solid #e7dbce;padding-top:16px">
+          <label for="guestNameInput" style="display:block;font-size:13px;margin-bottom:8px">Buat link untuk nama tamu:</label>
+          <input id="guestNameInput" type="text" maxlength="80" placeholder="Contoh: Bapak Andi & Istri" style="width:100%;padding:11px 12px;border:1px solid #e7dbce;border-radius:8px;margin-bottom:10px">
+          <button type="button" class="btn-publish" id="guestLinkButton" onclick="makeGuestLink()" style="width:100%">Buat & Salin Link Tamu</button>
+          <input id="guestLinkResult" type="text" readonly placeholder="Link tamu akan muncul di sini" style="width:100%;padding:11px 12px;border:1px solid #e7dbce;border-radius:8px;margin-top:10px;background:#faf6f0">
+          <p id="guestLinkNote" style="font-size:12px;color:#5e695e;margin:8px 0 0"></p>
+        </div>
       </div>
     </aside>
   </div>
@@ -634,7 +630,7 @@ const params = new URLSearchParams(window.location.search);
 const invitationId = params.get("id");
 
 const fields = [
-  "title","groom","bride","coupleOrder","groomFather","groomMother",
+  "title","groom","bride","groomFather","groomMother",
   "brideFather","brideMother","akadDate","akadTime",
   "akadLocation","akadMapsUrl","receptionDate","receptionTime",
   "receptionLocation","receptionMapsUrl","loveStoryMode",
@@ -678,17 +674,11 @@ function getFormData() {
   fields.forEach(field => {
     if (field !== "title") data[field] = $(field).value.trim();
   });
-  if (!data.coupleOrder) data.coupleOrder = "groom_first";
   return data;
 }
 
 function fillForm(data) {
   fields.forEach(field => {
-    if (field === "title") return;
-    if (field === "coupleOrder") {
-      $(field).value = data.coupleOrder === "bride_first" ? "bride_first" : "groom_first";
-      return;
-    }
     if (field === "loveStoryMode") return;
     $(field).value = data[field] || "";
   });
@@ -759,14 +749,40 @@ function showPublished(invitation) {
     "Tanggal aktivasi: " + activation +
     ". Masa aktif sampai: " + expiry + ".";
 
+  window.__sahdongPublicUrl = invitation.public_url || "";
   const link = invitation.public_url || "";
 
   if (link) {
     const publicUrl = new URL(link,window.location.origin);
-    $("publicInvitationLink").href = publicUrl.href;
+    $("publicInvitationLink").href = shortPublicUrl(publicUrl.href);
     $("publicInvitationLink").style.display = "inline-block";
   } else {
     $("publicInvitationLink").style.display = "none";
+  }
+}
+
+function shortPublicUrl(raw) {
+  try {
+    const u = new URL(raw, window.location.origin);
+    const s = u.searchParams.get("slug");
+    if (s) { u.pathname = "/u/" + encodeURIComponent(s); u.search = ""; return u.href; }
+    return u.href;
+  } catch { return raw; }
+}
+
+function makeGuestLink() {
+  const base = shortPublicUrl(window.__sahdongPublicUrl || "");
+  const name = ($("guestNameInput").value || "").trim();
+  if (!base) { $("guestLinkNote").textContent = "Link undangan belum tersedia."; return; }
+  if (!name) { $("guestLinkNote").textContent = "Isi dulu nama tamunya."; $("guestNameInput").focus(); return; }
+  const url = new URL(base, window.location.origin);
+  url.searchParams.set("to", name);
+  $("guestLinkResult").value = url.href;
+  $("guestLinkNote").textContent = "Link untuk " + name + " siap dibagikan.";
+  if (navigator.clipboard) {
+    navigator.clipboard.writeText(url.href).then(() => {
+      $("guestLinkNote").textContent = "Link untuk " + name + " berhasil disalin.";
+    }).catch(() => {});
   }
 }
 
@@ -971,10 +987,6 @@ async function uploadPortrait(role) {
 
     const compressedFile = await compressImage(file);
 
-    if (!(compressedFile instanceof File)) {
-      throw new Error("Tes upload: hasil kompresi bukan File. Tipe: " + typeof compressedFile);
-    }
-
     if (compressedFile.size > 5 * 1024 * 1024) {
       throw new Error("Ukuran foto setelah kompresi masih melebihi 5 MB.");
     }
@@ -982,15 +994,10 @@ async function uploadPortrait(role) {
     const formData = new FormData();
     formData.append("role","portrait");
     formData.append("portrait",role);
-    // Nama file eksplisit wajib ada — tanpa ini sebagian parser server
-    // membaca part "photo" sebagai field teks (string), bukan file.
-    formData.append("photo",compressedFile,compressedFile.name || "portrait.webp");
+    formData.append("photo",compressedFile);
 
-    const testPhoto = formData.get("photo");
-    if (!(testPhoto instanceof Blob)) {
-      throw new Error("Diagnostik browser: foto di FormData bukan Blob. Tipe: " + typeof testPhoto);
-    }
-    alert("TES BROWSER BERHASIL\nTipe: " + testPhoto.constructor.name + "\nFormat: " + testPhoto.type + "\nUkuran: " + testPhoto.size + " byte");
+    // DIAGNOSA SEMENTARA — hapus setelah ketemu penyebabnya.
+    alert("DIAGNOSA FOTO MEMPELAI\nFile dipilih: " + file.name + " (" + file.type + ", " + file.size + " byte)\nFile dikirim: " + compressedFile.name + " (" + compressedFile.type + ", " + compressedFile.size + " byte)\nField FormData: " + [...formData.keys()].join(", "));
 
     button.textContent = "Mengunggah foto...";
 
@@ -1246,10 +1253,6 @@ async function uploadPhoto() {
         );
       }
 
-      if (!(compressed instanceof File)) {
-        throw new Error("Tes upload galeri: hasil kompresi bukan File. Tipe: " + typeof compressed);
-      }
-
       compressedFiles.push(compressed);
     }
 
@@ -1257,15 +1260,11 @@ async function uploadPhoto() {
     formData.append("role","gallery");
 
     compressedFiles.forEach(file => {
-      // Nama file eksplisit, sama seperti foto mempelai.
-      formData.append("photos",file,file.name || "galeri.webp");
+      formData.append("photos",file);
     });
 
-    const testGalleryPhoto = formData.get("photos");
-    if (!(testGalleryPhoto instanceof Blob)) {
-      throw new Error("Diagnostik browser galeri: foto di FormData bukan Blob. Tipe: " + typeof testGalleryPhoto);
-    }
-    alert("TES BROWSER GALERI BERHASIL\nTipe: " + testGalleryPhoto.constructor.name + "\nFormat: " + testGalleryPhoto.type + "\nUkuran: " + testGalleryPhoto.size + " byte\nJumlah: " + compressedFiles.length + " foto");
+    // DIAGNOSA SEMENTARA — hapus setelah ketemu penyebabnya.
+    alert("DIAGNOSA GALERI\nFile dipilih: " + files.length + "\nFile siap kirim: " + compressedFiles.length + "\nNama file kirim: " + compressedFiles.map(f => f.name + " (" + f.type + ", " + f.size + " byte)").join(" | ") + "\nField FormData: " + [...formData.keys()].join(", "));
 
     button.textContent = "Mengunggah foto...";
 
@@ -1639,7 +1638,7 @@ async function uploadMusic() {
 
   try {
     const formData = new FormData();
-    formData.append("music",file,file.name || "musik.mp3");
+    formData.append("music",file);
 
     const result = await apiJson(musicApiUrl(),{
       method:"POST",
