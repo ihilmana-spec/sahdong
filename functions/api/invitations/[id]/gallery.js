@@ -158,7 +158,18 @@ function validateFile(file) {
 
   return null;
 }
-
+function uploadDiagnostics(request, form) {
+  return {
+    contentType: (request.headers.get("Content-Type") || "").split(";")[0],
+    fields: Array.from(form.entries()).map(([name, value]) => ({
+      name,
+      valueType: typeof value,
+      isFile: !!value && typeof value.arrayBuffer === "function",
+      mime: typeof value === "string" ? null : (value?.type || null),
+      size: typeof value === "string" ? null : (value?.size ?? null)
+    }))
+  };
+}
 async function readAndValidateFile(file) {
   const error = validateFile(file);
   if (error) throw new Error(error);
@@ -321,11 +332,12 @@ export async function onRequestPost({ request, env, params }) {
       const validationError = validateFile(file);
 
       if (validationError) {
-        return json({
-          success: false,
-          message: validationError
-        }, 400);
-      }
+  return json({
+    success: false,
+    message: validationError + " | Diagnostik: " +
+      JSON.stringify(uploadDiagnostics(request, form))
+  }, 400);
+}
 
       const bytes = await readAndValidateFile(file);
       const photo = createPhoto(
@@ -393,11 +405,12 @@ export async function onRequestPost({ request, env, params }) {
     }
 
     if (files.length === 0) {
-      return json({
-        success: false,
-        message: "Pilih minimal satu foto."
-      }, 400);
-    }
+  return json({
+    success: false,
+    message: "Pilih minimal satu foto. | Diagnostik: " +
+      JSON.stringify(uploadDiagnostics(request, form))
+  }, 400);
+}
 
     if (files.length > MAX_BATCH_FILES) {
       return json({
