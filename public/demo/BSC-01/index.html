@@ -490,7 +490,7 @@
   if (!music || music.mode === "none") return;
   const key = String(music.key || "");
   const validCatalog = music.mode === "catalog" && key.startsWith("catalog/");
-  const validUpload = music.mode === "upload" && /^customer-music\/[a-zA-Z0-9_-]+\/[a-fA-F0-9-]+\.mp3$/.test(key);
+  const validUpload = music.mode === "upload" && (/^customer-music\/[a-zA-Z0-9_-]+\/[a-fA-F0-9-]+\.mp3$/.test(key) || /^invitations\/[a-zA-Z0-9_-]+\/music\/[a-fA-F0-9-]+\.mp3$/.test(key));
   if (!validCatalog && !validUpload) return;
   audio.src = "/api/music-file?key=" + encodeURIComponent(key);
   audio.load();
