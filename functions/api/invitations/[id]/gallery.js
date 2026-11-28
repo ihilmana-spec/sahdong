@@ -1,4 +1,3 @@
-
 async function hashToken(token) {
   const data = new TextEncoder().encode(token);
   const hashBuffer = await crypto.subtle.digest("SHA-256", data);
@@ -158,6 +157,7 @@ function validateFile(file) {
 
   return null;
 }
+
 function uploadDiagnostics(request, form, rawPhotoHeader) {
   return {
     contentType: request.headers.get("Content-Type") || "",
@@ -171,6 +171,7 @@ function uploadDiagnostics(request, form, rawPhotoHeader) {
     }))
   };
 }
+
 async function readAndValidateFile(file) {
   const error = validateFile(file);
   if (error) throw new Error(error);
@@ -311,22 +312,17 @@ export async function onRequestPost({ request, env, params }) {
       return json({ success: false, message: restriction }, 403);
     }
 
-    const rawBuffer = await request.clone().arrayBuffer();
-const rawText = new TextDecoder().decode(rawBuffer);
+    // PERBAIKAN: body request jangan dibaca duluan lewat
+    // pembacaan body lewat clone. Pembacaan body duluan itu yang
+    // membuat formData kehilangan info filename, sehingga part
+    // "photo" kebaca sebagai string, bukan File.
+    // Sekarang formData() dibaca langsung sebagai pembacaan pertama.
+    const rawPhotoHeader = "Pemeriksaan raw body dinonaktifkan";
 
-const photoIndex = rawText.indexOf('name="photo"');
-const headerStart = rawText.lastIndexOf(
-  "Content-Disposition:",
-  photoIndex
-);
-const headerEnd = rawText.indexOf("\r\n\r\n", photoIndex);
-
-const rawPhotoHeader = "Pemeriksaan raw body dinonaktifkan";
-
-const form = await request.formData();
-const role = String(form.get("role") || "gallery");
-const data = readGallery(invitation);
-const limit = PACKAGE_LIMITS[invitation.package_name];
+    const form = await request.formData();
+    const role = String(form.get("role") || "gallery");
+    const data = readGallery(invitation);
+    const limit = PACKAGE_LIMITS[invitation.package_name];
 
     // =========================================
     // UNGGAH FOTO MEMPELAI
@@ -345,12 +341,12 @@ const limit = PACKAGE_LIMITS[invitation.package_name];
       const validationError = validateFile(file);
 
       if (validationError) {
-  return json({
-    success: false,
-    message: validationError + " | Diagnostik: " +
-      JSON.stringify(uploadDiagnostics(request, form, rawPhotoHeader))
-  }, 400);
-}
+        return json({
+          success: false,
+          message: validationError + " | Diagnostik: " +
+            JSON.stringify(uploadDiagnostics(request, form, rawPhotoHeader))
+        }, 400);
+      }
 
       const bytes = await readAndValidateFile(file);
       const photo = createPhoto(
@@ -418,12 +414,12 @@ const limit = PACKAGE_LIMITS[invitation.package_name];
     }
 
     if (files.length === 0) {
-  return json({
-    success: false,
-    message: "Pilih minimal satu foto. | Diagnostik: " +
-      JSON.stringify(uploadDiagnostics(request, form, rawPhotoHeader))
-  }, 400);
-}
+      return json({
+        success: false,
+        message: "Pilih minimal satu foto. | Diagnostik: " +
+          JSON.stringify(uploadDiagnostics(request, form, rawPhotoHeader))
+      }, 400);
+    }
 
     if (files.length > MAX_BATCH_FILES) {
       return json({
