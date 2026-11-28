@@ -187,7 +187,7 @@
     <div class="rsvp-field"><label for="rsvpMessage">Ucapan dan doa</label><textarea id="rsvpMessage" name="message" maxlength="500" placeholder="Tuliskan ucapan dan doa untuk kedua mempelai..."></textarea></div>
     <button class="btn filled rsvp-submit" type="submit">Kirim Konfirmasi</button>
    </form>
-   <p class="rsvp-note">Demo RSVP: data hanya tersimpan di browser/perangkat ini sebagai simulasi, belum dikirim ke database pemilik undangan.</p>
+   <p class="rsvp-note" id="rsvpNote">Demo RSVP: data hanya tersimpan di browser/perangkat ini sebagai simulasi, belum dikirim ke database pemilik undangan.</p>
    <h3 class="guestbook-title">Ucapan & Doa</h3>
    <div class="guestbook-list" id="guestbookList"><div class="guestbook-empty">Belum ada ucapan. Jadilah yang pertama memberikan doa.</div></div>
   </div>
@@ -417,6 +417,7 @@
     $("floatingOrder").hidden = true;
     $("shareButton").hidden = true;
     $("rsvp").hidden = false;
+    $("rsvpNote").textContent = "Mode pratinjau: RSVP tidak dikirim.";
     await loadPreviewPhotos(previewId, data);
     renderInvitation(invitation, data, groom, bride);
     return;
@@ -471,6 +472,7 @@
     throw new Error("Data nama mempelai belum lengkap.");
    }
    invitationData = data;
+   $("rsvpNote").hidden = true;
    renderInvitation(invitation, data, groom, bride);
   } catch (error) {
    console.error("LOAD INVITATION ERROR:", error);
