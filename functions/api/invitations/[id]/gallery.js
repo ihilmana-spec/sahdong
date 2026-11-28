@@ -158,9 +158,10 @@ function validateFile(file) {
 
   return null;
 }
-function uploadDiagnostics(request, form) {
+function uploadDiagnostics(request, form, rawPhotoHeader) {
   return {
     contentType: (request.headers.get("Content-Type") || "").split(";")[0],
+    rawPhotoHeader,
     fields: Array.from(form.entries()).map(([name, value]) => ({
       name,
       valueType: typeof value,
@@ -310,10 +311,25 @@ export async function onRequestPost({ request, env, params }) {
       return json({ success: false, message: restriction }, 403);
     }
 
-    const form = await request.formData();
-    const role = String(form.get("role") || "gallery");
-    const data = readGallery(invitation);
-    const limit = PACKAGE_LIMITS[invitation.package_name];
+    const rawBuffer = await request.clone().arrayBuffer();
+const rawText = new TextDecoder().decode(rawBuffer);
+
+const photoIndex = rawText.indexOf('name="photo"');
+const headerStart = rawText.lastIndexOf(
+  "Content-Disposition:",
+  photoIndex
+);
+const headerEnd = rawText.indexOf("\r\n\r\n", photoIndex);
+
+const rawPhotoHeader =
+  photoIndex >= 0 && headerStart >= 0 && headerEnd >= 0
+    ? rawText.slice(headerStart, headerEnd)
+    : "HEADER FOTO TIDAK DITEMUKAN";
+
+const form = await request.formData();
+const role = String(form.get("role") || "gallery");
+const data = readGallery(invitation);
+const limit = PACKAGE_LIMITS[invitation.package_name];
 
     // =========================================
     // UNGGAH FOTO MEMPELAI
@@ -335,7 +351,7 @@ export async function onRequestPost({ request, env, params }) {
   return json({
     success: false,
     message: validationError + " | Diagnostik: " +
-      JSON.stringify(uploadDiagnostics(request, form))
+      JSON.stringify(uploadDiagnostics(request, form, rawPhotoHeader))
   }, 400);
 }
 
@@ -408,7 +424,7 @@ export async function onRequestPost({ request, env, params }) {
   return json({
     success: false,
     message: "Pilih minimal satu foto. | Diagnostik: " +
-      JSON.stringify(uploadDiagnostics(request, form))
+      JSON.stringify(uploadDiagnostics(request, form, rawPhotoHeader))
   }, 400);
 }
 
