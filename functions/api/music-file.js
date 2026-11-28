@@ -1,4 +1,3 @@
-
 // functions/api/music-file.js
 // Menyajikan musik katalog dan musik unggahan pelanggan.
 // Musik unggahan dapat diakses oleh:
@@ -61,11 +60,17 @@ function isSafeKey(key) {
 }
 
 function getInvitationIdFromMusicKey(key) {
-  const match = key.match(
+  // Pola lama: customer-music/<invitationId>/<uuid>.mp3
+  const oldMatch = key.match(
     /^customer-music\/([A-Za-z0-9_-]{1,100})\/([A-Za-z0-9-]{20,80})\.mp3$/
   );
+  if (oldMatch) return oldMatch[1];
 
-  return match ? match[1] : null;
+  // Pola baru dari music.js: invitations/<invitationId>/music/<uuid>.mp3
+  const newMatch = key.match(
+    /^invitations\/([A-Za-z0-9_-]{1,100})\/music\/([A-Za-z0-9-]{20,80})\.mp3$/
+  );
+  return newMatch ? newMatch[1] : null;
 }
 
 // ======================================
@@ -330,7 +335,7 @@ async function serveAudio(request, env) {
   if (key.startsWith("catalog/")) {
     isCatalog = true;
 
-  } else if (key.startsWith("customer-music/")) {
+  } else if (key.startsWith("customer-music/") || key.startsWith("invitations/")) {
 
     // Coba akses sebagai pemilik preview pribadi.
     const user = await authenticateCustomer(request, env);
