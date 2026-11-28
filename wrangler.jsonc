@@ -23,19 +23,3 @@
   ]
 }
 
-// Tambahkan ini ke wrangler.json (sejajar dengan "d1_databases" / "r2_buckets"):
-// Cron "0 19 * * *" = tiap hari 19:00 UTC = 02:00 WIB.
-//
-// "triggers": {
-//   "crons": ["0 19 * * *"]
-// }
-//
-// Contoh wrangler.json lengkapnya:
-// {
-//   "$schema": "https://schema.workers.dev/wrangler.json",
-//   "name": "sahdong",
-//   "pages_build_output_dir": "./public",
-//   "triggers": { "crons": ["0 19 * * *"] },
-//   "d1_databases": [ ... ],
-//   "r2_buckets": [ ... ]
-// }
