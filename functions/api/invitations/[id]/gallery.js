@@ -160,7 +160,7 @@ function validateFile(file) {
 }
 function uploadDiagnostics(request, form, rawPhotoHeader) {
   return {
-    contentType: (request.headers.get("Content-Type") || "").split(";")[0],
+    contentType: request.headers.get("Content-Type") || "",
     rawPhotoHeader,
     fields: Array.from(form.entries()).map(([name, value]) => ({
       name,
