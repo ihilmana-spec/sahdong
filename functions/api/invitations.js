@@ -1,4 +1,3 @@
-
 async function hashToken(token) {
   const hash = await crypto.subtle.digest(
     "SHA-256",
@@ -315,6 +314,7 @@ export async function onRequestPut({ request, env }) {
         i.id,
         i.status,
         i.review_status,
+        i.invitation_data,
         EXISTS (
           SELECT 1
           FROM orders o
@@ -400,7 +400,48 @@ export async function onRequestPut({ request, env }) {
       );
     }
 
-    const invitationJson = JSON.stringify(invitationData);
+    // Ambil data undangan lama dari database.
+    let oldInvitationData = {};
+
+    try {
+      oldInvitationData = JSON.parse(
+        existing.invitation_data || "{}"
+      );
+
+      if (
+        !oldInvitationData ||
+        typeof oldInvitationData !== "object" ||
+        Array.isArray(oldInvitationData)
+      ) {
+        oldInvitationData = {};
+      }
+    } catch {
+      oldInvitationData = {};
+    }
+
+    // Salin data teks yang dikirim editor.
+    const safeInvitationData = { ...invitationData };
+
+    // Metadata foto hanya boleh dikelola melalui API galeri.
+    // Jangan izinkan proses simpan teks mengganti atau menghapusnya.
+    delete safeInvitationData.gallery;
+    delete safeInvitationData.portraits;
+
+    // Pertahankan metadata galeri dari database.
+    if (Array.isArray(oldInvitationData.gallery)) {
+      safeInvitationData.gallery = oldInvitationData.gallery;
+    }
+
+    // Pertahankan foto mempelai dari database.
+    if (
+      oldInvitationData.portraits &&
+      typeof oldInvitationData.portraits === "object" &&
+      !Array.isArray(oldInvitationData.portraits)
+    ) {
+      safeInvitationData.portraits = oldInvitationData.portraits;
+    }
+
+    const invitationJson = JSON.stringify(safeInvitationData);
 
     if (invitationJson.length > 100000) {
       return Response.json(
