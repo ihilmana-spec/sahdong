@@ -611,7 +611,7 @@ input:focus,textarea:focus,select:focus {
         </p>
         <div class="publish-actions">
           <button class="btn-publish" id="publishButton" onclick="publishInvitation()">
-            Terbitkan Undangan
+            Tinjau & Terbitkan Undangan
           </button>
         </div>
       </div>
@@ -686,7 +686,7 @@ function getFormData() {
 
 function fillForm(data) {
   fields.forEach(field => {
-    if (field === "loveStoryMode") return;
+    if (field === "loveStoryMode" || field === "title") return;
     $(field).value = data[field] || "";
   });
 
