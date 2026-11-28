@@ -158,22 +158,110 @@ function validateFile(file) {
   return null;
 }
 
-function uploadDiagnostics(request, form, rawPhotoHeader) {
+function uploadDiagnostics(request, entries, rawPhotoHeader) {
   return {
     contentType: request.headers.get("Content-Type") || "",
     rawPhotoHeader,
-    fields: Array.from(form.entries()).map(([name, value]) => ({
+    fields: entries.map(([name, value]) => ({
       name,
       valueType: typeof value,
       isFile: !!value && typeof value.arrayBuffer === "function",
       mime: typeof value === "string" ? null : (value?.type || null),
       size: typeof value === "string" ? null : (value?.size ?? null),
-      // PENTING: selama ini isi string-nya disembunyikan.
-      // Dari sini ketahuan apakah string itu nama file,
-      // "[object File]", atau data biner yang salah dibaca.
       valueLength: typeof value === "string" ? value.length : null,
-      valuePreview: typeof value === "string" ? String(value).slice(0, 300) : null
+      valuePreview: typeof value === "string" ? String(value).slice(0, 100) : null
     }))
+  };
+}
+
+// Parser multipart manual — pengganti request.formData().
+// formData() bawaan Cloudflare terbukti salah baca part file
+// (ada filename + Content-Type image/webp) jadi string biner.
+// Parser ini bekerja di level byte, jadi isi file tidak rusak.
+function parseMultipart(bodyBytes, boundary) {
+  const entries = [];
+  const boundaryBytes = new TextEncoder().encode("--" + boundary);
+
+  function indexOfBytes(haystack, needle, from = 0) {
+    outer: for (let i = from; i + needle.length <= haystack.length; i++) {
+      for (let j = 0; j < needle.length; j++) {
+        if (haystack[i + j] !== needle[j]) continue outer;
+      }
+      return i;
+    }
+    return -1;
+  }
+
+  const CRLF = new Uint8Array([13, 10]);
+  const DOUBLE_CRLF = new Uint8Array([13, 10, 13, 10]);
+  const decoder = new TextDecoder("utf-8");
+
+  let pos = indexOfBytes(bodyBytes, boundaryBytes, 0);
+  while (pos !== -1) {
+    let cursor = pos + boundaryBytes.length;
+    // Akhir body: boundary ditutup "--"
+    if (bodyBytes[cursor] === 45 && bodyBytes[cursor + 1] === 45) break;
+    // Lewati CRLF setelah boundary
+    if (bodyBytes[cursor] === 13 && bodyBytes[cursor + 1] === 10) cursor += 2;
+
+    const headerEnd = indexOfBytes(bodyBytes, DOUBLE_CRLF, cursor);
+    if (headerEnd === -1) break;
+    const headerText = decoder.decode(bodyBytes.slice(cursor, headerEnd));
+    const contentStart = headerEnd + 4;
+
+    const nextBoundary = indexOfBytes(bodyBytes, boundaryBytes, contentStart);
+    if (nextBoundary === -1) break;
+    // Konten berakhir sebelum CRLF + boundary
+    let contentEnd = nextBoundary;
+    if (contentEnd >= 2 && bodyBytes[contentEnd - 2] === 13 && bodyBytes[contentEnd - 1] === 10) {
+      contentEnd -= 2;
+    }
+    const contentBytes = bodyBytes.slice(contentStart, contentEnd);
+
+    const nameMatch = headerText.match(/name="([^"]*)"/);
+    const fileMatch = headerText.match(/filename="([^"]*)"/);
+    const typeMatch = headerText.match(/Content-Type:\s*([^\r\n;]+)/i);
+    const name = nameMatch ? nameMatch[1] : "";
+
+    if (!name) {
+      pos = nextBoundary;
+      continue;
+    }
+
+    if (fileMatch) {
+      // Objek mirip File: cukup untuk validateFile / readAndValidateFile
+      // (butuh .name, .type, .size, dan .arrayBuffer()).
+      const fileBytes = contentBytes;
+      const fileObj = {
+        name: fileMatch[1] || "foto",
+        type: (typeMatch ? typeMatch[1].trim() : "") || "application/octet-stream",
+        size: fileBytes.byteLength,
+        arrayBuffer: async () => fileBytes.buffer.slice(
+          fileBytes.byteOffset,
+          fileBytes.byteOffset + fileBytes.byteLength
+        )
+      };
+      entries.push([name, fileObj]);
+    } else {
+      entries.push([name, decoder.decode(contentBytes)]);
+    }
+
+    pos = nextBoundary;
+  }
+
+  return entries;
+}
+
+function makeForm(entries) {
+  return {
+    entriesList: entries,
+    get(name) {
+      const found = entries.find(([n]) => n === name);
+      return found ? found[1] : null;
+    },
+    getAll(name) {
+      return entries.filter(([n]) => n === name).map(([, v]) => v);
+    }
   };
 }
 
@@ -317,24 +405,21 @@ export async function onRequestPost({ request, env, params }) {
       return json({ success: false, message: restriction }, 403);
     }
 
-    // Diagnostik raw body: baca lewat clone supaya body asli
-    // tetap bisa dibaca formData() setelah ini.
-    // Sudah terbukti clone BUKAN penyebab photo jadi string,
-    // jadi aman dipakai untuk melihat header asli part "photo".
-    let rawPhotoHeader = "Pemeriksaan raw body gagal";
-    try {
-      const rawText = await request.clone().text();
-      const idx = rawText.indexOf('name="photo"');
-      if (idx === -1) {
-        rawPhotoHeader = "name=photo tidak ketemu di raw body. Awal raw body: " + rawText.slice(0, 300);
-      } else {
-        rawPhotoHeader = rawText.slice(Math.max(0, idx - 250), idx + 400);
-      }
-    } catch (e) {
-      rawPhotoHeader = "Gagal baca clone: " + (e.message || String(e));
+    // PERBAIKAN FINAL: jangan pakai request.formData().
+    // Terbukti di diagnostik: raw body benar (filename + image/webp),
+    // tapi formData() mengubah part file jadi string biner.
+    // Baca body sekali sebagai byte, lalu pecah multipart manual.
+    const contentType = request.headers.get("Content-Type") || "";
+    const boundaryMatch = contentType.match(/boundary=(?:"([^"]+)"|([^;]+))/);
+    const boundary = boundaryMatch ? (boundaryMatch[1] || boundaryMatch[2] || "").trim() : "";
+    if (!boundary) {
+      return json({ success: false, message: "Content-Type multipart tidak valid." }, 400);
     }
+    const bodyBytes = new Uint8Array(await request.arrayBuffer());
+    const parsedEntries = parseMultipart(bodyBytes, boundary);
+    const form = makeForm(parsedEntries);
+    const rawPhotoHeader = "Parser multipart manual (formData bawaan tidak dipakai)";
 
-    const form = await request.formData();
     const role = String(form.get("role") || "gallery");
     const data = readGallery(invitation);
     const limit = PACKAGE_LIMITS[invitation.package_name];
@@ -359,7 +444,7 @@ export async function onRequestPost({ request, env, params }) {
         return json({
           success: false,
           message: validationError + " | Diagnostik: " +
-            JSON.stringify(uploadDiagnostics(request, form, rawPhotoHeader))
+            JSON.stringify(uploadDiagnostics(request, parsedEntries, rawPhotoHeader))
         }, 400);
       }
 
@@ -432,7 +517,7 @@ export async function onRequestPost({ request, env, params }) {
       return json({
         success: false,
         message: "Pilih minimal satu foto. | Diagnostik: " +
-          JSON.stringify(uploadDiagnostics(request, form, rawPhotoHeader))
+          JSON.stringify(uploadDiagnostics(request, parsedEntries, rawPhotoHeader))
       }, 400);
     }
 
