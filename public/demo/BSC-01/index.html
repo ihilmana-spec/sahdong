@@ -211,7 +211,8 @@
  const $ = id => document.getElementById(id);
  const params = new URLSearchParams(location.search);
  const previewId = (params.get("preview") || "").trim();
- const slug = (params.get("slug") || "").trim();
+ const pathSlugMatch = location.pathname.match(/^\/u\/([^\/\?#]+)/);
+ const slug = ((params.get("slug") || "") || (pathSlugMatch ? decodeURIComponent(pathSlugMatch[1]) : "")).trim();
  const guest = params.get("to");
 
  let previewMode = false;
