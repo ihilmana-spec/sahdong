@@ -111,6 +111,44 @@
 }
 .floating-order.visible{display:flex}
 .floating-order:hover{background:#8f7453}
+
+ /* Toolbar mode pratinjau pelanggan */
+#previewToolbar {
+  position: fixed;
+  z-index: 95;
+  left: 50%;
+  bottom: 16px;
+  transform: translateX(-50%);
+  width: calc(100% - 28px);
+  max-width: 520px;
+  padding: 12px 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  background: #fffdf8;
+  border: 1px solid #d8c49b;
+  border-radius: 14px;
+  box-shadow: 0 5px 25px rgba(0,0,0,.16);
+  color: #59472c;
+  font-size: 13px;
+}
+
+#previewToolbar[hidden] {
+  display: none !important;
+}
+
+#previewToolbar a {
+  display: inline-block;
+  padding: 9px 14px;
+  border-radius: 8px;
+  background: #9b7b45;
+  color: #fff;
+  text-decoration: none;
+  white-space: nowrap;
+  font-size: 12px;
+}
+ 
 </style>
 </head>
 <body class="lock">
@@ -151,13 +189,20 @@
    id="floatingOrder">
    ✦ Pesan Undangan Ini
 </a>
+ <div id="previewToolbar" hidden>
+  <span>Mode Pratinjau Undangan</span>
+  <a id="backToEditor" href="#">Kembali ke Editor</a>
+</div>
  <audio id="audioPlayer" loop preload="none"></audio>
 <script>
 (() => {
  const $ = id => document.getElementById(id);
  const params = new URLSearchParams(location.search);
- const slug = (params.get("slug") || "").trim();
- const guest = params.get("to");
+const previewId = (params.get("preview") || "").trim();
+const slug = (params.get("slug") || "").trim();
+const guest = params.get("to");
+
+let previewMode = false;
  let invitationData = null;
  let toastTimer;
  function toast(message){$("toast").textContent=message;$("toast").classList.add("show");clearTimeout(toastTimer);toastTimer=setTimeout(()=>$("toast").classList.remove("show"),2800)}
