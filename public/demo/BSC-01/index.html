@@ -241,42 +241,57 @@ let previewMode = false;
       $("floatingOrder").hidden = true;
       $("shareButton").hidden = true;
       $("rsvp").hidden = true;
-      const galleryResponse = await fetch(
-        "/api/invitations/" + encodeURIComponent(previewId) + "/gallery",
-        {
-          credentials: "same-origin",
-          cache: "no-store"
-        }
-      );
-      const galleryResult = await galleryResponse.json();
-      if(!galleryResponse.ok || !galleryResult.success){
-        throw new Error(galleryResult.message || "Galeri tidak dapat dimuat.");
-      }
-      const gallery = Array.isArray(galleryResult.gallery)
-        ? galleryResult.gallery
-        : [];
       const galleryGrid = $("demoGalleryGrid");
-      galleryGrid.replaceChildren();
-      let photoCount = 0;
-      gallery.forEach(photo => {
-        const url = String(photo.url || "");
-        if(!url.startsWith("/api/gallery-image?key=")){
-          return;
+galleryGrid.replaceChildren();
+$("galeriDemo").hidden = true;
+
+try {
+  const galleryResponse = await fetch(
+    "/api/invitations/" + encodeURIComponent(previewId) + "/gallery",
+    {
+      credentials: "same-origin",
+      cache: "no-store"
+    }
+  );
+
+  const galleryResult = await galleryResponse.json();
+
+  if(galleryResponse.ok && galleryResult.success){
+    const gallery = Array.isArray(galleryResult.gallery)
+      ? galleryResult.gallery
+      : [];
+
+    let photoCount = 0;
+
+    gallery.forEach(photo => {
+      const url = String(photo.url || "");
+
+      if(!url.startsWith("/api/gallery-image?key=")){
+        return;
+      }
+
+      const img = document.createElement("img");
+      img.src = url;
+      img.alt = photo.name || "Foto galeri undangan";
+      img.loading = "lazy";
+
+      img.onerror = () => {
+        img.remove();
+
+        if(!galleryGrid.querySelector("img")){
+          $("galeriDemo").hidden = true;
         }
-        const img = document.createElement("img");
-        img.src = url;
-        img.alt = photo.name || "Foto galeri undangan";
-        img.loading = "lazy";
-        img.onerror = () => {
-          img.remove();
-          if(!galleryGrid.querySelector("img")){
-            $("galeriDemo").hidden = true;
-          }
-        };
-        galleryGrid.append(img);
-        photoCount++;
-      });
-      $("galeriDemo").hidden = photoCount === 0;
+      };
+
+      galleryGrid.append(img);
+      photoCount++;
+    });
+
+    $("galeriDemo").hidden = photoCount === 0;
+  }
+} catch(error) {
+  console.warn("GALERI PREVIEW TIDAK DAPAT DIMUAT:", error);
+}
       renderInvitation(invitation, data, groom, bride);
       return;
     }catch(error){
@@ -454,6 +469,10 @@ let previewMode = false;
  if (guest) $("rsvpName").value = guest.replace(/[<>]/g, "").slice(0, 80);
  rsvpForm.addEventListener("submit", event => {
   event.preventDefault();
+
+  if (previewMode) {
+    return;
+  }
   const name = $("rsvpName").value.trim();
   const attendance = attendanceSelect.value;
   const message = $("rsvpMessage").value.trim();
@@ -470,8 +489,12 @@ let previewMode = false;
    toast("Terima kasih, konfirmasi dan ucapan tersimpan di demo.");
   } catch { toast("Browser tidak dapat menyimpan data demo ini."); }
  });
- renderGuestbook();
- loadInvitation();
+// Simulasi buku tamu hanya berjalan di demo dan undangan publik
+if (!previewMode) {
+  renderGuestbook();
+}
+
+loadInvitation();
 })();
 </script>
 </body>
