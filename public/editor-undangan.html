@@ -966,9 +966,13 @@ if (!(compressedFile instanceof File)) {
     }
 
     const formData = new FormData();
-    formData.append("role","portrait");
-    formData.append("portrait",role);
-    formData.append("photo",compressedFile);
+formData.append("role","portrait");
+formData.append("portrait",role);
+formData.append(
+  "photo",
+  compressedFile,
+  compressedFile.name || "portrait.webp"
+);
 
     button.textContent = "Mengunggah foto...";
 
