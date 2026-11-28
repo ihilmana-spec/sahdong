@@ -321,10 +321,7 @@ const headerStart = rawText.lastIndexOf(
 );
 const headerEnd = rawText.indexOf("\r\n\r\n", photoIndex);
 
-const rawPhotoHeader =
-  photoIndex >= 0 && headerStart >= 0 && headerEnd >= 0
-    ? rawText.slice(headerStart, headerEnd)
-    : "HEADER FOTO TIDAK DITEMUKAN";
+const rawPhotoHeader = "Pemeriksaan raw body dinonaktifkan";
 
 const form = await request.formData();
 const role = String(form.get("role") || "gallery");
