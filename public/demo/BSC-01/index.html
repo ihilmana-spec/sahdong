@@ -149,7 +149,27 @@
 <main id="invitationContent" hidden>
 <section class="hero" id="home"><div class="hero-inner reveal"><div class="kicker">The Wedding Of</div><div class="flourish">❧</div><h1 id="heroNames"></h1><div class="hero-date" id="heroDate"></div><div class="hero-rule"></div><p class="hero-copy">“Dua hati, satu janji, selamanya dalam cinta.”</p><a href="#salam" class="scroll-cue">Scroll untuk melihat undangan</a></div></section>
 <section class="section intro" id="salam"><div class="inner reveal"><div class="section-label">Assalamu’alaikum Warahmatullahi Wabarakatuh</div><div class="intro-quote">“</div><h2>Dengan memohon rahmat dan ridho Allah SWT</h2><p class="lead">Dengan penuh kebahagiaan, kami mengundang Bapak/Ibu/Saudara/i untuk hadir dan memberikan doa restu pada hari bahagia kami.</p><div class="ornament-line">❧</div><div class="script-note" id="introNames"></div></div></section>
-<section class="section couple" id="mempelai"><div class="inner reveal"><div class="section-label">The Bride & Groom</div><h2>Memperkenalkan</h2><p class="lead">Dua insan yang dipertemukan dalam cerita indah, kini memilih berjalan bersama.</p><div class="couple-grid"><article class="person"><div class="portrait"><div class="fallback">Mempelai Pria</div></div><h3 id="groomName"></h3><p id="groomParents"></p></article><div class="amp">&</div><article class="person"><div class="portrait"><div class="fallback">Mempelai Wanita</div></div><h3 id="brideName"></h3><p id="brideParents"></p></article></div></div></section>
+<section class="section couple" id="mempelai"><div class="inner reveal"><div class="section-label">The Bride & Groom</div><h2>Memperkenalkan</h2><p class="lead">Dua insan yang dipertemukan dalam cerita indah, kini memilih berjalan bersama.</p>
+<div class="couple-grid">
+  <article class="person" data-person="groom">
+    <div class="portrait">
+      <div class="fallback">Mempelai Pria</div>
+    </div>
+    <h3 id="groomName"></h3>
+    <p id="groomParents"></p>
+  </article>
+
+  <div class="amp">&</div>
+
+  <article class="person" data-person="bride">
+    <div class="portrait">
+      <div class="fallback">Mempelai Wanita</div>
+    </div>
+    <h3 id="brideName"></h3>
+    <p id="brideParents"></p>
+  </article>
+</div>
+</div></section>
 <section class="section event" id="acara"><div class="inner reveal"><div class="section-label">Save The Date</div><h2>Hari Bahagia Kami</h2><p class="lead">InsyaAllah akan dilaksanakan pada:</p><div class="countdown" aria-label="Hitung mundur"><div class="count"><b id="days">--</b><small>Hari</small></div><div class="count"><b id="hours">--</b><small>Jam</small></div><div class="count"><b id="minutes">--</b><small>Menit</small></div><div class="count"><b id="seconds">--</b><small>Detik</small></div></div><div class="event-grid"><article class="event-card"><div class="symbol">☼</div><h3>Akad Nikah</h3><p id="akadInfo"></p><div class="event-address" id="akadAddress"></div><a class="btn event-map-link" id="akadMapsButton" target="_blank" rel="noopener" hidden>⌖ &nbsp; Lokasi Akad</a></article><article class="event-card"><div class="symbol">❀</div><h3>Resepsi</h3><p id="receptionInfo"></p><div class="event-address" id="receptionAddress"></div><a class="btn event-map-link" id="receptionMapsButton" target="_blank" rel="noopener" hidden>⌖ &nbsp; Lokasi Resepsi</a></article></div></div></section>
 <section class="section love-story" id="loveStorySection"><div class="inner reveal"><div class="section-label">Our Story</div><h2 id="loveStoryHeading">Perjalanan Cinta</h2><div class="love-story-card"><p class="love-story-text" id="loveStoryText"></p><div class="love-story-sign" id="loveStorySign"></div></div></div></section>
 <section class="section demo-gallery" id="galeriDemo" hidden><div class="inner reveal"><div class="section-label">Our Moments</div><h2>Galeri Bahagia</h2><p class="lead">Sepenggal cerita indah dalam perjalanan cinta kami.</p><div class="demo-gallery-grid" id="demoGalleryGrid"></div></div></section>
@@ -234,6 +254,33 @@
   element.append(document.createTextNode(bride));
  }
 
+ function applyCoupleOrder(data) {
+  const coupleGrid = document.querySelector(".couple-grid");
+
+  if (!coupleGrid) return;
+
+  const groomCard = coupleGrid.querySelector('[data-person="groom"]');
+  const brideCard = coupleGrid.querySelector('[data-person="bride"]');
+  const amp = coupleGrid.querySelector(".amp");
+
+  if (!groomCard || !brideCard || !amp) return;
+
+  const coupleOrder =
+    data?.coupleOrder === "bride_first"
+      ? "bride_first"
+      : "groom_first";
+
+  if (coupleOrder === "bride_first") {
+    brideCard.style.order = "1";
+    amp.style.order = "2";
+    groomCard.style.order = "3";
+  } else {
+    groomCard.style.order = "1";
+    amp.style.order = "2";
+    brideCard.style.order = "3";
+  }
+}
+
  function validMapUrl(value) {
   try {
    const url = new URL(value);
@@ -243,7 +290,6 @@
   }
  }
 
- // Hanya menerima URL gambar dari endpoint galeri SAHDONG.
  function validPhotoUrl(value) {
   const url = String(value || "").trim();
   return url.startsWith("/api/gallery-image?key=");
@@ -253,30 +299,22 @@
   if (typeof photo === "string") {
    return validPhotoUrl(photo) ? photo : "";
   }
-
   if (!photo || typeof photo !== "object") return "";
-
   const url = String(photo.url || "").trim();
   return validPhotoUrl(url) ? url : "";
  }
 
- // Menampilkan foto mempelai dari data unggahan pelanggan.
  function renderCouplePhotos(data, useDemoFallback = false) {
   const portraits = document.querySelectorAll(".couple-grid .portrait");
-
   const groomPhoto = getPhotoUrl(data?.portraits?.groom);
   const bridePhoto = getPhotoUrl(data?.portraits?.bride);
-
   const photoUrls = [groomPhoto, bridePhoto];
-
   portraits.forEach((container, index) => {
    const label = index === 0 ? "Mempelai Pria" : "Mempelai Wanita";
    const demoUrl = index === 0
     ? "https://pub-4c219f620c5a4326b4a06b128c2b0b2f.r2.dev/demo/mempelai/pria.jpg"
     : "https://pub-4c219f620c5a4326b4a06b128c2b0b2f.r2.dev/demo/mempelai/wanita.jpg";
-
    const photoUrl = photoUrls[index] || (useDemoFallback ? demoUrl : "");
-
    if (!photoUrl) {
     const fallback = document.createElement("div");
     fallback.className = "fallback";
@@ -284,73 +322,53 @@
     container.replaceChildren(fallback);
     return;
    }
-
    const img = document.createElement("img");
    img.src = photoUrl;
    img.alt = "Foto " + label.toLowerCase();
    img.loading = "eager";
-
    img.onerror = () => {
     const fallback = document.createElement("div");
     fallback.className = "fallback";
     fallback.textContent = "Foto " + label + " tidak tersedia";
     container.replaceChildren(fallback);
    };
-
    container.replaceChildren(img);
   });
  }
 
- // Menampilkan galeri foto pelanggan.
  function renderCustomerGallery(gallery) {
   const galleryGrid = $("demoGalleryGrid");
   galleryGrid.replaceChildren();
-
   const photos = Array.isArray(gallery) ? gallery : [];
   let photoCount = 0;
-
   photos.forEach((photo, index) => {
    const url = getPhotoUrl(photo);
    if (!url) return;
-
    const img = document.createElement("img");
    img.src = url;
    img.alt = photo.name || "Foto galeri " + (index + 1);
    img.loading = "lazy";
-
    img.onerror = () => {
     img.remove();
-
     if (!galleryGrid.querySelector("img")) {
      $("galeriDemo").hidden = true;
     }
    };
-
    galleryGrid.append(img);
    photoCount++;
   });
-
   $("galeriDemo").hidden = photoCount === 0;
  }
 
- // Foto demo: dua foto mempelai dan enam foto galeri.
  function renderDemoPhotos() {
-  const photoBase =
-   "https://pub-4c219f620c5a4326b4a06b128c2b0b2f.r2.dev/demo";
-
+  const photoBase = "https://pub-4c219f620c5a4326b4a06b128c2b0b2f.r2.dev/demo";
   const gallery = [];
-
   for (let number = 1; number <= 6; number++) {
    const fileNumber = String(number).padStart(2, "0");
-   gallery.push({
-    url: photoBase + "/gallery/foto-" + fileNumber + ".jpg",
-    name: "Foto galeri " + number
-   });
+   gallery.push({ url: photoBase + "/gallery/foto-" + fileNumber + ".jpg", name: "Foto galeri " + number });
   }
-
   const galleryGrid = $("demoGalleryGrid");
   galleryGrid.replaceChildren();
-
   gallery.forEach(photo => {
    const img = document.createElement("img");
    img.src = photo.url;
@@ -359,26 +377,15 @@
    img.onerror = () => img.remove();
    galleryGrid.append(img);
   });
-
   $("galeriDemo").hidden = false;
  }
 
- // Mengambil data foto terbaru untuk mode pratinjau pelanggan.
  async function loadPreviewPhotos(invitationId, data) {
   try {
-   const response = await fetch(
-    "/api/invitations/" + encodeURIComponent(invitationId) + "/gallery",
-    {
-     credentials: "same-origin",
-     cache: "no-store"
-    }
-   );
-
+   const response = await fetch("/api/invitations/" + encodeURIComponent(invitationId) + "/gallery", { credentials: "same-origin", cache: "no-store" });
    const result = await response.json();
-
    if (response.ok && result.success) {
     data.gallery = Array.isArray(result.gallery) ? result.gallery : [];
-
     if (result.portraits && typeof result.portraits === "object") {
      data.portraits = result.portraits;
     }
@@ -389,68 +396,42 @@
  }
 
  async function loadInvitation() {
-
-  // MODE 1: PRATINJAU PRIVAT PELANGGAN
   if (previewId) {
    try {
     previewMode = true;
-
-    const response = await fetch(
-     "/api/invitations?id=" + encodeURIComponent(previewId),
-     {
-      credentials: "same-origin",
-      cache: "no-store"
-     }
-    );
-
+    const response = await fetch("/api/invitations?id=" + encodeURIComponent(previewId), { credentials: "same-origin", cache: "no-store" });
     const result = await response.json();
-
     if (!response.ok || !result.success || !result.invitation) {
      throw new Error(result.message || "Undangan tidak dapat dimuat.");
     }
-
     const invitation = result.invitation;
     const data = invitation.invitation_data || {};
-
     const groom = String(data.groom || "").trim();
     const bride = String(data.bride || "").trim();
-
     if (!groom || !bride) {
      throw new Error("Data nama mempelai belum lengkap.");
     }
-
     invitationData = data;
-
     $("previewToolbar").hidden = false;
-    $("backToEditor").href =
-     "/editor-undangan.html?id=" + encodeURIComponent(previewId);
-
+    $("backToEditor").href = "/editor-undangan.html?id=" + encodeURIComponent(previewId);
     $("floatingOrder").hidden = true;
     $("shareButton").hidden = true;
     $("rsvp").hidden = true;
-
-    // Ambil galeri dan foto mempelai dari API.
     await loadPreviewPhotos(previewId, data);
-
     renderInvitation(invitation, data, groom, bride);
     return;
-
    } catch (error) {
     console.error("PREVIEW ERROR:", error);
     showUnavailable(error.message || "Pratinjau undangan gagal dimuat.");
     return;
    }
   }
-
-  // MODE 2: DEMO TEMPLATE
   if (!slug) {
    const demoData = {
-    music: {
-     mode: "catalog",
-     key: "catalog/01-cinta-terakhir.mp3"
-    },
+    music: { mode: "catalog", key: "catalog/01-cinta-terakhir.mp3" },
     groom: "Rizky Pratama",
     bride: "Aulia Putri",
+    coupleOrder: "groom_first",
     groomFather: "Bapak Ahmad",
     groomMother: "Ibu Siti",
     brideFather: "Bapak Hendra",
@@ -471,41 +452,26 @@
     accountNumber: "",
     accountOwner: ""
    };
-
    invitationData = demoData;
-
    renderDemoPhotos();
    renderInvitation(null, demoData, demoData.groom, demoData.bride, true);
    return;
   }
-
-  // MODE 3: UNDANGAN PUBLIK
   try {
-   const response = await fetch(
-    "/api/public-invitation?slug=" + encodeURIComponent(slug),
-    { cache: "no-store" }
-   );
-
+   const response = await fetch("/api/public-invitation?slug=" + encodeURIComponent(slug), { cache: "no-store" });
    const result = await response.json();
-
    if (!response.ok || !result.success || !result.invitation) {
     throw new Error(result.message || "Undangan tidak tersedia.");
    }
-
    const invitation = result.invitation;
    const data = invitation.invitation_data || {};
-
    const groom = String(data.groom || "").trim();
    const bride = String(data.bride || "").trim();
-
    if (!groom || !bride) {
     throw new Error("Data nama mempelai belum lengkap.");
    }
-
    invitationData = data;
-
    renderInvitation(invitation, data, groom, bride);
-
   } catch (error) {
    console.error("LOAD INVITATION ERROR:", error);
    showUnavailable(error.message || "Undangan tidak dapat dimuat.");
@@ -515,32 +481,19 @@
  function configureMusic(data) {
   const audio = $("audioPlayer");
   const toggle = $("musicToggle");
-
   audio.pause();
   audio.removeAttribute("src");
   audio.load();
-
   toggle.hidden = true;
   updateMusicButton();
-
   const music = data && data.music;
-
   if (!music || music.mode === "none") return;
-
   const key = String(music.key || "");
-
-  const validCatalog =
-   music.mode === "catalog" && key.startsWith("catalog/");
-
-  const validUpload =
-   music.mode === "upload" &&
-   /^customer-music\/[a-zA-Z0-9_-]+\/[a-fA-F0-9-]+\.mp3$/.test(key);
-
+  const validCatalog = music.mode === "catalog" && key.startsWith("catalog/");
+  const validUpload = music.mode === "upload" && /^customer-music\/[a-zA-Z0-9_-]+\/[a-fA-F0-9-]+\.mp3$/.test(key);
   if (!validCatalog && !validUpload) return;
-
   audio.src = "/api/music-file?key=" + encodeURIComponent(key);
   audio.load();
-
   toggle.hidden = false;
   updateMusicButton();
  }
@@ -548,24 +501,36 @@
  function renderInvitation(invitation, data, groom, bride, isDemo = false) {
   configureMusic(data);
 
+  const coupleOrder =
+    data?.coupleOrder === "bride_first"
+      ? "bride_first"
+      : "groom_first";
+
+  const displayFirst =
+    coupleOrder === "bride_first" ? bride : groom;
+
+  const displaySecond =
+    coupleOrder === "bride_first" ? groom : bride;
+
+  applyCoupleOrder(data);
+
   document.title =
-   `${groom} & ${bride} — Undangan Pernikahan | SAHDONG`;
+    `${displayFirst} & ${displaySecond} — Undangan Pernikahan | SAHDONG`;
 
   document.querySelector('meta[name="description"]').content =
-   `Undangan pernikahan ${groom} dan ${bride}.`;
+    `Undangan pernikahan ${displayFirst} dan ${displaySecond}.`;
 
   if (guest) {
-   $("guestRecipient").textContent =
-    guest.replace(/[<>]/g, "").slice(0, 80);
+   $("guestRecipient").textContent = guest.replace(/[<>]/g, "").slice(0, 80);
   }
 
-  text("envelopeNames", `${groom} & ${bride}`);
+  text("envelopeNames", `${displayFirst} & ${displaySecond}`);
   text("envelopeDate", formatDate(data.akadDate || data.receptionDate));
 
-  addNames($("heroNames"), groom, bride);
+  addNames($("heroNames"), displayFirst, displaySecond);
 
   text("heroDate", formatDate(data.akadDate || data.receptionDate));
-  text("introNames", `With love, ${groom} & ${bride}`);
+  text("introNames", `With love, ${displayFirst} & ${displaySecond}`);
 
   text("groomName", groom);
   text("brideName", bride);
@@ -580,31 +545,20 @@
    `Putri dari\n${data.brideFather || ""} & ${data.brideMother || ""}`
   );
 
-  // Foto mempelai pelanggan atau foto demo.
   renderCouplePhotos(data, isDemo);
 
-  // Galeri demo sudah dibuat oleh renderDemoPhotos().
-  // Untuk undangan pelanggan, tampilkan galeri unggahan.
   if (!isDemo) {
    renderCustomerGallery(data.gallery);
   }
 
   text(
    "akadInfo",
-   [
-    formatDate(data.akadDate),
-    formatTime(data.akadTime),
-    data.akadLocation || ""
-   ].filter(Boolean).join("\n")
+   [formatDate(data.akadDate), formatTime(data.akadTime), data.akadLocation || ""].filter(Boolean).join("\n")
   );
 
   text(
    "receptionInfo",
-   [
-    formatDate(data.receptionDate),
-    formatTime(data.receptionTime),
-    data.receptionLocation || ""
-   ].filter(Boolean).join("\n")
+   [formatDate(data.receptionDate), formatTime(data.receptionTime), data.receptionLocation || ""].filter(Boolean).join("\n")
   );
 
   text("akadAddress", data.akadAddress || "");
@@ -627,50 +581,30 @@
   }
 
   text("bankName", data.bankName || "Informasi Rekening");
-  text(
-   "accountNumber",
-   data.accountNumber || "Informasi rekening belum tersedia"
-  );
+  text("accountNumber", data.accountNumber || "Informasi rekening belum tersedia");
   text("accountOwner", data.accountOwner ? `a.n. ${data.accountOwner}` : "");
 
   $("copyAccount").hidden = !data.accountNumber;
 
   const loveStorySection = $("loveStorySection");
   const loveStoryText = String(data.loveStory || "").trim();
-
-  const defaultLoveStory =
-   "Setiap kisah memiliki awal yang sederhana. Dari perkenalan, tumbuh rasa saling mengenal dan memahami. Dalam perjalanan, kami belajar untuk saling menguatkan, menjaga, dan menerima. Kini, dengan penuh syukur dan doa keluarga, kami siap melangkah bersama menuju babak baru kehidupan.";
-
+  const defaultLoveStory = "Setiap kisah memiliki awal yang sederhana. Dari perkenalan, tumbuh rasa saling mengenal dan memahami. Dalam perjalanan, kami belajar untuk saling menguatkan, menjaga, dan menerima. Kini, dengan penuh syukur dan doa keluarga, kami siap melangkah bersama menuju babak baru kehidupan.";
   const loveStoryMode = data.loveStoryMode || "";
-
-  const hideLoveStory =
-   loveStoryMode === "hidden" || data.showLoveStory === false;
-
+  const hideLoveStory = loveStoryMode === "hidden" || data.showLoveStory === false;
   loveStorySection.hidden = hideLoveStory;
-
   if (!hideLoveStory) {
    text("loveStoryHeading", data.loveStoryTitle || "Perjalanan Cinta");
-
-   text(
-    "loveStoryText",
-    loveStoryMode === "custom"
-     ? (loveStoryText || "")
-     : (loveStoryText || defaultLoveStory)
-   );
-
-   text("loveStorySign", `${groom} & ${bride}`);
+   text("loveStoryText", loveStoryMode === "custom" ? (loveStoryText || "") : (loveStoryText || defaultLoveStory));
+   text("loveStorySign", `${displayFirst} & ${displaySecond}`);
   }
 
-  text("closingNames", `${groom} & ${bride}`);
+  text("closingNames", `${displayFirst} & ${displaySecond}`);
 
   startCountdown(data.akadDate, data.akadTime);
 
   $("invitationContent").hidden = false;
   $("pageFooter").hidden = false;
-
-  document.querySelectorAll(".reveal").forEach(el => {
-   el.classList.add("in");
-  });
+  document.querySelectorAll(".reveal").forEach(el => { el.classList.add("in"); });
  }
 
  function startCountdown(dateValue, timeValue) {
@@ -678,49 +612,30 @@
    ["days", "hours", "minutes", "seconds"].forEach(id => text(id, "00"));
    return;
   }
-
   const time = timeValue || "08:00";
   const target = new Date(`${dateValue}T${time}:00+07:00`).getTime();
-
   if (!Number.isFinite(target)) return;
-
   function update() {
    const diff = Math.max(0, target - Date.now());
-
-   const values = {
-    days: Math.floor(diff / 86400000),
-    hours: Math.floor(diff % 86400000 / 3600000),
-    minutes: Math.floor(diff % 3600000 / 60000),
-    seconds: Math.floor(diff % 60000 / 1000)
-   };
-
-   Object.entries(values).forEach(([id, value]) => {
-    text(id, String(value).padStart(2, "0"));
-   });
+   const values = { days: Math.floor(diff / 86400000), hours: Math.floor(diff % 86400000 / 3600000), minutes: Math.floor(diff % 3600000 / 60000), seconds: Math.floor(diff % 60000 / 1000) };
+   Object.entries(values).forEach(([id, value]) => { text(id, String(value).padStart(2, "0")); });
   }
-
   update();
   setInterval(update, 1000);
  }
 
  function showUnavailable(message) {
   $("envelopeScreen").innerHTML = "";
-
   const content = document.createElement("div");
   content.className = "envelope-content";
-
   const heading = document.createElement("h2");
   heading.textContent = "Undangan Belum Tersedia";
   heading.style.cssText = "font:40px var(--serif);color:#786252";
-
   const paragraph = document.createElement("p");
   paragraph.textContent = message;
-  paragraph.style.cssText =
-   "font:16px/1.7 var(--serif);color:#8c7867;margin:20px 0";
-
+  paragraph.style.cssText = "font:16px/1.7 var(--serif);color:#8c7867;margin:20px 0";
   content.append(heading, paragraph);
   $("envelopeScreen").append(content);
-
   $("invitationContent").hidden = true;
   $("pageFooter").hidden = true;
  }
@@ -735,18 +650,13 @@
   $("envelope").classList.add("open");
   $("openInvitation").disabled = true;
   $("openInvitation").textContent = "Membuka undangan…";
-
   if (audio.getAttribute("src")) {
-   audio.play().catch(() => {
-    toast("Musik belum dapat diputar. Gunakan tombol musik untuk mencoba lagi.");
-   });
+   audio.play().catch(() => { toast("Musik belum dapat diputar. Gunakan tombol musik untuk mencoba lagi."); });
   }
-
   setTimeout(() => {
    $("envelopeScreen").classList.add("dismiss");
    document.body.classList.remove("lock");
    $("topbar").classList.add("visible");
-
    if (!slug && !previewMode) {
     $("floatingOrder").classList.add("visible");
    }
@@ -755,14 +665,8 @@
 
  $("musicToggle").addEventListener("click", () => {
   if (!audio.getAttribute("src")) return;
-
   if (audio.paused) {
-   audio.play()
-    .then(() => {
-     updateMusicButton();
-     toast("Musik diputar.");
-    })
-    .catch(() => toast("Musik tidak dapat diputar."));
+   audio.play().then(() => { updateMusicButton(); toast("Musik diputar."); }).catch(() => toast("Musik tidak dapat diputar."));
   } else {
    audio.pause();
    updateMusicButton();
@@ -772,75 +676,38 @@
 
  audio.addEventListener("play", updateMusicButton);
  audio.addEventListener("pause", updateMusicButton);
-
- audio.addEventListener("error", () => {
-  updateMusicButton();
-  toast("File musik tidak dapat dimuat.");
- });
+ audio.addEventListener("error", () => { updateMusicButton(); toast("File musik tidak dapat dimuat."); });
 
  $("copyAccount").addEventListener("click", async () => {
   const number = invitationData?.accountNumber;
-
-  if (!number) {
-   toast("Informasi rekening belum tersedia.");
-   return;
-  }
-
-  try {
-   await navigator.clipboard.writeText(number);
-   toast("Nomor rekening berhasil disalin.");
-  } catch {
-   toast("Tidak dapat menyalin nomor rekening.");
-  }
+  if (!number) { toast("Informasi rekening belum tersedia."); return; }
+  try { await navigator.clipboard.writeText(number); toast("Nomor rekening berhasil disalin."); }
+  catch { toast("Tidak dapat menyalin nomor rekening."); }
  });
 
- window.addEventListener(
-  "scroll",
-  () => $("topbar").classList.toggle("visible", window.scrollY > 280),
-  { passive: true }
- );
+ window.addEventListener("scroll", () => $("topbar").classList.toggle("visible", window.scrollY > 280), { passive: true });
 
  if ("IntersectionObserver" in window) {
-  const observer = new IntersectionObserver(
-   entries => {
-    entries.forEach(entry => {
-     if (entry.isIntersecting) {
-      entry.target.classList.add("in");
-     } else {
-      entry.target.classList.remove("in");
-     }
-    });
-   },
-   { threshold: 0.12 }
-  );
-
+  const observer = new IntersectionObserver(entries => {
+   entries.forEach(entry => {
+    if (entry.isIntersecting) { entry.target.classList.add("in"); } else { entry.target.classList.remove("in"); }
+   });
+  }, { threshold: 0.12 });
   document.querySelectorAll(".reveal").forEach(el => observer.observe(el));
  } else {
   document.querySelectorAll(".reveal").forEach(el => el.classList.add("in"));
  }
 
  $("shareButton").addEventListener("click", async () => {
-  const shareData = {
-   title: document.title,
-   text: "Kami mengundang Anda untuk hadir di hari bahagia kami.",
-   url: location.href
-  };
-
+  const shareData = { title: document.title, text: "Kami mengundang Anda untuk hadir di hari bahagia kami.", url: location.href };
   try {
-   if (navigator.share) {
-    await navigator.share(shareData);
-   } else {
-    await navigator.clipboard.writeText(location.href);
-    toast("Link undangan berhasil disalin.");
-   }
+   if (navigator.share) { await navigator.share(shareData); }
+   else { await navigator.clipboard.writeText(location.href); toast("Link undangan berhasil disalin."); }
   } catch (error) {
-   if (error.name !== "AbortError") {
-    toast("Tidak dapat membagikan tautan.");
-   }
+   if (error.name !== "AbortError") { toast("Tidak dapat membagikan tautan."); }
   }
  });
 
- // RSVP demo.
  const rsvpStorageKey = "sahdong-rsvp-" + (slug || "demo-bsc-01");
  const rsvpForm = $("rsvpForm");
  const attendanceSelect = $("rsvpAttendance");
@@ -848,50 +715,29 @@
  const guestbookList = $("guestbookList");
 
  function readGuestbook() {
-  try {
-   const saved = JSON.parse(localStorage.getItem(rsvpStorageKey) || "[]");
-   return Array.isArray(saved) ? saved : [];
-  } catch {
-   return [];
-  }
+  try { const saved = JSON.parse(localStorage.getItem(rsvpStorageKey) || "[]"); return Array.isArray(saved) ? saved : []; }
+  catch { return []; }
  }
 
  function renderGuestbook() {
   const entries = readGuestbook().slice().reverse();
-
   guestbookList.replaceChildren();
-
   if (!entries.length) {
    const empty = document.createElement("div");
    empty.className = "guestbook-empty";
-   empty.textContent =
-    "Belum ada ucapan. Jadilah yang pertama memberikan doa.";
-
+   empty.textContent = "Belum ada ucapan. Jadilah yang pertama memberikan doa.";
    guestbookList.append(empty);
    return;
   }
-
   entries.slice(0, 10).forEach(entry => {
    const item = document.createElement("article");
    item.className = "guestbook-item";
-
    const name = document.createElement("strong");
    name.textContent = entry.name || "Tamu";
-
    const message = document.createElement("p");
-   message.textContent =
-    entry.message ||
-    (entry.attendance === "Hadir"
-     ? "InsyaAllah hadir."
-     : "Terima kasih atas undangannya.");
-
+   message.textContent = entry.message || (entry.attendance === "Hadir" ? "InsyaAllah hadir." : "Terima kasih atas undangannya.");
    const meta = document.createElement("small");
-   meta.textContent =
-    (entry.attendance || "") +
-    (entry.attendance === "Hadir"
-     ? " · " + (entry.count || 1) + " orang"
-     : "");
-
+   meta.textContent = (entry.attendance || "") + (entry.attendance === "Hadir" ? " · " + (entry.count || 1) + " orang" : "");
    item.append(name, message, meta);
    guestbookList.append(item);
   });
@@ -909,52 +755,24 @@
 
  rsvpForm.addEventListener("submit", event => {
   event.preventDefault();
-
   if (previewMode) return;
-
   const name = $("rsvpName").value.trim();
   const attendance = attendanceSelect.value;
   const message = $("rsvpMessage").value.trim();
-
-  const count =
-   attendance === "Hadir"
-    ? Number($("rsvpCount").value || 1)
-    : 0;
-
-  if (!name || !attendance) {
-   toast("Lengkapi nama dan konfirmasi kehadiran.");
-   return;
-  }
-
+  const count = attendance === "Hadir" ? Number($("rsvpCount").value || 1) : 0;
+  if (!name || !attendance) { toast("Lengkapi nama dan konfirmasi kehadiran."); return; }
   const entries = readGuestbook();
-
-  entries.push({
-   name,
-   attendance,
-   count,
-   message,
-   createdAt: new Date().toISOString()
-  });
-
+  entries.push({ name, attendance, count, message, createdAt: new Date().toISOString() });
   try {
-   localStorage.setItem(
-    rsvpStorageKey,
-    JSON.stringify(entries.slice(-50))
-   );
-
+   localStorage.setItem(rsvpStorageKey, JSON.stringify(entries.slice(-50)));
    rsvpForm.reset();
    countField.hidden = false;
    $("rsvpCount").required = false;
-
    renderGuestbook();
    toast("Terima kasih, konfirmasi dan ucapan tersimpan di demo.");
-
-  } catch {
-   toast("Browser tidak dapat menyimpan data demo ini.");
-  }
+  } catch { toast("Browser tidak dapat menyimpan data demo ini."); }
  });
 
- // Buku tamu simulasi hanya berjalan di demo dan undangan publik.
  if (!previewMode) {
   renderGuestbook();
  }
