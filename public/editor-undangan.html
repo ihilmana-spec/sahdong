@@ -955,7 +955,12 @@ async function uploadPortrait(role) {
     button.textContent = "Mengompres foto...";
 
     const compressedFile = await compressImage(file);
-
+if (!(compressedFile instanceof File)) {
+  throw new Error(
+    "Tes upload: hasil kompresi bukan File. Tipe: " +
+    typeof compressedFile
+  );
+}
     if (compressedFile.size > 5 * 1024 * 1024) {
       throw new Error("Ukuran foto setelah kompresi masih melebihi 5 MB.");
     }
