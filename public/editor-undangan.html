@@ -756,8 +756,9 @@ function showPublished(invitation) {
     "Tanggal aktivasi: " + activation +
     ". Masa aktif sampai: " + expiry + ".";
 
-  window.__sahdongPublicUrl = invitation.public_url || "";
-  const link = invitation.public_url || "";
+  const fallbackUrl = invitation.slug ? (window.location.origin + "/u/" + encodeURIComponent(invitation.slug)) : "";
+  window.__sahdongPublicUrl = invitation.public_url || fallbackUrl;
+  const link = invitation.public_url || fallbackUrl;
 
   if (link) {
     const publicUrl = new URL(link,window.location.origin);
