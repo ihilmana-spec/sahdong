@@ -427,6 +427,10 @@ export async function onRequestPut({ request, env }) {
     delete safeInvitationData.gallery;
     delete safeInvitationData.portraits;
 
+    // Metadata musik hanya boleh dikelola melalui API musik.
+    // Jangan izinkan proses simpan teks mengganti atau menghapusnya.
+    delete safeInvitationData.music;
+
     // Pertahankan metadata galeri dari database.
     if (Array.isArray(oldInvitationData.gallery)) {
       safeInvitationData.gallery = oldInvitationData.gallery;
@@ -439,6 +443,15 @@ export async function onRequestPut({ request, env }) {
       !Array.isArray(oldInvitationData.portraits)
     ) {
       safeInvitationData.portraits = oldInvitationData.portraits;
+    }
+
+    // Pertahankan pilihan musik dari database.
+    if (
+      oldInvitationData.music &&
+      typeof oldInvitationData.music === "object" &&
+      !Array.isArray(oldInvitationData.music)
+    ) {
+      safeInvitationData.music = oldInvitationData.music;
     }
 
     const invitationJson = JSON.stringify(safeInvitationData);
